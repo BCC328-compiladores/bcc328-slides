@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Apresentação da disciplina</title>
+<meta name="author" content="Construção de compiladores I"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/reveal.css"/>
+
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/theme/white.css" id="theme"/>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1 class="title">Apresentação da disciplina</h1><h2 class="author">Construção de compiladores I</h2>
+</section>
+
+<section>
+<section id="slide-orgf56a003">
+<h2 id="orgf56a003">Objetivos</h2>
+<div class="outline-text-2" id="text-orgf56a003">
+</div>
+</section>
+<section id="slide-org8346614">
+<h3 id="org8346614">Objetivos</h3>
+<ul>
+<li>Apresentar a importância da construção de compiladores na formação de um cientista da computação.</li>
+<li>Apresentar a ementa, critérios de avaliação e bibliografia da disciplina.</li>
+
+</ul>
+
+</section>
+<section id="slide-org67bea1f">
+<h3 id="org67bea1f">Objetivos</h3>
+<ul>
+<li>Apresentar a visão geral de um compilador.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org979d61d">
+<h2 id="org979d61d">Motivação</h2>
+<div class="outline-text-2" id="text-org979d61d">
+</div>
+</section>
+<section id="slide-org2adc877">
+<h3 id="org2adc877">Compiladores</h3>
+<ul>
+<li>Peça central da ciência da computação.
+<ul>
+<li>Tarefa: traduzir programas de "alto nível" em código de máquina</li>
+<li>Tecnologia responsável pelo grande avanço da computação!</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org075d5c4">
+<h3 id="org075d5c4">Compiladores</h3>
+<ul>
+<li>Desenvolver um compilador permite consolidar conhecimentos de:
+<ul>
+<li>Estruturas de dados e algoritmos (árvores, grafos, etc&#x2026;)</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org69dae93">
+<h3 id="org69dae93">Compiladores</h3>
+<ul>
+<li>Desenvolver um compilador permite consolidar conhecimentos de:
+<ul>
+<li>Teoria da computação (autômatos e gramáticas)</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org06f45bc">
+<h3 id="org06f45bc">Compiladores</h3>
+<ul>
+<li>Desenvolver um compilador permite consolidar conhecimentos de:
+<ul>
+<li>Engenharia de software (testes e arquitetura de software)</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org36cd6a6">
+<h3 id="org36cd6a6">Compiladores</h3>
+<ul>
+<li>Desenvolver um compilador permite consolidar conhecimentos de:
+<ul>
+<li>Arquitetura de computadores (conhecer detalhes do alvo de compilação)</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgca29a00">
+<h3 id="orgca29a00">Compiladores</h3>
+<ul>
+<li>Possivelmente, o primeiro artefato de software complexo produzido por estudantes de graduação.</li>
+
+</ul>
+
+</section>
+<section id="slide-org162378a">
+<h3 id="org162378a">Compiladores</h3>
+<ul>
+<li>Compiladores aparecem em toda parte!
+<ul>
+<li>Navegadores web (JavaScript e WebASM)</li>
+<li>Monitoramento do Kernel Linux (eBPF)</li>
+<li>Várias aplicações possuem linguagens para customização.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgd089f7c">
+<h3 id="orgd089f7c">Compiladores</h3>
+<ul>
+<li>Projeto de compiladores envolve problemas difíceis:
+<ul>
+<li>Executam várias tarefas e devem ser eficientes.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org0036656">
+<h3 id="org0036656">Compiladores</h3>
+<ul>
+<li>Projeto de compiladores envolve problemas difíceis:
+<ul>
+<li>Responsáveis por bom uso de uma linguagem.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgaba973d">
+<h3 id="orgaba973d">Compiladores</h3>
+<ul>
+<li>Projeto de compiladores envolve problemas difíceis:
+<ul>
+<li>Devem ocultar detalhes de arquiteturas de desenvolvedores.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org4cb927a">
+<h3 id="org4cb927a">Compiladores</h3>
+<ul>
+<li>Provavelmente, uma das áreas mais consolidadas da ciência da computação!</li>
+
+</ul>
+
+</section>
+<section id="slide-org50e6fa1">
+<h3 id="org50e6fa1">Compiladores</h3>
+<ul>
+<li>Vários pesquisadores da área foram agraciados com o Turing Award!
+<ul>
+<li>John Backus, Barbara Liskov, Niklaus Wirth, Edsger Djikstra e C.A. Hoare.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgd0250c9">
+<h3 id="orgd0250c9">Compiladores</h3>
+<ul>
+<li>Mas porque criar compiladores?
+<ul>
+<li>Criar novas linguagens para facilitar tarefas de desenvolvimento.</li>
+<li>Exemplos: Lua, Elixir, Elm, Rust, Scala e outras linguagens</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgf87de0b">
+<h3 id="orgf87de0b">Compiladores</h3>
+<ul>
+<li>Conteúdo aplica-se somente a criar novas linguagens?
+<ul>
+<li>Não! Diversas ferramentas úteis utilizam conceitos de compiladores.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org95b9692">
+<h2 id="org95b9692">Ementa</h2>
+<div class="outline-text-2" id="text-org95b9692">
+</div>
+</section>
+<section id="slide-orgbbf1ee9">
+<h3 id="orgbbf1ee9">Ementa</h3>
+<ul>
+<li>Revisão de programação funcional em Haskell</li>
+<li>Introdução ao processo de compilação e interpretação</li>
+
+</ul>
+
+</section>
+<section id="slide-orgce52c6e">
+<h3 id="orgce52c6e">Ementa</h3>
+<ul>
+<li>Análise léxica</li>
+
+<li>Análise sintática</li>
+
+<li>Análise semântica e geração de código intermediário.</li>
+
+</ul>
+
+
+</section>
+</section>
+<section>
+<section id="slide-org183431c">
+<h2 id="org183431c">Bibliografia</h2>
+<div class="outline-text-2" id="text-org183431c">
+</div>
+</section>
+<section id="slide-org9b45f26">
+<h3 id="org9b45f26">Bibliografia</h3>
+<ul>
+<li>Construindo Compiladores. Cooper, Keith D. ; Torcson, Linda</li>
+
+<li>Compiladores: Princípios, técnicas e ferramentas. Aho, Alfred; Lam, Monica; Sethi, Ravi; Ullman, Jeffrey.</li>
+
+<li>Modern compiler implementation in ML. Appel, Andrew.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orge203df3">
+<h2 id="orge203df3">Materiais de apoio</h2>
+<div class="outline-text-2" id="text-orge203df3">
+</div>
+</section>
+<section id="slide-orgae8768c">
+<h3 id="orgae8768c">Materiais de apoio</h3>
+<ul>
+<li>Slides e código de exemplo serão disponibilizados no seguinte repositório online.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org1734558">
+<h2 id="org1734558">Critérios de Avaliação</h2>
+<div class="outline-text-2" id="text-org1734558">
+</div>
+</section>
+<section id="slide-orgfe8bb0a">
+<h3 id="orgfe8bb0a">Critérios de Avaliação</h3>
+<ul>
+<li>Uma avaliação no valor de 4,0 pontos.</li>
+
+<li>Trabalhos práticos e exercícios de programação no valor 6,0 pontos.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgb152343">
+<h3 id="orgb152343">Critérios de Avaliação</h3>
+<ul>
+<li>Avaliação versa sobre o conteúdo teórico da disciplina:
+<ul>
+<li>Funcionamento de algoritmos</li>
+<li>Semântica de linguagens de programação</li>
+<li>Sistemas de tipos</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org916450b">
+<h3 id="org916450b">Critérios de Avaliação</h3>
+<ul>
+<li>Trabalhos práticos sobre o conteúdo
+<ul>
+<li>Extensão de protótipos de compiladores apresentados na disciplina.</li>
+<li>Desenvolvimento de um projeto de ferramenta que utiliza técnicas de compilação.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orge42e823">
+<h3 id="orge42e823">Critérios de Avaliação</h3>
+<ul>
+<li>Entregas de trabalhos
+<ul>
+<li>Entrega 1: 25/10/2023</li>
+<li>Entrega 2: 18/11/2023</li>
+<li>Entrega 3: 29/01/2024</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgb3feb1c">
+<h3 id="orgb3feb1c">Critérios de Avaliação</h3>
+<ul>
+<li>Exercícios de programação
+<ul>
+<li>Datas de entrega a serem determinadas na plataforma Moodle.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgb1ae951">
+<h3 id="orgb1ae951">Critérios de Avaliação</h3>
+<ul>
+<li>Data avaliação: 05/02/2024</li>
+
+</ul>
+
+</section>
+<section id="slide-org4d321aa">
+<h3 id="org4d321aa">Exame especial</h3>
+<ul>
+<li>Mínimo de 75% de frequência e nota inferior a 6,0.</li>
+
+<li>Exame especial parcial para alunos que perderam uma avaliação.
+<ul>
+<li>Envolverá tarefas de codificação e atividades teóricas (em papel).</li>
+
+</ul></li>
+
+<li>Detalhes: Resolução CEPE 2880 de 05/2006</li>
+
+</ul>
+
+</section>
+<section id="slide-org532dfac">
+<h3 id="org532dfac">Exame especial</h3>
+<ul>
+<li>Data do exame especial: 19/02/2024</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org1de1c3c">
+<h2 id="org1de1c3c">Software</h2>
+<div class="outline-text-2" id="text-org1de1c3c">
+</div>
+</section>
+<section id="slide-org42a9791">
+<h3 id="org42a9791">Software</h3>
+<ul>
+<li>Trabalhos e códigos de exemplo serão desenvolvidos utilizando Haskell.</li>
+
+<li>Utilizaremos diversas bibliotecas da linguagem Haskell.</li>
+
+</ul>
+
+</section>
+<section id="slide-org23a0797">
+<h3 id="org23a0797">Software</h3>
+<ul>
+<li>Infraestrutura para desenvolvimento de trabalhos está configurada utilizando o gerenciador de pacotes <a href="https://nixos.org/">Nix</a>.</li>
+
+<li>Gerenciador de pacotes Nix pode ser instalado em Windows, Linux e MacOS.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgdd9dadc">
+<h3 id="orgdd9dadc">Software</h3>
+<ul>
+<li>Utilizando o Nix, você conseguirá um ambiente consistente para desenvolvimento de trabalhos e exercícios.
+<ul>
+<li>Versão correta de compilador, bibliotecas e ferramentas auxiliares.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orge88fcc0">
+<h3 id="orge88fcc0">Software</h3>
+<ul>
+<li>Recomanda-se <b><b>FORTEMENTE</b></b> o uso do Nix para garantir o mesmo ambiente de execução para trabalhos.</li>
+
+<li>Código que não executar no ambiente, não será considerado para correção.</li>
+
+</ul>
+
+
+</section>
+</section>
+<section>
+<section id="slide-orgc58426b">
+<h2 id="orgc58426b">Outras informações</h2>
+<div class="outline-text-2" id="text-orgc58426b">
+</div>
+</section>
+<section id="slide-org2749272">
+<h3 id="org2749272">Informações</h3>
+<ul>
+<li>Toda informação da disciplina será disponibilizada na plataforma Moodle.</li>
+
+<li>Email: rodrigo.ribeiro@ufop.edu.br</li>
+
+</ul>
+
+</section>
+<section id="slide-org5da25ce">
+<h3 id="org5da25ce">Atendimento</h3>
+<ul>
+<li>Segunda-feira: 08:00 - 10:00h e 15:30-17:30h.</li>
+<li>Quarta-feira: 08:00 - 10:00h.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgaaac326">
+<h3 id="orgaaac326">Finalizando</h3>
+<ul>
+<li>Tenhamos todos um excelente semestre de trabalho!</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgc704758">
+<h2 id="orgc704758">Motivação</h2>
+<div class="outline-text-2" id="text-orgc704758">
+</div>
+</section>
+<section id="slide-org173e9aa">
+<h3 id="org173e9aa">Compiladores</h3>
+<ul>
+<li>Peça central da ciência da computação.
+<ul>
+<li>Tarefa: traduzir programas de "alto nível" em código de máquina</li>
+<li>Tecnologia responsável pelo grande avanço da computação!</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgd424d7f">
+<h3 id="orgd424d7f">Compiladores</h3>
+<ul>
+<li>Nosso objetivo, responder a pergunta:
+<ul>
+<li>Como um compilador funciona?</li>
+
+</ul></li>
+
+</ul>
+
+
+<div id="org4aad1ae" class="figure">
+<p><img src="./imgs/image1.png" alt="image1.png" />
+</p>
+</div>
+
+
+</section>
+<section id="slide-org6ee6dd9">
+<h3 id="org6ee6dd9">Compiladores</h3>
+<ul>
+<li>Um compilador deve:
+<ul>
+<li>Detectar todos os erros e reportá-los</li>
+<li>Deve preservar a semântica do programa de entrada.</li>
+<li>Realizar interface do programa com o SO.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgd3dcd8a">
+<h3 id="orgd3dcd8a">Interpretadores</h3>
+<ul>
+<li>Estrutura geral de um interpretador</li>
+
+</ul>
+
+
+<div id="orgd18ea40" class="figure">
+<p><img src="./imgs/image2.png" alt="image2.png" />
+</p>
+</div>
+
+
+</section>
+<section id="slide-org8b7c1f8">
+<h3 id="org8b7c1f8">Compiladores</h3>
+<ul>
+<li>Estrutura de alto nível</li>
+
+</ul>
+
+
+<div id="orge818faa" class="figure">
+<p><img src="./imgs/image3.png" alt="image3.png" />
+</p>
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-org8afc422">
+<h2 id="org8afc422">Frontend</h2>
+<div class="outline-text-2" id="text-org8afc422">
+</div>
+</section>
+<section id="slide-orgfebdfa9">
+<h3 id="orgfebdfa9">Frontend</h3>
+<ul>
+<li>Responsável pela análise do código fonte.
+<ul>
+<li>Deve detectar e reportar todos os erros antes da geração de código.</li>
+<li>Deve produzir uma representação intermediária do código fonte.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgf68f145">
+<h3 id="orgf68f145">Frontend</h3>
+<ul>
+<li>Estrutura do frontend</li>
+
+</ul>
+
+
+<div id="org2ff321a" class="figure">
+<p><img src="./imgs/image4.png" alt="image4.png" />
+</p>
+</div>
+
+
+</section>
+</section>
+<section>
+<section id="slide-orga033239">
+<h2 id="orga033239">Estrutura de um frontend</h2>
+<div class="outline-text-2" id="text-orga033239">
+</div>
+</section>
+<section id="slide-org1fea2aa">
+<h3 id="org1fea2aa">Analisador léxico</h3>
+<ul>
+<li>Componente responsável por identificar elementos do "alfabeto" da linguagem
+<ul>
+<li>Normalmente chamados de "tokens".</li>
+
+</ul></li>
+
+<li>Responsável por eliminar espaços em branco e comentários da entrada.</li>
+
+</ul>
+
+</section>
+<section id="slide-orge899883">
+<h3 id="orge899883">Analisador léxico</h3>
+<ul>
+<li>Capaz de identificar erros simples de digitação de palavras chave.
+<ul>
+<li>Ex: "wihle" ao invés de "while".</li>
+
+</ul></li>
+
+<li>Resultado: Lista de tokens.</li>
+
+<li>Formalismo: autômatos finitos e linguagens regulares.</li>
+
+</ul>
+
+
+</section>
+<section id="slide-org23f8362">
+<h3 id="org23f8362">Analisador sintático</h3>
+<ul>
+<li>Componente responsável por identificar estrutura gramatical.</li>
+
+<li>Capaz de identificar uma grande quantidade de erros.
+<ul>
+<li>Ex. Esquecer um ";" no fim de um comando.</li>
+<li>Ex. Não usar parêntesis balanceados.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgef83e58">
+<h3 id="orgef83e58">Analisador sintático</h3>
+<ul>
+<li>Resultado: Árvore de sintaxe abstrata (AST).</li>
+
+<li>Formalismo: Gramáticas livres de contexto e autômatos de pilha.</li>
+
+</ul>
+
+
+</section>
+<section id="slide-org5d86fb3">
+<h3 id="org5d86fb3">Analisador semântico</h3>
+<ul>
+<li>Responsável por validar regras semânticas da linguagem
+<ul>
+<li>Todo uso deve possuir declaração correspondente.</li>
+<li>Regras de tipo.</li>
+
+</ul></li>
+
+<li>Resultado: AST com anotações de tipos.</li>
+
+</ul>
+
+</section>
+<section id="slide-org04cdd78">
+<h3 id="org04cdd78">Gerador de IR</h3>
+<ul>
+<li>Responsável por converter a AST em uma representação um pouco
+mais próxima do código final.</li>
+
+<li>Em algumas situações, a própria AST é uma possível IR.</li>
+
+</ul>
+
+</section>
+<section id="slide-org8c8ed05">
+<h3 id="org8c8ed05">Gerador de IR</h3>
+<ul>
+<li>Neste curso, vamos usar a LLVM.
+<ul>
+<li>Framework para construção de backends usando a forma SSA.</li>
+
+</ul></li>
+
+<li>Também veremos como gerar código para uma máquina de pilha.
+<ul>
+<li>Simplificação da JVM / EVM.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orge5db1a9">
+<h2 id="orge5db1a9">Conclusão</h2>
+<div class="outline-text-2" id="text-orge5db1a9">
+</div>
+</section>
+<section id="slide-orgb685a47">
+<h3 id="orgb685a47">Conclusão</h3>
+<ul>
+<li>Próximas aulas: revisão de Haskell
+<ul>
+<li>Compilador de um subconjunto de markdown.</li>
+
+</ul></li>
+
+</ul>
+</section>
+</section>
+</div>
+</div>
+<script src="file:///home/rodrigo/reveal.js/dist/reveal.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/markdown/markdown.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/notes/notes.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/search/search.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/zoom/zoom.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+overview: true,
+
+transition: 'convex',
+transitionSpeed: 'default',
+
+// Plugins with reveal.js 4.x
+plugins: [ RevealMarkdown, RevealNotes, RevealSearch, RevealZoom ],
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+]
+
+});
+</script>
+</body>
+</html>

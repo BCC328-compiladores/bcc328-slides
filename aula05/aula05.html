@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Análise Léxica</title>
+<meta name="author" content="Construção de compiladores I"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/reveal.css"/>
+
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/theme/white.css" id="theme"/>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1 class="title">Análise Léxica</h1><h2 class="author">Construção de compiladores I</h2>
+</section>
+
+
+<section>
+<section id="slide-org00b4150">
+<h2 id="org00b4150">Objetivos</h2>
+<div class="outline-text-2" id="text-org00b4150">
+</div>
+</section>
+<section id="slide-org2fdacb5">
+<h3 id="org2fdacb5">Objetivos</h3>
+<ul>
+<li>Apresentar a linguagem a ser utilizada para exposição
+dos conceitos da disciplina.</li>
+
+<li>Definir a etapa de análise léxica e apresentar um analisador
+léxico ad-hoc para a linguagem considerada.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgcf5fc12">
+<h2 id="orgcf5fc12">Linguagem Imp</h2>
+<div class="outline-text-2" id="text-orgcf5fc12">
+</div>
+</section>
+<section id="slide-org1d661c0">
+<h3 id="org1d661c0">Linguagem Imp</h3>
+<ul>
+<li>Linguagem simples utilizada para exposição dos conceitos da disciplina.</li>
+
+<li>Permite a análise de problemas recorrentes no projeto de compiladores.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgdcc7499">
+<h3 id="orgdcc7499">Linguagem Imp</h3>
+<ul>
+<li>Porém, como especificar uma linguagem de programação?</li>
+
+</ul>
+
+</section>
+<section id="slide-org598591e">
+<h3 id="org598591e">Linguagem Imp</h3>
+<ul>
+<li>Sintaxe definida usando gramáticas livres de contexto.
+<ul>
+<li>Alguns elementos são descritos por Expressões regulares.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orged040de">
+<h3 id="orged040de">Linguagem Imp</h3>
+<ul>
+<li>Elementos \(\mathrm{léxicos}\) são representados utilizando pela string propriamente dita
+<ul>
+<li>Ex.: \(\mathrm{if}\), \(\mathrm{while}\) e outras palavras reservadas.</li>
+
+</ul></li>
+
+<li>Outros elementos léxicos: identificadores e números.</li>
+
+</ul>
+
+</section>
+<section id="slide-org4b41c43">
+<h3 id="org4b41c43">Linguagem Imp</h3>
+<ul>
+<li>Identificadores: \(\mathrm{letter(letter + digit)^*}\)
+<ul>
+<li>\(\mathrm{letter = a + b + c + ... + A + B + ...}\)</li>
+<li>\(\mathrm{digit = 0 + 1 + ... + 9}\)</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgd93efcf">
+<h3 id="orgd93efcf">Linguagem Imp</h3>
+<ul>
+<li>Comentários:
+<ul>
+<li>Linha: \(\textrm{// este é um comentário.}\)</li>
+<li>Bloco: \(\textrm{/* este é um comentário. */}\)</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgb3d4747">
+<h3 id="orgb3d4747">Linguagem Imp</h3>
+<ul>
+<li>Sintaxe de Imp</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+Program   & \to  & Stmts\\
+Stmts     & \to & Statement\:\:Stmts\,\mid\,\lambda\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org1e385b9">
+<h3 id="org1e385b9">Linguagem Imp</h3>
+<ul>
+<li>Sintaxe de Imp</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+Statement & \to  & \mathtt{skip ;}\:\:\mid\:\:Type\:\:\mathrm{id}\:\:Init \mathrm{;} \\
+          & \mid & \mathrm{id}\:\:\mathtt{:=}\:\:Expr\mathrm{;}\\
+          & \mid & \mathtt{read}\:\:\mathrm{id ;}\:\:\mid\:\:\mathtt{print}\:\:Expr \mathrm{;}\\
+          & \mid & \mathtt{if}\:\:Expr\:\:\mathtt{then}\:\:Block\\
+          & \mid & \mathtt{if}\:\:Expr\:\:\mathtt{then}\:\:Block\:\:\mathrm{else}\:\:Block\\
+          & \mid & \mathtt{while}\:\:Expr\:\:Block
+\end{array}
+
+</div>
+
+
+</section>
+<section id="slide-org30b861c">
+<h3 id="org30b861c">Linguagem Imp</h3>
+<ul>
+<li>Sintaxe de Imp (Continuação)</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+Expr & \to  & Expr\:\:Op\:\:Expr\\
+     & \mid & \mathrm{-}\:\: Expr\:\mid\:\mathrm{(} Expr \mathrm{)}\\
+     & \mid & \mathrm{!}\:\: Expr\\
+     & \mid & \mathrm{number}\,\mid\, \mathrm{id}\\
+     & \mid & \mathrm{true}\,\mid\,\mathrm{false}\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org3d72a46">
+<h3 id="org3d72a46">Linguagem Imp</h3>
+<ul>
+<li>Sintaxe de Imp (Continuação)</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+Op   & \to  & \mathrm{+}\:\mid\:\mathrm{-}\:\mid\:\mathrm{*}\:\mid\:\mathrm{/}\\
+     & \mid & \mathrm{\&\&}\:\mid\:\mathrm{<}\:\mid\:\mathrm{==}\\
+Type & \to  & \mathrm{int}\,\mid\,\mathrm{bool}\\
+Block & \to & \mathrm{\{} Statement^* \mathrm{\}}\\
+Init & \to & \mathrm{:=}\:\:Expr\,\mid\,\lambda\\
+\end{array}
+
+</div>
+
+
+</section>
+</section>
+<section>
+<section id="slide-org9b1dfb2">
+<h2 id="org9b1dfb2">Análise léxica</h2>
+<div class="outline-text-2" id="text-org9b1dfb2">
+</div>
+</section>
+<section id="slide-org6eeb6c5">
+<h3 id="org6eeb6c5">Análise léxica</h3>
+<ul>
+<li>Primeira etapa do frontend de um compilador.</li>
+
+<li>Responsável por dividir a entrada em uma sequência de <b>tokens</b>.
+<ul>
+<li>Eliminar espaços em branco e comentários.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orga7f6e2e">
+<h3 id="orga7f6e2e">Análise léxica</h3>
+<ul>
+<li>Token: string que pode ser considerada indivisível pela gramática
+de uma linguagem.</li>
+
+</ul>
+
+</section>
+<section id="slide-org8d6562b">
+<h3 id="org8d6562b">Análise léxica</h3>
+<ul>
+<li>Como implementar um analisador léxico para uma linguagem?</li>
+
+<li>Intuitivamente, um analisador léxico é uma função de tipo</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #4f97d7;">[</span><span style="color: #ce537a; font-weight: bold;">Token</span><span style="color: #4f97d7;">]</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org081f245">
+<h3 id="org081f245">Análise léxica</h3>
+<ul>
+<li>Representação de tokens</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">data</span> <span style="color: #ce537a; font-weight: bold;">Token</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Id</span> <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">Number</span> <span style="color: #ce537a; font-weight: bold;">Int</span> <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">LPAREN</span> <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">RPAREN</span>
+  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">PLUS</span> <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">TIMES</span> <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">MINUS</span> <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">DIV</span> <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">AND</span> <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">NOT</span> 
+  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">ASSIGN</span> <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">SEMI</span> <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">LT</span> <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">EQ</span> <span style="color: #7590db;">...</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org73c1ff3">
+<h3 id="org73c1ff3">Análise léxica</h3>
+<ul>
+<li>Definir uma função de tipo:</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">data</span> <span style="color: #ce537a; font-weight: bold;">Result</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Begin</span> <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">Error</span> <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">Success</span> <span style="color: #4f97d7;">[</span><span style="color: #ce537a; font-weight: bold;">Token</span><span style="color: #4f97d7;">]</span>
+
+<span style="color: #bc6ec5; font-weight: bold;">lexer</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Result</span>
+<span style="color: #bc6ec5; font-weight: bold;">lexer</span> <span style="color: #7590db;">=</span> foldr step <span style="color: #ce537a; font-weight: bold;">Begin</span> <span style="color: #7590db;">.</span> concatMap words <span style="color: #7590db;">.</span> lines
+</pre>
+</div>
+
+</section>
+<section id="slide-org6dff2f9">
+<h3 id="org6dff2f9">Análise léxica</h3>
+<ul>
+<li>Continuação&#x2026;</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">step</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Result</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Result</span>
+<span style="color: #bc6ec5; font-weight: bold;">step</span> <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Error</span> s<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Error</span> s
+<span style="color: #bc6ec5; font-weight: bold;">step</span> s <span style="color: #ce537a; font-weight: bold;">Begin</span> <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">case</span> s <span style="color: #4f97d7; font-weight: bold;">of</span>
+                <span style="color: #2d9574;">"if"</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Success</span> <span style="color: #4f97d7;">[</span><span style="color: #ce537a; font-weight: bold;">IF</span><span style="color: #4f97d7;">]</span>
+                <span style="color: #2d9574;">"then"</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Success</span> <span style="color: #4f97d7;">[</span><span style="color: #ce537a; font-weight: bold;">THEN</span><span style="color: #4f97d7;">]</span>
+                <span style="color: #7590db;">...</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org3921c1a">
+<h3 id="org3921c1a">Análise léxica</h3>
+<ul>
+<li>Apesar de possível, essa abordagem possui problemas.
+<ul>
+<li>Não é escalável.</li>
+<li>Não é simples eliminar comentários com essa estratégia.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgc864b28">
+<h3 id="orgc864b28">Análise léxica</h3>
+<ul>
+<li>Dificuldade com comentários
+<ul>
+<li>Funções <code>lines</code> e <code>words</code> dividem strings em linhas e palavras.</li>
+<li>Problema: comentários em bloco.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org732921b">
+<h3 id="org732921b">Análise léxica</h3>
+<ul>
+<li>Seria possível realizar a análise léxica de forma:
+<ul>
+<li>Sistemática</li>
+<li>Escalável</li>
+<li>Eficiente</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgcc94448">
+<h3 id="orgcc94448">Análise léxica</h3>
+<ul>
+<li>A resposta para as perguntas anteriores é <b>SIM</b></li>
+
+<li>Para resolvermos o dilema da análise léxica usaremos:
+<ul>
+<li>Autômatos finitos determinísticos (AFDs)</li>
+<li>Expressões regulares (ERs)</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org7a6781c">
+<h3 id="org7a6781c">Análise léxica</h3>
+<ul>
+<li>Intuitivamente:
+<ul>
+<li>Processamento da entrada usando AFDs.</li>
+<li>Especificação de lexemas utilizando ERs.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orge99b530">
+<h2 id="orge99b530">Autômatos finitos</h2>
+<div class="outline-text-2" id="text-orge99b530">
+</div>
+</section>
+<section id="slide-org3faacb3">
+<h3 id="org3faacb3">Autômatos finitos</h3>
+<ul>
+<li>Um AFD é uma quíntupla \(M=(E,\Sigma,\delta,i,F)\):
+<ul>
+<li>\(E\): conjunto de estados.</li>
+<li>\(\Sigma\): alfabeto de entrada.</li>
+<li>\(\delta\) : E &times; &Sigma; &rarr; E: função de transição.</li>
+<li>\(i\in E\): estado inicial.</li>
+<li>\(F\subseteq E\): conjunto de estados finais.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orga157784">
+<h3 id="orga157784">Autômatos finitos</h3>
+<ul>
+<li>Representando um autômato em Haskell</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">data</span> <span style="color: #ce537a; font-weight: bold;">DFA</span> a
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">DFA</span> <span style="color: #4f97d7;">{</span>
+      start <span style="color: #7590db;">::</span> a
+    , delta <span style="color: #7590db;">::</span> a <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Char</span> <span style="color: #7590db;">-&gt;</span> a
+    , finals <span style="color: #7590db;">::</span> <span style="color: #bc6ec5;">[</span>a<span style="color: #bc6ec5;">]</span>
+    <span style="color: #4f97d7;">}</span> 
+</pre>
+</div>
+
+</section>
+<section id="slide-orgd7be4dd">
+<h3 id="orgd7be4dd">Autômatos finitos</h3>
+<ul>
+<li>Processando uma string em um DFA</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">deltaStar</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">DFA</span> a <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">-&gt;</span> a
+<span style="color: #bc6ec5; font-weight: bold;">deltaStar</span> m <span style="color: #7590db;">=</span> foldl <span style="color: #4f97d7;">(</span>delta m<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span>start m<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org25164d2">
+<h3 id="org25164d2">Autômatos finitos</h3>
+<ul>
+<li>Relembrando:</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">foldl</span> <span style="color: #7590db;">::</span> <span style="color: #4f97d7;">(</span>b <span style="color: #7590db;">-&gt;</span> a <span style="color: #7590db;">-&gt;</span> b<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">-&gt;</span> b <span style="color: #7590db;">-&gt;</span> <span style="color: #4f97d7;">[</span>a<span style="color: #4f97d7;">]</span> <span style="color: #7590db;">-&gt;</span> b
+<span style="color: #bc6ec5; font-weight: bold;">foldl</span> <span style="color: #4f97d7; font-weight: bold;">_</span> v <span style="color: #4f97d7; font-weight: bold;">[]</span>       <span style="color: #7590db;">=</span> v
+<span style="color: #bc6ec5; font-weight: bold;">foldl</span> f v <span style="color: #4f97d7;">(</span>x <span style="color: #ce537a; font-weight: bold;">:</span> xs<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> foldl <span style="color: #4f97d7;">(</span>f v x<span style="color: #4f97d7;">)</span> xs
+</pre>
+</div>
+
+</section>
+<section id="slide-org49f505d">
+<h3 id="org49f505d">Autômatos finitos</h3>
+<ul>
+<li>Exemplo: Aceitando números.</li>
+
+</ul>
+
+
+<div id="org68aba7a" class="figure">
+<p><img src="./imgs/image1.png" alt="image1.png" />
+</p>
+</div>
+
+
+</section>
+<section id="slide-org1c1d485">
+<h3 id="org1c1d485">Autômatos finitos</h3>
+<ul>
+<li>Exemplo em código Haskell</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">numberDFA</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">DFA</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Maybe</span> <span style="color: #ce537a; font-weight: bold;">Bool</span><span style="color: #4f97d7;">)</span>
+<span style="color: #bc6ec5; font-weight: bold;">numberDFA</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">DFA</span> <span style="color: #4f97d7;">{</span>
+      start <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #ce537a; font-weight: bold;">False</span>
+    , delta <span style="color: #7590db;">=</span> numberTrans
+    , finals <span style="color: #7590db;">=</span> <span style="color: #bc6ec5;">[</span><span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #ce537a; font-weight: bold;">True</span><span style="color: #bc6ec5;">]</span>
+    <span style="color: #4f97d7;">}</span>
+    <span style="color: #4f97d7; font-weight: bold;">where</span>
+      numberTrans <span style="color: #ce537a; font-weight: bold;">Nothing</span> <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Nothing</span>
+      numberTrans <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #ce537a; font-weight: bold;">False</span><span style="color: #4f97d7;">)</span> c
+        <span style="color: #7590db;">|</span> isDigit c <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #ce537a; font-weight: bold;">True</span>
+        <span style="color: #7590db;">|</span> otherwise <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Nothing</span>
+      numberTrans <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #ce537a; font-weight: bold;">True</span><span style="color: #4f97d7;">)</span> c
+        <span style="color: #7590db;">|</span> isDigit c <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #ce537a; font-weight: bold;">True</span>
+        <span style="color: #7590db;">|</span> otherwise <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Nothing</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org2433caf">
+<h3 id="org2433caf">Autômatos finitos</h3>
+<ul>
+<li>Exemplo: aceitando palavras chave</li>
+
+</ul>
+
+
+<div id="org95e54ab" class="figure">
+<p><img src="./imgs/image2.png" alt="image2.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-orgabad449">
+<h3 id="orgabad449">Autômatos finitos</h3>
+<ul>
+<li>Exemplo em código Haskell</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">ifDFA</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">DFA</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Maybe</span> <span style="color: #ce537a; font-weight: bold;">Int</span><span style="color: #4f97d7;">)</span>
+<span style="color: #bc6ec5; font-weight: bold;">ifDFA</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">DFA</span> <span style="color: #4f97d7;">{</span>
+      start <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #a45bad;">0</span>
+    , delta <span style="color: #7590db;">=</span> ifTrans
+    , finals <span style="color: #7590db;">=</span> <span style="color: #bc6ec5;">[</span><span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #a45bad;">2</span><span style="color: #bc6ec5;">]</span>
+    <span style="color: #4f97d7;">}</span>
+ <span style="color: #4f97d7; font-weight: bold;">where</span>
+   ifTrans <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #a45bad;">0</span><span style="color: #4f97d7;">)</span> <span style="color: #2d9574;">'i'</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #a45bad;">1</span>
+   ifTrans <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #a45bad;">1</span><span style="color: #4f97d7;">)</span> <span style="color: #2d9574;">'f'</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #a45bad;">2</span>
+   ifTrans <span style="color: #4f97d7; font-weight: bold;">_</span>        <span style="color: #4f97d7; font-weight: bold;">_</span>   <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Nothing</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org708eba3">
+<h3 id="org708eba3">Autômatos finitos</h3>
+<ul>
+<li>Problema: lexemas da linguagem não são disjuntos.
+<ul>
+<li>Considere os tokens \(\mathrm{if}\) e \(\mathrm{iftrue}\)</li>
+<li>Como um AFD deve lidar com essa situação?</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org93d1d53">
+<h3 id="org93d1d53">Autômatos finitos</h3>
+<ul>
+<li>O analisador léxico deve considerar como token o <b>maior prefixo consumido</b>.</li>
+
+<li>Logo, entre \(\mathrm{if}\) e \(\mathrm{iftrue}\), deverá ser escolhido o segundo.
+<ul>
+<li>Como processar o maior prefixo possível?</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org4b1c035">
+<h3 id="org4b1c035">Autômatos finitos</h3>
+<ul>
+<li>Obtendo o maior casamento em um AFD
+<ul>
+<li>1o argumento: Prefixo visto.</li>
+<li>2o argumento: Maior casamento.</li>
+<li>3o argumento: Estado atual.</li>
+
+</ul></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">longest</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">DFA</span> a <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Maybe</span> <span style="color: #ce537a; font-weight: bold;">String</span>
+<span style="color: #bc6ec5; font-weight: bold;">longest</span> m <span style="color: #7590db;">=</span> combine <span style="color: #7590db;">.</span> foldl step <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #2d9574;">""</span>, <span style="color: #ce537a; font-weight: bold;">Nothing</span>, start m<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orgc126067">
+<h3 id="orgc126067">Autômatos finitos</h3>
+<ul>
+<li>Definição de <code>step</code>.</li>
+
+<li>Caso 1: Nenhum casamento encontrado até o momento.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">step</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> pre, <span style="color: #ce537a; font-weight: bold;">Nothing</span>, e<span style="color: #4f97d7;">)</span> c
+<span style="color: #7590db;">|</span> finals m <span style="color: #4f97d7;">(</span>delta m e c<span style="color: #4f97d7;">)</span>
+   <span style="color: #7590db;">=</span> <span style="color: #4f97d7;">(</span> <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #bc6ec5;">(</span>c <span style="color: #ce537a; font-weight: bold;">:</span> pre<span style="color: #bc6ec5;">)</span>
+     , <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #bc6ec5;">(</span>c <span style="color: #ce537a; font-weight: bold;">:</span> pre<span style="color: #bc6ec5;">)</span>
+     , delta m e c<span style="color: #4f97d7;">)</span>
+<span style="color: #7590db;">|</span> otherwise
+   <span style="color: #7590db;">=</span> <span style="color: #4f97d7;">(</span> <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #bc6ec5;">(</span>c <span style="color: #ce537a; font-weight: bold;">:</span> pre<span style="color: #bc6ec5;">)</span>
+     , <span style="color: #ce537a; font-weight: bold;">Nothing</span>
+     , delta m e c<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org6df3746">
+<h3 id="org6df3746">Autômatos finitos</h3>
+<ul>
+<li>Definição de <code>step</code></li>
+
+<li>Caso 2: Casamento já encontrado.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">step</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> pre, <span style="color: #ce537a; font-weight: bold;">Just</span> pre', e<span style="color: #4f97d7;">)</span> c
+<span style="color: #7590db;">|</span> finals m <span style="color: #4f97d7;">(</span>delta m e c<span style="color: #4f97d7;">)</span>
+   <span style="color: #7590db;">=</span> <span style="color: #4f97d7;">(</span> <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #bc6ec5;">(</span>c <span style="color: #ce537a; font-weight: bold;">:</span> pre<span style="color: #bc6ec5;">)</span>
+     , <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #bc6ec5;">(</span>c <span style="color: #ce537a; font-weight: bold;">:</span> pre'<span style="color: #bc6ec5;">)</span>
+     , delta m e c<span style="color: #4f97d7;">)</span>
+<span style="color: #7590db;">|</span> otherwise <span style="color: #7590db;">=</span> <span style="color: #4f97d7;">(</span> <span style="color: #ce537a; font-weight: bold;">Nothing</span>
+              , <span style="color: #ce537a; font-weight: bold;">Just</span> pre'
+              , delta m e c<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org72627bc">
+<h3 id="org72627bc">Autômatos finitos</h3>
+<ul>
+<li>Definição de <code>step</code></li>
+
+<li>Caso 3: Propagação de erros e combine</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">step</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Nothing</span>, val, e<span style="color: #4f97d7;">)</span> c
+<span style="color: #7590db;">=</span> <span style="color: #4f97d7;">(</span> <span style="color: #ce537a; font-weight: bold;">Nothing</span>
+  , val
+  , delta m e c<span style="color: #4f97d7;">)</span>
+
+<span style="color: #bc6ec5; font-weight: bold;">combine</span> <span style="color: #4f97d7;">(</span><span style="color: #4f97d7; font-weight: bold;">_</span>, val, <span style="color: #4f97d7; font-weight: bold;">_</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> reverse <span style="color: #7590db;">&lt;$&gt;</span> val
+</pre>
+</div>
+
+
+</section>
+<section id="slide-orge04e21f">
+<h3 id="orge04e21f">Autômatos finitos</h3>
+<ul>
+<li>Pergunta: como combinar os AFDs para&#x2026;
+<ul>
+<li>Palavras chaves</li>
+<li>Identificadores</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgd117ada">
+<h3 id="orgd117ada">Autômatos finitos</h3>
+<ul>
+<li>Vamos utilizar a construção da união de AFDs.
+<ul>
+<li>União definida em termos de produto</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org9ba8ab6">
+<h3 id="org9ba8ab6">Autômatos finitos</h3>
+<ul>
+<li>Construção de produto</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">dfaProduct</span> <span style="color: #7590db;">::</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Eq</span> a, <span style="color: #ce537a; font-weight: bold;">Eq</span> b<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=&gt;</span> <span style="color: #ce537a; font-weight: bold;">DFA</span> a <span style="color: #7590db;">-&gt;</span>
+                              <span style="color: #ce537a; font-weight: bold;">DFA</span> b <span style="color: #7590db;">-&gt;</span>
+                              <span style="color: #4f97d7;">(</span><span style="color: #bc6ec5;">(</span>a,b<span style="color: #bc6ec5;">)</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Bool</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">DFA</span> <span style="color: #4f97d7;">(</span>a, b<span style="color: #4f97d7;">)</span>
+<span style="color: #bc6ec5; font-weight: bold;">dfaProduct</span> m1 m2 fin
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">DFA</span> <span style="color: #4f97d7;">{</span>
+      start <span style="color: #7590db;">=</span> <span style="color: #bc6ec5;">(</span>start m1, start m2<span style="color: #bc6ec5;">)</span>
+    , delta <span style="color: #7590db;">=</span> delta'
+    , finals <span style="color: #7590db;">=</span> fin
+    <span style="color: #4f97d7;">}</span>
+    <span style="color: #4f97d7; font-weight: bold;">where</span>
+      delta' <span style="color: #4f97d7;">(</span>e1,e2<span style="color: #4f97d7;">)</span> c <span style="color: #7590db;">=</span> <span style="color: #4f97d7;">(</span>delta m1 e1 c, delta m2 e2 c<span style="color: #4f97d7;">)</span>  
+</pre>
+</div>
+
+</section>
+<section id="slide-org2d4bab5">
+<h3 id="org2d4bab5">Autômatos finitos</h3>
+<ul>
+<li>Definindo a união</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">unionDFA</span> <span style="color: #7590db;">::</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Eq</span> a, <span style="color: #ce537a; font-weight: bold;">Eq</span> b<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=&gt;</span> <span style="color: #ce537a; font-weight: bold;">DFA</span> a <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">DFA</span> b <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">DFA</span> <span style="color: #4f97d7;">(</span>a,b<span style="color: #4f97d7;">)</span>
+<span style="color: #bc6ec5; font-weight: bold;">unionDFA</span> m1 m2 <span style="color: #7590db;">=</span> dfaProduct m1 m2 g
+  <span style="color: #4f97d7; font-weight: bold;">where</span>
+    g <span style="color: #4f97d7;">(</span>e1, e2<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> finals m1 e1 <span style="color: #7590db;">||</span> finals m2 e2
+</pre>
+</div>
+
+</section>
+<section id="slide-org81db57b">
+<h3 id="org81db57b">Autômatos finitos</h3>
+<ul>
+<li>Resolvendo o problema entre "if" e "ifblabla".</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">ifOrIdentDFA</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">DFA</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Maybe</span> <span style="color: #ce537a; font-weight: bold;">Int</span>, <span style="color: #ce537a; font-weight: bold;">Maybe</span> <span style="color: #ce537a; font-weight: bold;">Int</span><span style="color: #4f97d7;">)</span>
+<span style="color: #bc6ec5; font-weight: bold;">ifOrIdentDFA</span> <span style="color: #7590db;">=</span> unionDFA ifDFA identDFA
+</pre>
+</div>
+
+
+</section>
+</section>
+<section>
+<section id="slide-org36fe5a0">
+<h2 id="org36fe5a0">Concluindo</h2>
+<div class="outline-text-2" id="text-org36fe5a0">
+</div>
+</section>
+<section id="slide-orgc787c67">
+<h3 id="orgc787c67">Concluindo</h3>
+<ul>
+<li>Apresentamos a linguagem IMP que será usada neste curso.</li>
+
+<li>Discutimos como implementar análise léxica.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgc196d2f">
+<h3 id="orgc196d2f">Concluindo</h3>
+<ul>
+<li>Mostramos que AFDs são um formalismo apropriado para denotar
+analisadores léxicos.</li>
+
+<li>Próxima aula: Especificando lexemas utilizando expressões regulares.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org94ea931">
+<h2 id="org94ea931">Exercícios</h2>
+<div class="outline-text-2" id="text-org94ea931">
+</div>
+</section>
+<section id="slide-org6ff8878">
+<h3 id="org6ff8878">Exercícios</h3>
+<ul>
+<li>Utilize as implementações de AFDs para criar um analisador léxico para a linguagem IMP.
+Seu programa deve processar um programa de entrada e imprimir a lista de tokens reconhecidos.</li>
+
+</ul>
+</section>
+</section>
+</div>
+</div>
+<script src="file:///home/rodrigo/reveal.js/dist/reveal.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/markdown/markdown.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/notes/notes.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/search/search.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/zoom/zoom.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+overview: true,
+
+transition: 'convex',
+transitionSpeed: 'default',
+
+// Plugins with reveal.js 4.x
+plugins: [ RevealMarkdown, RevealNotes, RevealSearch, RevealZoom ],
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+]
+
+});
+</script>
+</body>
+</html>

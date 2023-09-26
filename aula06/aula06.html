@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Expressões regulares</title>
+<meta name="author" content="Construção de compiladores I"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/reveal.css"/>
+
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/theme/white.css" id="theme"/>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1 class="title">Expressões regulares</h1><h2 class="author">Construção de compiladores I</h2>
+</section>
+
+<section>
+<section id="slide-org87748a5">
+<h2 id="org87748a5">Objetivos</h2>
+<div class="outline-text-2" id="text-org87748a5">
+</div>
+</section>
+<section id="slide-orgcb69308">
+<h3 id="orgcb69308">Objetivos</h3>
+<ul>
+<li>Apresentar como utilizar expressões regulares para
+especificar a estrutura léxica de linguagens.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgc34738b">
+<h3 id="orgc34738b">Objetivos</h3>
+<ul>
+<li>Mostrar como produzir autômatos não determinísticos a partir de expressões regulares.</li>
+
+<li>Mostrar como obter um autômato determinístico a partir de um não determinístico.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgd052479">
+<h2 id="orgd052479">Expressões regulares</h2>
+<div class="outline-text-2" id="text-orgd052479">
+</div>
+</section>
+<section id="slide-orgb26953b">
+<h3 id="orgb26953b">Expressões regulares</h3>
+<ul>
+<li>Forma algébrica para especificar linguagens regulares.</li>
+
+<li>Linguagens regulares: aceitas por AFDs</li>
+
+</ul>
+
+</section>
+<section id="slide-org6b92b9a">
+<h3 id="org6b92b9a">Expressões regulares</h3>
+<ul>
+<li>Sintaxe</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+e & \to  & \emptyset\:\mid\:\lambda\:\mid\: a\:\mid\:e\,e\:\mid\:e\,+\,e\:\mid\:e^*\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgc47fc01">
+<h3 id="orgc47fc01">Expressões regulares</h3>
+<ul>
+<li>Expressões regulares denotam <b>linguagens</b>.</li>
+
+</ul>
+
+</section>
+<section id="slide-org4b16c70">
+<h3 id="org4b16c70">Expressões regulares</h3>
+<ul>
+<li>Semântica:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+\lbrack\!\lbrack \emptyset \rbrack\!\rbrack    & =  & \emptyset\\
+\lbrack\!\lbrack \lambda \rbrack\!\rbrack      & =  & \{\lambda\}\\
+\lbrack\!\lbrack a \rbrack\!\rbrack            & =  & \{a\}\\
+\lbrack\!\lbrack e_1\!e_2 \rbrack\!\rbrack     & =  & \lbrack\!\lbrack e_1\rbrack\!\rbrack\:\lbrack\!\lbrack e_2\rbrack\!\rbrack\\
+\lbrack\!\lbrack e_1\!+\!e_2 \rbrack\!\rbrack  & =  & \lbrack\!\lbrack e_1\rbrack\!\rbrack\!\cup\!\lbrack\!\lbrack e_2\rbrack\!\rbrack\\
+\lbrack\!\lbrack e_1^*\rbrack\!\rbrack  & =  & \lbrack\!\lbrack e_1\rbrack\!\rbrack^*\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgf94c5f8">
+<h3 id="orgf94c5f8">Expressões regulares</h3>
+<ul>
+<li>Expressões regulares são equivalentes a <b>autômatos finitos não determinísticos</b>.</li>
+
+<li>Equivalência definida pela <b>construção de Thompson</b>.</li>
+
+</ul>
+
+
+</section>
+</section>
+<section>
+<section id="slide-org8a5c943">
+<h2 id="org8a5c943">Autômatos não determinísticos</h2>
+<div class="outline-text-2" id="text-org8a5c943">
+</div>
+</section>
+<section id="slide-org0ae871d">
+<h3 id="org0ae871d">Autômatos não determinísticos</h3>
+<ul>
+<li>Um AFN \(M=(E,\Sigma,\delta,I,F)\):
+<ul>
+<li>\(E\) : conjunto de estados</li>
+<li>\(\Sigma\): alfabeto</li>
+<li>\(\delta : E\times\Sigma\to\mathcal{P}(E)\): função de transição.</li>
+<li>\(I \subseteq E\): conjunto de estados iniciais.</li>
+<li>\(F\subseteq E\): conjunto de estados finais.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orga350a32">
+<h3 id="orga350a32">Autômatos não determinísticos</h3>
+<ul>
+<li>Exemplo: \((0+1)^*00\)</li>
+
+</ul>
+
+
+<div id="org7fb39cf" class="figure">
+<p><img src="./imgs/image7.png" alt="image7.png" />
+</p>
+</div>
+
+
+</section>
+<section id="slide-org0613cb9">
+<h3 id="org0613cb9">Autômatos não determinísticos.</h3>
+<ul>
+<li>Seja \(M=(E,\Sigma,\delta,I,F)\) um AFN.</li>
+
+<li>O AFD equivalente é \((\mathcal{P}(E),\Sigma,\delta',I, F')\):
+<ul>
+<li>\(\delta'(X,a) = \bigcup_{e\in X}\delta(e,a)\).</li>
+<li>\(F' = \{X\,|\, X \cap F = \emptyset\}\).</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org8721974">
+<h3 id="org8721974">Autômatos não determinísticos</h3>
+<ul>
+<li>Implementação em Haskell</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">data</span> <span style="color: #ce537a; font-weight: bold;">NFA</span> a
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">NFA</span> <span style="color: #4f97d7;">{</span>
+      numberOfStates <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Int</span>
+    , nfaStart <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Set</span> a
+    , nfaDelta <span style="color: #7590db;">::</span> a <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Char</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Set</span> a
+    , nfaFinals <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Set</span> a
+    <span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orgb29b56b">
+<h3 id="orgb29b56b">Autômato não determinísticos</h3>
+<ul>
+<li>Implementação em Haskell</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">subset</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Ord</span> a <span style="color: #7590db;">=&gt;</span> <span style="color: #ce537a; font-weight: bold;">NFA</span> a <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">DFA</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Set</span> a<span style="color: #4f97d7;">)</span>
+<span style="color: #bc6ec5; font-weight: bold;">subset</span> m
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">DFA</span> <span style="color: #4f97d7;">{</span>
+      start  <span style="color: #7590db;">=</span> nfaStart m
+    , delta  <span style="color: #7590db;">=</span> <span style="color: #7590db;">\</span> es c <span style="color: #7590db;">-&gt;</span>
+        Set.unions <span style="color: #bc6ec5;">(</span>map <span style="color: #2d9574;">(</span>flip <span style="color: #67b11d;">(</span>nfaDelta m<span style="color: #67b11d;">)</span> c<span style="color: #2d9574;">)</span> <span style="color: #2d9574;">(</span>Set.elems es<span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">)</span>
+    , finals <span style="color: #7590db;">=</span> <span style="color: #7590db;">\</span> es <span style="color: #7590db;">-&gt;</span> not <span style="color: #bc6ec5;">(</span>disjoint es <span style="color: #2d9574;">(</span>nfaFinals m<span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">)</span>
+    <span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-org96cd377">
+<h2 id="org96cd377">Construção de Thompson</h2>
+<div class="outline-text-2" id="text-org96cd377">
+</div>
+</section>
+<section id="slide-orga884bf0">
+<h3 id="orga884bf0">Construção de Thompson</h3>
+<ul>
+<li>Mostra como obter um AFN a partir de uma expressão regular.</li>
+
+<li>Estratégia utilizada por ferramentas de geração de analisadores léxicos.</li>
+
+</ul>
+
+</section>
+<section id="slide-orge0159b6">
+<h3 id="orge0159b6">Construção de Thompson</h3>
+<ul>
+<li>AFN para \(e = \emptyset\).</li>
+
+</ul>
+
+
+<div id="org04d19b9" class="figure">
+<p><img src="./imgs/image1.png" alt="image1.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-org6ca1357">
+<h3 id="org6ca1357">Construção de Thompson</h3>
+<ul>
+<li>AFN para \(e = \lambda\).</li>
+
+</ul>
+
+
+<div id="orgeab164c" class="figure">
+<p><img src="./imgs/image2.png" alt="image2.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-org44b3986">
+<h3 id="org44b3986">Construção de Thompson</h3>
+<ul>
+<li>AFN para \(e = a\).</li>
+
+</ul>
+
+
+<div id="org027da28" class="figure">
+<p><img src="./imgs/image3.png" alt="image3.png" />
+</p>
+</div>
+
+
+</section>
+<section id="slide-org3983387">
+<h3 id="org3983387">Construção de Thompson</h3>
+<ul>
+<li>AFN para \(e = e_1 + e_2\).</li>
+
+</ul>
+
+
+<div id="orgee9e86b" class="figure">
+<p><img src="./imgs/image4.png" alt="image4.png" />
+</p>
+</div>
+
+
+</section>
+<section id="slide-orgc658996">
+<h3 id="orgc658996">Construção de Thompson</h3>
+<ul>
+<li>AFN para \(e = e_1\:e_2\).</li>
+
+</ul>
+
+
+<div id="org470dccd" class="figure">
+<p><img src="./imgs/image5.png" alt="image5.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-org5258332">
+<h3 id="org5258332">Construção de Thompson</h3>
+<ul>
+<li>AFN para \(e = e_1^*\).</li>
+
+</ul>
+
+
+<div id="orge0efec1" class="figure">
+<p><img src="./imgs/image6.png" alt="image6.png" />
+</p>
+</div>
+
+
+</section>
+<section id="slide-org27e9ba6">
+<h3 id="org27e9ba6">Construção de Thompson</h3>
+<ul>
+<li>Como implementar?
+<ul>
+<li>AFNs para casos bases.</li>
+<li>Funções para combinar AFNs.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org66a4a37">
+<h3 id="org66a4a37">Construção de Thompson</h3>
+<ul>
+<li>AFN para \(\emptyset\).</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">emptyNFA</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">NFA</span> <span style="color: #ce537a; font-weight: bold;">Int</span>
+<span style="color: #bc6ec5; font-weight: bold;">emptyNFA</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">NFA</span> <span style="color: #a45bad;">0</span> Set.empty
+          <span style="color: #4f97d7;">(</span><span style="color: #7590db;">\</span> <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #7590db;">-&gt;</span> Set.empty<span style="color: #4f97d7;">)</span>
+          Set.empty
+</pre>
+</div>
+
+</section>
+<section id="slide-org71f6d04">
+<h3 id="org71f6d04">Construção de Thompson</h3>
+<ul>
+<li>AFN para \(\{\lambda\}\).</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">lambdaNFA</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">NFA</span> <span style="color: #ce537a; font-weight: bold;">Int</span>
+<span style="color: #bc6ec5; font-weight: bold;">lambdaNFA</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">NFA</span> <span style="color: #a45bad;">1</span> one
+          <span style="color: #4f97d7;">(</span><span style="color: #7590db;">\</span> <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #7590db;">-&gt;</span> Set.empty<span style="color: #4f97d7;">)</span>
+          one
+    <span style="color: #4f97d7; font-weight: bold;">where</span>
+      one <span style="color: #7590db;">=</span> Set.singleton <span style="color: #a45bad;">1</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org52d0f5e">
+<h3 id="org52d0f5e">Construção de Thompson</h3>
+<ul>
+<li>AFN para \(\{a\}\).</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">chrNFA</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Char</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">NFA</span> <span style="color: #ce537a; font-weight: bold;">Int</span>
+<span style="color: #bc6ec5; font-weight: bold;">chrNFA</span> c
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">NFA</span> <span style="color: #a45bad;">2</span> zero f one
+    <span style="color: #4f97d7; font-weight: bold;">where</span>
+      zero <span style="color: #7590db;">=</span> Set.singleton <span style="color: #a45bad;">0</span>
+      one <span style="color: #7590db;">=</span> Set.singleton <span style="color: #a45bad;">1</span>
+      err <span style="color: #7590db;">=</span> Set.singleton <span style="color: #a45bad;">2</span>
+      f <span style="color: #a45bad;">0</span> x <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">if</span> c <span style="color: #7590db;">==</span> x <span style="color: #4f97d7; font-weight: bold;">then</span> one
+              <span style="color: #4f97d7; font-weight: bold;">else</span> err
+      f <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #7590db;">=</span> err
+</pre>
+</div>
+
+</section>
+<section id="slide-org81499b3">
+<h3 id="org81499b3">Construção de Thompson</h3>
+<ul>
+<li>Antes de definir funções para combinar AFNs,
+precisamos garantir que estes não possuam estados em comum.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgc84a637">
+<h3 id="orgc84a637">Construção de Thompson</h3>
+<ul>
+<li>Para isso, vamos "renomear" estados de um AFN.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">shift</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Int</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Set</span> <span style="color: #ce537a; font-weight: bold;">Int</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Set</span> <span style="color: #ce537a; font-weight: bold;">Int</span>
+<span style="color: #bc6ec5; font-weight: bold;">shift</span> n <span style="color: #7590db;">=</span> Set.fromAscList <span style="color: #7590db;">.</span> map <span style="color: #4f97d7;">(</span><span style="color: #7590db;">+</span> n<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">.</span> Set.toAscList
+</pre>
+</div>
+
+</section>
+<section id="slide-org1ea0595">
+<h3 id="org1ea0595">Construção de Thompson</h3>
+<ul>
+<li>AFN para \(e_1 + e_2\).</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">unionNFA</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">NFA</span> <span style="color: #ce537a; font-weight: bold;">Int</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">NFA</span> <span style="color: #ce537a; font-weight: bold;">Int</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">NFA</span> <span style="color: #ce537a; font-weight: bold;">Int</span>
+<span style="color: #bc6ec5; font-weight: bold;">unionNFA</span> m1 m2
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">NFA</span> <span style="color: #4f97d7;">{</span>
+      numberOfStates <span style="color: #7590db;">=</span> n1 <span style="color: #7590db;">+</span> n2
+    , nfaStart <span style="color: #7590db;">=</span> Set.union <span style="color: #bc6ec5;">(</span>nfaStart m1<span style="color: #bc6ec5;">)</span> <span style="color: #bc6ec5;">(</span>shift n1 <span style="color: #2d9574;">(</span>nfaStart m2<span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">)</span>
+    , nfaDelta <span style="color: #7590db;">=</span> f
+    , nfaFinals <span style="color: #7590db;">=</span> Set.union <span style="color: #bc6ec5;">(</span>nfaFinals m2<span style="color: #bc6ec5;">)</span> <span style="color: #bc6ec5;">(</span>shift n1 <span style="color: #2d9574;">(</span>nfaFinals m2<span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">)</span>
+    <span style="color: #4f97d7;">}</span>
+    <span style="color: #4f97d7; font-weight: bold;">where</span>
+      n1 <span style="color: #7590db;">=</span> numberOfStates m1
+      n2 <span style="color: #7590db;">=</span> numberOfStates m2
+      f s c <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">if</span> s <span style="color: #7590db;">&lt;</span> n1 <span style="color: #4f97d7; font-weight: bold;">then</span> nfaDelta m1 s c
+              <span style="color: #4f97d7; font-weight: bold;">else</span> shift n1 <span style="color: #4f97d7;">(</span>nfaDelta m2 <span style="color: #bc6ec5;">(</span>s <span style="color: #7590db;">-</span> n1<span style="color: #bc6ec5;">)</span> c<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org14ca037">
+<h3 id="org14ca037">Construção de Thompson</h3>
+<ul>
+<li>AFN para \(e_1\:e_2\).</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">concatNFA</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">NFA</span> <span style="color: #ce537a; font-weight: bold;">Int</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">NFA</span> <span style="color: #ce537a; font-weight: bold;">Int</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">NFA</span> <span style="color: #ce537a; font-weight: bold;">Int</span>
+<span style="color: #bc6ec5; font-weight: bold;">concatNFA</span> m1 m2
+    <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">NFA</span> <span style="color: #4f97d7;">{</span>
+        numberOfStates <span style="color: #7590db;">=</span> n1 <span style="color: #7590db;">+</span> n2
+      , nfaStart <span style="color: #7590db;">=</span> newStart
+      , nfaDelta <span style="color: #7590db;">=</span> newDelta
+      , nfaFinals <span style="color: #7590db;">=</span> newFinals
+      <span style="color: #4f97d7;">}</span>
+      <span style="color: #4f97d7; font-weight: bold;">where</span>
+        n1 <span style="color: #7590db;">=</span> numberOfStates m1
+        n2 <span style="color: #7590db;">=</span> numberOfStates m2
+</pre>
+</div>
+
+</section>
+<section id="slide-org3318b4f">
+<h3 id="org3318b4f">Construção de Thompson</h3>
+<ul>
+<li>AFN para \(e_1\:e_2\) (continuação).</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">start1</span> <span style="color: #7590db;">=</span> nfaStart m1
+<span style="color: #bc6ec5; font-weight: bold;">final1</span> <span style="color: #7590db;">=</span> nfaFinals m1
+<span style="color: #bc6ec5; font-weight: bold;">newStart</span> <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">if</span> disjoint start1 final1
+           <span style="color: #4f97d7; font-weight: bold;">then</span> start1
+            <span style="color: #4f97d7; font-weight: bold;">else</span> Set.union start1 <span style="color: #4f97d7;">(</span>shift n1 final1<span style="color: #4f97d7;">)</span>
+<span style="color: #bc6ec5; font-weight: bold;">newFinals</span> <span style="color: #7590db;">=</span> shift n1 final1
+<span style="color: #bc6ec5; font-weight: bold;">newDelta</span> e c <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">if</span> e <span style="color: #7590db;">&lt;</span> n1 <span style="color: #4f97d7; font-weight: bold;">then</span>
+                 <span style="color: #4f97d7; font-weight: bold;">if</span> disjoint <span style="color: #4f97d7;">(</span>nfaDelta m1 e c<span style="color: #4f97d7;">)</span> final1
+                 <span style="color: #4f97d7; font-weight: bold;">then</span> nfaDelta m1 e c
+                 <span style="color: #4f97d7; font-weight: bold;">else</span> Set.union <span style="color: #4f97d7;">(</span>nfaDelta m1 e c<span style="color: #4f97d7;">)</span> start1
+               <span style="color: #4f97d7; font-weight: bold;">else</span> shift n1 <span style="color: #4f97d7;">(</span>nfaDelta m2 <span style="color: #bc6ec5;">(</span>e <span style="color: #7590db;">-</span> n1<span style="color: #bc6ec5;">)</span> c<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org67dbabb">
+<h3 id="org67dbabb">Construção de Thompson</h3>
+<ul>
+<li>AFN para \(e = e_1^*\).</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">starNFA</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">NFA</span> <span style="color: #ce537a; font-weight: bold;">Int</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">NFA</span> <span style="color: #ce537a; font-weight: bold;">Int</span>
+<span style="color: #bc6ec5; font-weight: bold;">starNFA</span> m1
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">NFA</span> <span style="color: #4f97d7;">{</span>
+      numberOfStates <span style="color: #7590db;">=</span> numberOfStates m1
+    , nfaStart <span style="color: #7590db;">=</span> nfaStart m1
+    , nfaDelta <span style="color: #7590db;">=</span> newDelta
+    , nfaFinals <span style="color: #7590db;">=</span> nfaStart m1
+    <span style="color: #4f97d7;">}</span>
+    <span style="color: #4f97d7; font-weight: bold;">where</span>
+      newDelta e c
+        <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">let</span> r <span style="color: #7590db;">=</span> nfaDelta m1 e c
+          <span style="color: #4f97d7; font-weight: bold;">in</span> <span style="color: #4f97d7; font-weight: bold;">if</span> disjoint r <span style="color: #4f97d7;">(</span>nfaFinals m1<span style="color: #4f97d7;">)</span>
+             <span style="color: #4f97d7; font-weight: bold;">then</span> r
+             <span style="color: #4f97d7; font-weight: bold;">else</span> Set.union r <span style="color: #4f97d7;">(</span>nfaStart m1<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orgac99acc">
+<h3 id="orgac99acc">Construção de Thompson</h3>
+<ul>
+<li>Convertendo uma ER em um DFA:</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">toDFA</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Regex</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">DFA</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Set</span> <span style="color: #ce537a; font-weight: bold;">Int</span><span style="color: #4f97d7;">)</span>
+<span style="color: #bc6ec5; font-weight: bold;">toDFA</span> <span style="color: #7590db;">=</span> subset <span style="color: #7590db;">.</span> thompson
+</pre>
+</div>
+
+</section>
+<section id="slide-org9e06892">
+<h3 id="org9e06892">Construção de Thompson</h3>
+<ul>
+<li>Construindo o AFD para um conjunto de REs.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">lexer</span> <span style="color: #7590db;">::</span> <span style="color: #4f97d7;">[</span><span style="color: #ce537a; font-weight: bold;">Regex</span><span style="color: #4f97d7;">]</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">DFA</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Set</span> <span style="color: #ce537a; font-weight: bold;">Int</span><span style="color: #4f97d7;">)</span>
+<span style="color: #bc6ec5; font-weight: bold;">lexer</span> <span style="color: #7590db;">=</span> subset <span style="color: #7590db;">.</span> foldr unionNFA emptyNFA <span style="color: #7590db;">.</span> map thompson
+</pre>
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-org744c6dc">
+<h2 id="org744c6dc">Concluindo</h2>
+<div class="outline-text-2" id="text-org744c6dc">
+</div>
+</section>
+<section id="slide-org1ad0e6e">
+<h3 id="org1ad0e6e">Concluindo</h3>
+<ul>
+<li>Revisamos REs, AFNs e sua relação com AFDs.</li>
+
+<li>Apresentamos como construir AFDs a partir de expressões regulares.</li>
+
+</ul>
+
+</section>
+<section id="slide-org20a06d2">
+<h3 id="org20a06d2">Concluindo</h3>
+<ul>
+<li>Próxima aula: Derivadas de expressões regulares e geradores de analisadores léxicos.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orga020229">
+<h2 id="orga020229">Exercícios</h2>
+<div class="outline-text-2" id="text-orga020229">
+</div>
+</section>
+<section id="slide-org6b1f987">
+<h3 id="org6b1f987">Exercícios</h3>
+<ul>
+<li>Construa um analisador léxico para a linguagem IMP utilizando o arcabouço baseado
+em expressões regulares e AFDs.</li>
+
+</ul>
+</section>
+</section>
+</div>
+</div>
+<script src="file:///home/rodrigo/reveal.js/dist/reveal.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/markdown/markdown.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/notes/notes.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/search/search.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/zoom/zoom.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+overview: true,
+
+transition: 'convex',
+transitionSpeed: 'default',
+
+// Plugins with reveal.js 4.x
+plugins: [ RevealMarkdown, RevealNotes, RevealSearch, RevealZoom ],
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+]
+
+});
+</script>
+</body>
+</html>

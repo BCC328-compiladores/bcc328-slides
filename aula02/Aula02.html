@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Revisão de Haskell</title>
+<meta name="author" content="Construção de compiladores I"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/reveal.css"/>
+
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/theme/white.css" id="theme"/>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1 class="title">Revisão de Haskell</h1><h2 class="author">Construção de compiladores I</h2>
+</section>
+
+<section>
+<section id="slide-org8d261d4">
+<h2 id="org8d261d4">Objetivos</h2>
+<div class="outline-text-2" id="text-org8d261d4">
+</div>
+</section>
+<section id="slide-org0f35ca8">
+<h3 id="org0f35ca8">Objetivos</h3>
+<ul>
+<li>Revisar conceitos sobre functores aplicativos.</li>
+
+<li>Construção de parsers usando functores aplicativos.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgd8ffc46">
+<h2 id="orgd8ffc46">Markdown</h2>
+<div class="outline-text-2" id="text-orgd8ffc46">
+</div>
+</section>
+<section id="slide-org03028d6">
+<h3 id="org03028d6">Markdown</h3>
+<ul>
+<li>Na última aula, iniciamos a construção de um compilador de Markdown para HTML
+<ul>
+<li>Criação de uma EDSL para Html</li>
+<li>Uso da EDSL para produzir Html a partir da AST de Markdown</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgd55065b">
+<h3 id="orgd55065b">Markdown</h3>
+<ul>
+<li>Porém, como produzir a AST a partir de texto armazenado em arquivos?</li>
+
+<li>Como manipular argumentos de entrada para o programa?</li>
+
+</ul>
+
+</section>
+<section id="slide-orgdf51731">
+<h3 id="orgdf51731">Markdown</h3>
+<ul>
+<li>Para produzir a AST, precisamos construir um <b>parser</b>.</li>
+
+<li>Parser: função de tipo <code>String -&gt; AST</code>.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgfc753d7">
+<h3 id="orgfc753d7">Markdown</h3>
+<ul>
+<li>Idealmente, para especificarmos um parser, precisamos de uma gramática.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orge5672da">
+<h2 id="orge5672da">Gramáticas</h2>
+<div class="outline-text-2" id="text-orge5672da">
+</div>
+</section>
+<section id="slide-org5647254">
+<h3 id="org5647254">Gramáticas</h3>
+<ul>
+<li>Uma gramática livre de contexto \(G=(V,\Sigma,R,P)\):
+<ul>
+<li>\(V\): conjunto finito de variáveis</li>
+<li>\(\Sigma\): alfabeto</li>
+<li>\(R\subseteq V \times (V\cup\Sigma)^*\): regras</li>
+<li>\(P\in V\): variável de partida.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org8bff252">
+<h3 id="org8bff252">Gramáticas</h3>
+<ul>
+<li>Exemplo: gramática livre de contexto para palavras com a mesma quantidade de 0s e 1s:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+   P & \to & 0P1P \,|\,1P0P\,|\,\lambda
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org0dbdbcf">
+<h3 id="org0dbdbcf">Gramáticas</h3>
+<ul>
+<li>Na gramática anterior, temos:
+<ul>
+<li>\(V=\{P\}\), \(\Sigma=\{0,1\}\)</li>
+<li>Três regras:</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{l}
+  P \to 0P1P\\
+  P \to 1P0P\\
+  P \to \lambda\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgbfecdaa">
+<h3 id="orgbfecdaa">Gramáticas</h3>
+<ul>
+<li>Representando a AST:</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">data</span> <span style="color: #ce537a; font-weight: bold;">AST</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Zero</span> <span style="color: #ce537a; font-weight: bold;">AST</span> <span style="color: #ce537a; font-weight: bold;">AST</span> <span style="color: #2aa1ae; background-color: #292e34;">-- </span><span style="color: #2aa1ae; background-color: #292e34;">starts with 0</span>
+  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">One</span> <span style="color: #ce537a; font-weight: bold;">AST</span> <span style="color: #ce537a; font-weight: bold;">AST</span>  <span style="color: #2aa1ae; background-color: #292e34;">-- </span><span style="color: #2aa1ae; background-color: #292e34;">starts with 1  </span>
+  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">Empty</span>        <span style="color: #2aa1ae; background-color: #292e34;">-- </span><span style="color: #2aa1ae; background-color: #292e34;">empty string</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orgb9a21f8">
+<h3 id="orgb9a21f8">Gramáticas</h3>
+<ul>
+<li>Como construir um parser para esta gramática?</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">parse</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">AST</span>
+</pre>
+</div>
+
+
+</section>
+<section id="slide-org9a6ceb6">
+<h3 id="org9a6ceb6">Gramáticas</h3>
+<ul>
+<li>Tentando implementar diretamente:</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">parse</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">AST</span>
+<span style="color: #bc6ec5; font-weight: bold;">parse</span> <span style="color: #7590db;">=</span> fst <span style="color: #7590db;">.</span> parse'
+   <span style="color: #4f97d7; font-weight: bold;">where</span>
+      parse' <span style="color: #4f97d7; font-weight: bold;">[]</span> <span style="color: #7590db;">=</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Empty</span>, <span style="color: #bc6ec5; font-weight: bold;">[]</span><span style="color: #4f97d7;">)</span>
+      parse' <span style="color: #4f97d7;">(</span><span style="color: #2d9574;">'0'</span> <span style="color: #ce537a; font-weight: bold;">:</span> rest<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> 
+        <span style="color: #4f97d7; font-weight: bold;">let</span> <span style="color: #4f97d7;">(</span>t1,r1<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> parse' rest
+            <span style="color: #4f97d7;">(</span>t2,r2<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> parse' r1 
+        <span style="color: #4f97d7; font-weight: bold;">in</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Zero</span> t1 t2, r2<span style="color: #4f97d7;">)</span>
+      parse' <span style="color: #4f97d7;">(</span><span style="color: #2d9574;">'1'</span> <span style="color: #ce537a; font-weight: bold;">:</span> rest<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> 
+        <span style="color: #4f97d7; font-weight: bold;">let</span> <span style="color: #4f97d7;">(</span>t1,r1<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> parse' rest
+            <span style="color: #4f97d7;">(</span>t2,r2<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> parse' r1 
+        <span style="color: #4f97d7; font-weight: bold;">in</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">One</span> t1 t2, r2<span style="color: #4f97d7;">)</span>
+      parse' <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #7590db;">=</span> <span style="color: #7590db;">???</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org98208d7">
+<h3 id="org98208d7">Gramáticas</h3>
+<ul>
+<li>Problemas da implementação anterior:
+<ul>
+<li>Passagem explícita do restante da string.</li>
+<li>Repetição de código.</li>
+<li>Como lidar com erros?</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org5790b33">
+<h3 id="org5790b33">Gramáticas</h3>
+<ul>
+<li>Lidar com manipulação de erros tende a
+aumentar a complexidade do código.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">parse'</span> <span style="color: #4f97d7; font-weight: bold;">[]</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Empty</span>, <span style="color: #bc6ec5; font-weight: bold;">[]</span><span style="color: #4f97d7;">)</span>
+<span style="color: #bc6ec5; font-weight: bold;">parse'</span> <span style="color: #4f97d7;">(</span><span style="color: #2d9574;">'0'</span> <span style="color: #ce537a; font-weight: bold;">:</span> rest<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span>
+   <span style="color: #4f97d7; font-weight: bold;">case</span> parse' rest <span style="color: #4f97d7; font-weight: bold;">of</span>
+     <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #4f97d7;">(</span>t1,r1<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">-&gt;</span>
+       <span style="color: #4f97d7; font-weight: bold;">case</span> parse' r1 <span style="color: #4f97d7; font-weight: bold;">of</span>
+          <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #4f97d7;">(</span>t2,r2<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Zero</span> t1 t2, r2<span style="color: #4f97d7;">)</span>
+          <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Nothing</span> 
+     <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Nothing</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org5ce2f9d">
+<h3 id="org5ce2f9d">Gramáticas</h3>
+<ul>
+<li>Para construir parsers, utilizaremos a EDSL da biblioteca <code>mega-parsec</code>.</li>
+
+<li>Em essência, utiliza os conceitos de functores aplicativos para
+construir parsers.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org06246b5">
+<h2 id="org06246b5">Functores aplicativos</h2>
+<div class="outline-text-2" id="text-org06246b5">
+</div>
+</section>
+<section id="slide-orgbe75300">
+<h3 id="orgbe75300">Functores aplicativos</h3>
+<ul>
+<li>Faremos um pequeno "desvio" para revisar o conceito de functor aplicativo.</li>
+
+<li>Esse conceito é fundamental para desenvolvimento em Haskell.</li>
+
+</ul>
+
+</section>
+<section id="slide-org2730dec">
+<h3 id="org2730dec">Functores aplicativos</h3>
+<ul>
+<li>Functor: Abstração que permite aplicar uma função sobre elementos de uma estrutura.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">Functor</span> f <span style="color: #4f97d7; font-weight: bold;">where</span>
+  fmap <span style="color: #7590db;">::</span> <span style="color: #4f97d7;">(</span>a <span style="color: #7590db;">-&gt;</span> b<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">-&gt;</span> f a <span style="color: #7590db;">-&gt;</span> f b
+
+<span style="color: #4f97d7;">(</span><span style="color: #bc6ec5; font-weight: bold;">&lt;$&gt;</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Functor</span> f <span style="color: #7590db;">=&gt;</span> <span style="color: #4f97d7;">(</span>a <span style="color: #7590db;">-&gt;</span> b<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">-&gt;</span> f a <span style="color: #7590db;">-&gt;</span> f b
+<span style="color: #4f97d7;">(</span><span style="color: #bc6ec5; font-weight: bold;">&lt;$&gt;</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> fmap
+</pre>
+</div>
+
+</section>
+<section id="slide-org0476770">
+<h3 id="org0476770">Functores aplicativos</h3>
+<ul>
+<li>Exemplo: <code>Maybe</code> é um <code>Functor</code>.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">instance</span> <span style="color: #ce537a; font-weight: bold;">Functor</span> <span style="color: #ce537a; font-weight: bold;">Maybe</span> <span style="color: #4f97d7; font-weight: bold;">where</span>
+  fmap <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #ce537a; font-weight: bold;">Nothing</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Nothing</span>
+  fmap f <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> v<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #4f97d7;">(</span>f v<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orgd3ac4b3">
+<h3 id="orgd3ac4b3">Functores aplicativos</h3>
+<ul>
+<li>Exemplo:</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell">not <span style="color: #bc6ec5; font-weight: bold;">&lt;$&gt;</span> <span style="color: #ce537a; font-weight: bold;">Nothing</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Nothing</span>
+not <span style="color: #bc6ec5; font-weight: bold;">&lt;$&gt;</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #ce537a; font-weight: bold;">True</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #4f97d7;">(</span>not <span style="color: #ce537a; font-weight: bold;">True</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #ce537a; font-weight: bold;">False</span>
+</pre>
+</div>
+
+
+</section>
+<section id="slide-orgb541b4d">
+<h3 id="orgb541b4d">Functores aplicativos</h3>
+<ul>
+<li>Intuitivamente, functores permitem que façamos chamadas de função a
+todos os elementos de uma estrutura de dados.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">2</span> <span style="color: #7590db;">*</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">&lt;$&gt;</span> <span style="color: #ce537a; font-weight: bold;">Nothing</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Nothing</span>
+<span style="color: #4f97d7;">(</span><span style="color: #a45bad;">2</span> <span style="color: #7590db;">*</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">&lt;$&gt;</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #a45bad;">2</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">2</span> <span style="color: #7590db;">*</span> <span style="color: #a45bad;">2</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #a45bad;">4</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org1a9e417">
+<h3 id="org1a9e417">Functores aplicativos</h3>
+<ul>
+<li>Usamos functores para aplicar funções a elementos <b>dentro</b> de uma estrutura.</li>
+
+<li>Pergunta: como realizar chamadas de funções armazenadas dentro de estrutura de dados?</li>
+
+</ul>
+
+</section>
+<section id="slide-orge248466">
+<h3 id="orge248466">Functores aplicativos</h3>
+<ul>
+<li>A abstração de functor aplicativo modela a capacidade de chamar funções dentro de uma estrutura de dados</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">Functor</span> f <span style="color: #7590db;">=&gt;</span> <span style="color: #ce537a; font-weight: bold;">Applicative</span> f <span style="color: #4f97d7; font-weight: bold;">where</span>
+  pure <span style="color: #7590db;">::</span> a <span style="color: #7590db;">-&gt;</span> f a
+  <span style="color: #4f97d7;">(</span><span style="color: #7590db;">&lt;*&gt;</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">::</span> f <span style="color: #4f97d7;">(</span>a <span style="color: #7590db;">-&gt;</span> b<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">-&gt;</span> f a <span style="color: #7590db;">-&gt;</span> f b
+</pre>
+</div>
+
+</section>
+<section id="slide-orgcb71e05">
+<h3 id="orgcb71e05">Functores aplicativos</h3>
+<ul>
+<li>O principal componente da abstração de functor aplicativo é o operador <code>&lt;*&gt;</code>.
+<ul>
+<li>Responsável por chamadas de função dentro de estruturas de dados.</li>
+
+</ul></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7;">(</span><span style="color: #bc6ec5; font-weight: bold;">&lt;*&gt;</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">::</span> f <span style="color: #4f97d7;">(</span>a <span style="color: #7590db;">-&gt;</span> b<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">-&gt;</span> f a <span style="color: #7590db;">-&gt;</span> f b
+</pre>
+</div>
+
+</section>
+<section id="slide-orgdf10a2e">
+<h3 id="orgdf10a2e">Functores aplicativos</h3>
+<ul>
+<li>O tipo <code>Maybe</code> é um functor aplicativo.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">instance</span> <span style="color: #ce537a; font-weight: bold;">Applicative</span> <span style="color: #ce537a; font-weight: bold;">Maybe</span> <span style="color: #4f97d7; font-weight: bold;">where</span>  
+  pure <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Just</span>  
+  <span style="color: #ce537a; font-weight: bold;">Nothing</span>  <span style="color: #7590db;">&lt;*&gt;</span> <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Nothing</span>
+  <span style="color: #4f97d7; font-weight: bold;">_</span>        <span style="color: #7590db;">&lt;*&gt;</span> <span style="color: #ce537a; font-weight: bold;">Nothing</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Nothing</span>
+  <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> f<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">&lt;*&gt;</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> x<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #4f97d7;">(</span>f x<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+
+</section>
+<section id="slide-org6f678bd">
+<h3 id="org6f678bd">Functores aplicativos</h3>
+<ul>
+<li>Exemplos</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> not<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">&lt;*&gt;</span> <span style="color: #ce537a; font-weight: bold;">Nothing</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Nothing</span>
+<span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> not<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">&lt;*&gt;</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #ce537a; font-weight: bold;">False</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #4f97d7;">(</span>not <span style="color: #ce537a; font-weight: bold;">False</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #ce537a; font-weight: bold;">True</span>
+</pre>
+</div>
+
+
+</section>
+<section id="slide-org01b96e6">
+<h3 id="org01b96e6">Functores aplicativos</h3>
+<ul>
+<li>Exemplos</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> not<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">&lt;*&gt;</span> <span style="color: #ce537a; font-weight: bold;">Nothing</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Nothing</span>
+<span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> not<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">&lt;*&gt;</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #ce537a; font-weight: bold;">False</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #4f97d7;">(</span>not <span style="color: #ce537a; font-weight: bold;">False</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #ce537a; font-weight: bold;">True</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orga2de89a">
+<h3 id="orga2de89a">Functores aplicativos</h3>
+<ul>
+<li>Podemos combinar functores e functores aplicativos</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7;">(</span><span style="color: #bc6ec5; font-weight: bold;">*</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">&lt;$&gt;</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #a45bad;">2</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">&lt;*&gt;</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #a45bad;">3</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span>
+</pre>
+</div>
+
+
+</section>
+<section id="slide-org8ed34e3">
+<h3 id="org8ed34e3">Functores aplicativos</h3>
+<ul>
+<li>Podemos combinar functores e functores aplicativos</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7;">(</span><span style="color: #bc6ec5; font-weight: bold;">*</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">&lt;$&gt;</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #a45bad;">2</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">&lt;*&gt;</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #a45bad;">3</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span>
+<span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">2</span> <span style="color: #7590db;">*</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">&lt;*&gt;</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #a45bad;">3</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span>
+</pre>
+</div>
+
+
+</section>
+<section id="slide-org7f3f805">
+<h3 id="org7f3f805">Functores aplicativos</h3>
+<ul>
+<li>Podemos combinar functores e functores aplicativos</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7;">(</span><span style="color: #bc6ec5; font-weight: bold;">*</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">&lt;$&gt;</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #a45bad;">2</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">&lt;*&gt;</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #a45bad;">3</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span>
+<span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">2</span> <span style="color: #7590db;">*</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">&lt;*&gt;</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #a45bad;">3</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span>
+<span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">2</span> <span style="color: #7590db;">*</span> <span style="color: #a45bad;">3</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Just</span> <span style="color: #a45bad;">6</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org428caa7">
+<h3 id="org428caa7">Functores aplicativos</h3>
+<ul>
+<li>No contexto de parsing, o operador <code>&lt;*&gt;</code> representa a composição sequencial de parsers.</li>
+
+<li>O operador <code>&lt;$&gt;</code> é utilizado para construir o resultado do parsing.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgd4455b8">
+<h3 id="orgd4455b8">Functores aplicativos</h3>
+<ul>
+<li>De volta à gramática original:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+   P & \to & 0P1P \,|\,1P0P\,|\,\lambda
+\end{array}
+
+</div>
+
+
+</section>
+<section id="slide-org110d378">
+<h3 id="org110d378">Functores aplicativos</h3>
+<ul>
+<li>E a árvore que representa o resultado do parsing.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">data</span> <span style="color: #ce537a; font-weight: bold;">AST</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Zero</span> <span style="color: #ce537a; font-weight: bold;">AST</span> <span style="color: #ce537a; font-weight: bold;">AST</span> <span style="color: #2aa1ae; background-color: #292e34;">-- </span><span style="color: #2aa1ae; background-color: #292e34;">starts with 0</span>
+  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">One</span> <span style="color: #ce537a; font-weight: bold;">AST</span> <span style="color: #ce537a; font-weight: bold;">AST</span>  <span style="color: #2aa1ae; background-color: #292e34;">-- </span><span style="color: #2aa1ae; background-color: #292e34;">starts with 1  </span>
+  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">Empty</span>        <span style="color: #2aa1ae; background-color: #292e34;">-- </span><span style="color: #2aa1ae; background-color: #292e34;">empty string</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orga11074c">
+<h3 id="orga11074c">Functores aplicativos</h3>
+<ul>
+<li>O parsing utilizando a biblioteca mega-parsec é:</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">type</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Parsec</span> <span style="color: #ce537a; font-weight: bold;">Void</span> <span style="color: #ce537a; font-weight: bold;">String</span>
+
+<span style="color: #bc6ec5; font-weight: bold;">sample</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #ce537a; font-weight: bold;">AST</span>
+<span style="color: #bc6ec5; font-weight: bold;">sample</span> <span style="color: #7590db;">=</span> try startWithZero <span style="color: #7590db;">&lt;|&gt;</span>
+         try startWithOne  <span style="color: #7590db;">&lt;|&gt;</span>
+         pure <span style="color: #ce537a; font-weight: bold;">Empty</span>
+ <span style="color: #4f97d7; font-weight: bold;">where</span>
+   startWithZero <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Zero</span> <span style="color: #7590db;">&lt;$&gt;</span> symbol <span style="color: #2d9574;">"0"</span> <span style="color: #7590db;">*&gt;</span> sample <span style="color: #7590db;">&lt;*&gt;</span> sample
+   startWithOne <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">One</span> <span style="color: #7590db;">&lt;$&gt;</span> symbol <span style="color: #2d9574;">"1"</span> <span style="color: #7590db;">*&gt;</span> sample <span style="color: #7590db;">&lt;*&gt;</span> sample
+</pre>
+</div>
+
+</section>
+<section id="slide-org0e23e66">
+<h3 id="org0e23e66">Functores aplicativos</h3>
+<ul>
+<li>Concatenação (sequência) é representada pelo operador <code>&lt;*&gt;</code>.</li>
+<li>Alternativas são representadas pelo operador <code>&lt;|&gt;</code>.</li>
+
+</ul>
+
+</section>
+<section id="slide-org6ded0c1">
+<h3 id="org6ded0c1">Functores aplicativos</h3>
+<ul>
+<li>Símbolos são representados pela função <code>symbol</code>.</li>
+<li>Função <code>try</code> permite o backtracking.
+<ul>
+<li>Caso aconteça um erro, a entrada é passada não modificada para próxima alternativa.</li>
+
+</ul></li>
+<li>Variáveis da gramática correspondem a chamadas de função.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgf71c399">
+<h2 id="orgf71c399">Parser de Markdown</h2>
+<div class="outline-text-2" id="text-orgf71c399">
+</div>
+</section>
+<section id="slide-org2497ce1">
+<h3 id="org2497ce1">Parser de Markdown</h3>
+<ul>
+<li>Gramática de Markdown</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+Document & \to & Structure^*\\
+Structure & \to  & UnorderedList \\
+          & \mid & CodeList \\
+          & \mid & Heading \\
+          & \mid & Paragraph\\
+\end{array}
+
+</div>
+
+
+
+</section>
+<section id="slide-org2ea3fb5">
+<h3 id="org2ea3fb5">Parser de Markdown</h3>
+<ul>
+<li>Gramática de Markdown (continuação)</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+UnorderedList & \to & - \Sigma^*\\
+CodeList      & \to & > \Sigma^*\\
+Paragraph     & \to & \Sigma^*\\
+Heading       & \to & Level\:\:\:Paragraph\\
+Level         & \to & * \,|\, **\,|\, ***\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org16b9c41">
+<h3 id="org16b9c41">Parser de Markdown</h3>
+<ul>
+<li>De posse da gramática, podemos representar seu parser:
+<ul>
+<li>Parser <code>sc</code>: remove espaços em branco entre linhas.</li>
+<li>Linhas são separadas por uma quebra de linha.</li>
+
+</ul></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">pDocument</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #ce537a; font-weight: bold;">Document</span>
+<span style="color: #bc6ec5; font-weight: bold;">pDocument</span> <span style="color: #7590db;">=</span> <span style="color: #4f97d7;">(</span>sc <span style="color: #7590db;">*&gt;</span> pLine<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">`sepBy`</span> newline
+</pre>
+</div>
+
+
+</section>
+<section id="slide-orgfceeeaa">
+<h3 id="orgfceeeaa">Parser de Markdown</h3>
+<ul>
+<li>Parser de uma linha do arquivo</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">pLine</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #ce537a; font-weight: bold;">Structure</span>
+<span style="color: #bc6ec5; font-weight: bold;">pLine</span> <span style="color: #7590db;">=</span> choice <span style="color: #4f97d7;">[</span> pUnorderedList
+               , pCodeBlock
+               , pHeading
+               , pParagraph
+               <span style="color: #4f97d7;">]</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org98ef959">
+<h3 id="org98ef959">Parser de Markdown</h3>
+<ul>
+<li>Parser de linha não ordenada</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">pUnorderedList</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #ce537a; font-weight: bold;">Structure</span>
+<span style="color: #bc6ec5; font-weight: bold;">pUnorderedList</span> <span style="color: #7590db;">=</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">UnorderedList</span> <span style="color: #7590db;">.</span> wrap<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">&lt;$&gt;</span> p
+  <span style="color: #4f97d7; font-weight: bold;">where</span>
+    p <span style="color: #7590db;">=</span> symbol <span style="color: #2d9574;">"-"</span> <span style="color: #7590db;">*&gt;</span> pString
+</pre>
+</div>
+
+</section>
+<section id="slide-org464cffa">
+<h3 id="org464cffa">Parser de Markdown</h3>
+<ul>
+<li>Parser de parágrafos</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">pParagraph</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #ce537a; font-weight: bold;">Structure</span>
+<span style="color: #bc6ec5; font-weight: bold;">pParagraph</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Paragraph</span> <span style="color: #7590db;">&lt;$&gt;</span> pString
+
+<span style="color: #bc6ec5; font-weight: bold;">pString</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #ce537a; font-weight: bold;">String</span>
+<span style="color: #bc6ec5; font-weight: bold;">pString</span> <span style="color: #7590db;">=</span> many <span style="color: #4f97d7;">(</span>satisfy <span style="color: #bc6ec5;">(</span>flip notElem <span style="color: #2d9574;">"\n*-#&gt;"</span><span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org42b2c27">
+<h3 id="org42b2c27">Parser de Markdown</h3>
+<ul>
+<li>Demais casos, seguem estruturas similares.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org939d2b6">
+<h2 id="org939d2b6">Concluindo</h2>
+<div class="outline-text-2" id="text-org939d2b6">
+</div>
+</section>
+<section id="slide-org6671e75">
+<h3 id="org6671e75">Concluindo</h3>
+<ul>
+<li>Nesta aula, revisamos o conceito de functor applicativo e
+como este é utilizado para construir parsers na biblioteca
+<code>megaparsec</code>.</li>
+
+</ul>
+
+</section>
+<section id="slide-org7399396">
+<h3 id="org7399396">Concluindo</h3>
+<ul>
+<li>Na próxima aula veremos outro padrão importante para estruturar programas: Mônadas.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgb2cc7b2">
+<h2 id="orgb2cc7b2">Exercícios</h2>
+<div class="outline-text-2" id="text-orgb2cc7b2">
+</div>
+</section>
+<section id="slide-orgd6ae9ed">
+<h3 id="orgd6ae9ed">Exercícios</h3>
+<ul>
+<li>Estenda o parser de Markdown com suporte a
+<ul>
+<li>Listas ordenadas</li>
+<li>Links</li>
+<li>Imagens</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgfba9b2e">
+<h3 id="orgfba9b2e">Exercícios</h3>
+<ul>
+<li>Gramática para listas ordenadas.</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+OrderedList & \to & \# \Sigma^*\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgab8f723">
+<h3 id="orgab8f723">Exercícios</h3>
+<ul>
+<li>Gramática para links</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+Link & \to & [\Sigma^*](\Sigma^*)\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org0723db0">
+<h3 id="org0723db0">Exercícios</h3>
+<ul>
+<li>Gramática para imagens</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+Image & \to & ![\Sigma^*](\Sigma^*)\\
+\end{array}
+
+</div>
+</section>
+</section>
+</div>
+</div>
+<script src="file:///home/rodrigo/reveal.js/dist/reveal.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/markdown/markdown.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/notes/notes.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/search/search.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/zoom/zoom.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+overview: true,
+
+transition: 'convex',
+transitionSpeed: 'default',
+
+// Plugins with reveal.js 4.x
+plugins: [ RevealMarkdown, RevealNotes, RevealSearch, RevealZoom ],
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+]
+
+});
+</script>
+</body>
+</html>

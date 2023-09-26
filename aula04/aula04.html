@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Monad Transformers</title>
+<meta name="author" content="Construção de compiladores I"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/reveal.css"/>
+
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/theme/white.css" id="theme"/>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1 class="title">Monad Transformers</h1><h2 class="author">Construção de compiladores I</h2>
+</section>
+
+<section>
+<section id="slide-org2a6c65a">
+<h2 id="org2a6c65a">Objetivos</h2>
+<div class="outline-text-2" id="text-org2a6c65a">
+</div>
+</section>
+<section id="slide-org88f3f31">
+<h3 id="org88f3f31">Objetivos</h3>
+<ul>
+<li>Apresentar o conceito de Monad Transformer para combinar diferentes
+efeitos colaterais em um programa.</li>
+
+<li>Uso de monad transformers para permitir a manipulação de diretórios no
+compilador de markdown.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgffaea5c">
+<h2 id="orgffaea5c">Markdown</h2>
+<div class="outline-text-2" id="text-orgffaea5c">
+</div>
+</section>
+<section id="slide-org3872310">
+<h3 id="org3872310">Markdown</h3>
+<ul>
+<li>Iniciamos nosso curso com o projeto de um mini-compilador de Markdown.</li>
+
+<li>Objetivo: revisar conceitos da linguagem Haskell</li>
+
+</ul>
+
+</section>
+<section id="slide-orgca31fb5">
+<h3 id="orgca31fb5">Markdown</h3>
+<ul>
+<li>Na última aula, finalizamos uma versão que processa apenas um único arquivo.</li>
+
+<li>Nesta aula estenderemos esse compilador com:
+<ul>
+<li>Processamento de diretórios</li>
+<li>Incluir folhas de estilo nos html gerados.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org6ef754e">
+<h3 id="org6ef754e">Markdown</h3>
+<ul>
+<li>Estender o compilador para processar diretórios é uma tarefa bem direta.</li>
+
+</ul>
+
+</section>
+<section id="slide-org402d214">
+<h3 id="org402d214">Markdown</h3>
+<ul>
+<li>Incluir folhas de estilo
+<ul>
+<li>Tarefa simples, mas que leva a código longe do ideal.</li>
+<li>Mostraremos como melhorar o código combinando mônadas.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org46c2172">
+<h2 id="org46c2172">Processando diretórios</h2>
+<div class="outline-text-2" id="text-org46c2172">
+</div>
+</section>
+<section id="slide-org6a8d0b4">
+<h3 id="org6a8d0b4">Processando diretórios</h3>
+<ul>
+<li>Para permitir processar todos os arquivos em um diretório, devemos modificar a interação por consoles.</li>
+
+</ul>
+
+</section>
+<section id="slide-org196849f">
+<h3 id="org196849f">Processando diretórios</h3>
+<ul>
+<li>Modificação do tipo de opções de entrada.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">data</span> <span style="color: #ce537a; font-weight: bold;">Options</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Single</span> <span style="color: #ce537a; font-weight: bold;">Input</span> <span style="color: #ce537a; font-weight: bold;">Output</span>
+  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">Directory</span> <span style="color: #ce537a; font-weight: bold;">FilePath</span> <span style="color: #ce537a; font-weight: bold;">FilePath</span>
+  <span style="color: #4f97d7; font-weight: bold;">deriving</span> <span style="color: #ce537a; font-weight: bold;">Show</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org3ad8a25">
+<h3 id="org3ad8a25">Processando diretórios</h3>
+<ul>
+<li>Modificação do parser</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">pOptions</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #ce537a; font-weight: bold;">Options</span>
+<span style="color: #bc6ec5; font-weight: bold;">pOptions</span>
+  <span style="color: #7590db;">=</span> subparser <span style="color: #4f97d7;">(</span>singleParser <span style="color: #7590db;">&lt;&gt;</span> directoryParser<span style="color: #4f97d7;">)</span>
+    <span style="color: #4f97d7; font-weight: bold;">where</span>
+      singleParser
+        <span style="color: #7590db;">=</span> command <span style="color: #2d9574;">"file"</span>
+                  <span style="color: #4f97d7;">(</span>info <span style="color: #bc6ec5;">(</span>helper <span style="color: #7590db;">&lt;*&gt;</span> pSingle<span style="color: #bc6ec5;">)</span>
+                        <span style="color: #bc6ec5;">(</span>progDesc <span style="color: #2d9574;">"Convert a single markdown file to HTML"</span><span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span>
+      directoryParser
+        <span style="color: #7590db;">=</span> command <span style="color: #2d9574;">"directory"</span>
+                  <span style="color: #4f97d7;">(</span>info <span style="color: #bc6ec5;">(</span>helper <span style="color: #7590db;">&lt;*&gt;</span> pDirectory<span style="color: #bc6ec5;">)</span>
+                        <span style="color: #bc6ec5;">(</span>progDesc <span style="color: #2d9574;">"Convert all directory md files to HTML"</span><span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+
+</section>
+<section id="slide-orgbc7c1dd">
+<h3 id="orgbc7c1dd">Processando diretórios</h3>
+<ul>
+<li>Parser de diretórios</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">pDirectory</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #ce537a; font-weight: bold;">Options</span>
+<span style="color: #bc6ec5; font-weight: bold;">pDirectory</span> <span style="color: #7590db;">=</span>
+  <span style="color: #ce537a; font-weight: bold;">Directory</span> <span style="color: #7590db;">&lt;$&gt;</span> pInputDir <span style="color: #7590db;">&lt;*&gt;</span> pOutputDir
+</pre>
+</div>
+
+</section>
+<section id="slide-org42e4031">
+<h3 id="org42e4031">Processando diretórios</h3>
+<ul>
+<li>Parser de diretório de entrada</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">pInputDir</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #ce537a; font-weight: bold;">FilePath</span>
+<span style="color: #bc6ec5; font-weight: bold;">pInputDir</span> <span style="color: #7590db;">=</span>
+  strOption
+    <span style="color: #4f97d7;">(</span> long <span style="color: #2d9574;">"input"</span>
+      <span style="color: #7590db;">&lt;&gt;</span> short <span style="color: #2d9574;">'i'</span>
+      <span style="color: #7590db;">&lt;&gt;</span> metavar <span style="color: #2d9574;">"DIRECTORY"</span>
+      <span style="color: #7590db;">&lt;&gt;</span> help <span style="color: #2d9574;">"Input directory"</span>
+    <span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org995fa4e">
+<h3 id="org995fa4e">Processando diretórios</h3>
+<ul>
+<li>Processamento de diretórios de saída é similar.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgcac4538">
+<h3 id="orgcac4538">Processando diretórios</h3>
+<ul>
+<li>Mudanças no pipeline de compilação.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">startPipeline</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">IO</span> <span style="color: #4f97d7; font-weight: bold;">()</span>
+<span style="color: #bc6ec5; font-weight: bold;">startPipeline</span>
+  <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">do</span>
+      options <span style="color: #7590db;">&lt;-</span> optionsParser
+      <span style="color: #4f97d7; font-weight: bold;">case</span> options <span style="color: #4f97d7; font-weight: bold;">of</span>
+        <span style="color: #ce537a; font-weight: bold;">Single</span> inp out <span style="color: #7590db;">-&gt;</span>
+          filePipeline <span style="color: #ce537a; font-weight: bold;">False</span> inp out
+        <span style="color: #ce537a; font-weight: bold;">Directory</span> inpDir outDir <span style="color: #7590db;">-&gt;</span>
+          directoryPipeline inpDir outDir
+</pre>
+</div>
+
+</section>
+<section id="slide-orgde5513f">
+<h3 id="orgde5513f">Processando diretórios</h3>
+<ul>
+<li>Modificações no pipeline de arquivos individuais</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">filePipeline</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Bool</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Input</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Output</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">IO</span> <span style="color: #4f97d7; font-weight: bold;">()</span>
+<span style="color: #bc6ec5; font-weight: bold;">filePipeline</span> dirMode inpFile outFile 
+  <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">do</span>
+      progressMessage dirMode inpFile
+      <span style="color: #4f97d7;">(</span>title,inpHandle,outHandle<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">&lt;-</span> createHandles inpFile outFile
+      content <span style="color: #7590db;">&lt;-</span> hGetContents inpHandle
+      res <span style="color: #7590db;">&lt;-</span> pipeline <span style="color: #4f97d7;">(</span>title_ title<span style="color: #4f97d7;">)</span> content
+      hPutStrLn outHandle res
+      hClose inpHandle
+      hClose outHandle
+</pre>
+</div>
+
+</section>
+<section id="slide-org0578be9">
+<h3 id="org0578be9">Processando diretórios</h3>
+<ul>
+<li>Pipeline de diretórios</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">directoryPipeline</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">FilePath</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">FilePath</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">IO</span> <span style="color: #4f97d7; font-weight: bold;">()</span>
+<span style="color: #bc6ec5; font-weight: bold;">directoryPipeline</span> inputDir outputDir
+  <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">do</span>
+      d <span style="color: #7590db;">&lt;-</span> directoryContents inputDir
+      <span style="color: #4f97d7; font-weight: bold;">let</span> files <span style="color: #7590db;">=</span> filesToCompile d
+          otherFiles <span style="color: #7590db;">=</span> filesToCopy d
+      <span style="color: #4f97d7; font-weight: bold;">let</span> entries <span style="color: #7590db;">=</span> map <span style="color: #4f97d7;">(</span><span style="color: #7590db;">\</span> <span style="color: #bc6ec5;">(</span>i,o<span style="color: #bc6ec5;">)</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">FileInput</span> i, <span style="color: #ce537a; font-weight: bold;">FileOutput</span> o<span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span> files
+      shouldContinue <span style="color: #7590db;">&lt;-</span> createOutputDirectory outputDir
+      unless shouldContinue <span style="color: #4f97d7;">(</span>hPutStrLn stderr <span style="color: #2d9574;">"Cancelled."</span> <span style="color: #7590db;">*&gt;</span> exitFailure<span style="color: #4f97d7;">)</span>
+      mapM_ <span style="color: #4f97d7;">(</span>uncurry <span style="color: #bc6ec5;">(</span>filePipeline <span style="color: #ce537a; font-weight: bold;">True</span><span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span> entries
+      <span style="color: #4f97d7; font-weight: bold;">let</span> copy file <span style="color: #7590db;">=</span> copyFile file <span style="color: #4f97d7;">(</span>outputDir <span style="color: #7590db;">&lt;/&gt;</span> takeFileName file<span style="color: #4f97d7;">)</span>
+      mapM_ copy otherFiles
+      putStrLn <span style="color: #2d9574;">"Done."</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org9993e75">
+<h3 id="org9993e75">Processando diretórios</h3>
+<ul>
+<li>Código contendo exatamente essas modificações pode ser encontrado na branch <code>markup-directories</code>.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org7528622">
+<h2 id="org7528622">Adicionando estilos</h2>
+<div class="outline-text-2" id="text-org7528622">
+</div>
+</section>
+<section id="slide-orgecb6848">
+<h3 id="orgecb6848">Adicionando estilos</h3>
+<ul>
+<li>Até o presente momento, não usamos folhas de estilo para formatar o HTML gerado.</li>
+
+<li>Como adicionar folhas de estilo?</li>
+
+</ul>
+
+</section>
+<section id="slide-org759f00c">
+<h3 id="org759f00c">Adicionando estilos</h3>
+<ul>
+<li>Definido um tipo para armazenar o caminho de folhas de estilo</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">data</span> <span style="color: #ce537a; font-weight: bold;">Env</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Env</span> <span style="color: #4f97d7;">{</span>
+      stylePath <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">FilePath</span>
+    <span style="color: #4f97d7;">}</span> <span style="color: #4f97d7; font-weight: bold;">deriving</span> <span style="color: #ce537a; font-weight: bold;">Show</span>
+
+<span style="color: #bc6ec5; font-weight: bold;">defaultEnv</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Env</span>
+<span style="color: #bc6ec5; font-weight: bold;">defaultEnv</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Env</span> <span style="color: #2d9574;">""</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org153d38c">
+<h3 id="org153d38c">Adicionando estilos</h3>
+<ul>
+<li>Agora, temos que modificar todo o código para permitir este parâmetro adicional.</li>
+
+</ul>
+
+</section>
+<section id="slide-org54e9a8d">
+<h3 id="org54e9a8d">Adicionando estilos</h3>
+<ul>
+<li>Adicionando tags para estilos na EDSL de HTML</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">stylesheet_</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">FilePath</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Head</span>
+<span style="color: #bc6ec5; font-weight: bold;">stylesheet_</span> path <span style="color: #7590db;">=</span>
+    <span style="color: #ce537a; font-weight: bold;">Head</span> <span style="color: #7590db;">$</span> <span style="color: #2d9574;">"&lt;link rel=\"stylesheet\" type=\"text/css\" href=\""</span> <span style="color: #7590db;">&lt;&gt;</span>
+            escape path <span style="color: #7590db;">&lt;&gt;</span> <span style="color: #2d9574;">"\"&gt;"</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org504e8f6">
+<h3 id="org504e8f6">Adicionando estilos</h3>
+<ul>
+<li>Modificando o parser de diretórios para entrada</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">data</span> <span style="color: #ce537a; font-weight: bold;">Options</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Single</span> <span style="color: #ce537a; font-weight: bold;">Input</span> <span style="color: #ce537a; font-weight: bold;">Output</span>
+  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">Directory</span> <span style="color: #ce537a; font-weight: bold;">FilePath</span> <span style="color: #ce537a; font-weight: bold;">FilePath</span> <span style="color: #ce537a; font-weight: bold;">Env</span> 
+  <span style="color: #4f97d7; font-weight: bold;">deriving</span> <span style="color: #ce537a; font-weight: bold;">Show</span>
+</pre>
+</div>
+
+
+</section>
+<section id="slide-org019179e">
+<h3 id="org019179e">Adicionando estilos</h3>
+<ul>
+<li>Modificando o parser de diretórios para entrada</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">pDirectory</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #ce537a; font-weight: bold;">Options</span>
+<span style="color: #bc6ec5; font-weight: bold;">pDirectory</span> <span style="color: #7590db;">=</span>
+  <span style="color: #ce537a; font-weight: bold;">Directory</span> <span style="color: #7590db;">&lt;$&gt;</span> pInputDir <span style="color: #7590db;">&lt;*&gt;</span> pOutputDir <span style="color: #7590db;">&lt;*&gt;</span> pEnv
+</pre>
+</div>
+
+
+</section>
+<section id="slide-org1684c80">
+<h3 id="org1684c80">Adicionando estilos</h3>
+<ul>
+<li>Modificando o parser de diretórios para entrada</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">pEnv</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #ce537a; font-weight: bold;">Env</span>
+<span style="color: #bc6ec5; font-weight: bold;">pEnv</span> <span style="color: #7590db;">=</span> fromMaybe defaultEnv <span style="color: #7590db;">&lt;$&gt;</span> optional p
+  <span style="color: #4f97d7; font-weight: bold;">where</span>
+    p <span style="color: #7590db;">=</span>  <span style="color: #ce537a; font-weight: bold;">Env</span> <span style="color: #7590db;">&lt;$&gt;</span> strOption
+                 <span style="color: #4f97d7;">(</span>  long <span style="color: #2d9574;">"style"</span>
+                 <span style="color: #7590db;">&lt;&gt;</span> short <span style="color: #2d9574;">'S'</span>
+                 <span style="color: #7590db;">&lt;&gt;</span> metavar <span style="color: #2d9574;">"FILE"</span>
+                 <span style="color: #7590db;">&lt;&gt;</span> help <span style="color: #2d9574;">"Stylesheet filename"</span>
+                 <span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orgc0212c6">
+<h3 id="orgc0212c6">Adicionando estilos</h3>
+<ul>
+<li>Modificando o pipeline de compilação
+<ul>
+<li>Inclusão do environment em <b>TODAS</b> as funções do pipeline.</li>
+
+</ul></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">startPipeline</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">IO</span> <span style="color: #4f97d7; font-weight: bold;">()</span>
+<span style="color: #bc6ec5; font-weight: bold;">startPipeline</span>
+  <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">do</span>
+      options <span style="color: #7590db;">&lt;-</span> optionsParser
+      <span style="color: #4f97d7; font-weight: bold;">case</span> options <span style="color: #4f97d7; font-weight: bold;">of</span>
+        <span style="color: #ce537a; font-weight: bold;">Single</span> inp out <span style="color: #7590db;">-&gt;</span>
+          filePipeline <span style="color: #ce537a; font-weight: bold;">False</span> defaultEnv inp out
+        <span style="color: #ce537a; font-weight: bold;">Directory</span> inpDir outDir env <span style="color: #7590db;">-&gt;</span>
+          directoryPipeline env inpDir outDir
+</pre>
+</div>
+
+</section>
+<section id="slide-org8a429e8">
+<h3 id="org8a429e8">Adicionando estilos</h3>
+<ul>
+<li>Modificando o pipeline de compilação.
+<ul>
+<li>Estilos usados apenas em <code>filePipeline</code>.</li>
+<li>Demais funções apenas "passam" o valor de <code>Env</code>.</li>
+
+</ul></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">filePipeline</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Bool</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Env</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Input</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Output</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">IO</span> <span style="color: #4f97d7; font-weight: bold;">()</span>
+<span style="color: #bc6ec5; font-weight: bold;">filePipeline</span> dirMode env inpFile outFile 
+  <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">do</span>
+      progressMessage dirMode inpFile
+      <span style="color: #4f97d7;">(</span>title,inpHandle,outHandle<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">&lt;-</span> createHandles inpFile outFile
+      content <span style="color: #7590db;">&lt;-</span> hGetContents inpHandle
+      <span style="color: #4f97d7; font-weight: bold;">let</span> header <span style="color: #7590db;">=</span> title_ title <span style="color: #7590db;">&lt;&gt;</span> stylesheet_ <span style="color: #4f97d7;">(</span>stylePath env<span style="color: #4f97d7;">)</span> 
+      res <span style="color: #7590db;">&lt;-</span> pipeline header content
+      hPutStrLn outHandle res
+      hClose inpHandle
+      hClose outHandle
+</pre>
+</div>
+
+</section>
+<section id="slide-org243492b">
+<h3 id="org243492b">Adicionando estilos</h3>
+<ul>
+<li>Versão contendo o código com passagem explícita de <code>Env</code> está disponível
+na branch <code>markup-explicit-env</code>.</li>
+
+</ul>
+
+</section>
+<section id="slide-org213451f">
+<h3 id="org213451f">Adicionando estilos</h3>
+<ul>
+<li>Essa passagem de valores é tediosa e propensa a erros.</li>
+
+<li>Ideal: Acessar o valor somente no ponto onde este será utilizado.
+<ul>
+<li>Garantir que esse valor não será modificado.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org4b64685">
+<h3 id="org4b64685">Adicionando estilos</h3>
+<ul>
+<li>Podemos garantir a situação ideal utilizando a mônada de somente leitura
+<ul>
+<li>Reader</li>
+
+</ul></li>
+<li>Como combinar essa mônada com a mônada de IO?</li>
+
+</ul>
+
+</section>
+<section id="slide-orgebf4c64">
+<h3 id="orgebf4c64">Adicionando estilos</h3>
+<ul>
+<li>Para isso, devemos utilizar <b>transformadores monádicos</b>.
+<ul>
+<li>Permitem combinar a funcionalidade de diferentes mônadas.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org3f92968">
+<h3 id="org3f92968">Adicionando estilos</h3>
+<ul>
+<li>Principal função da mônada de somente leitura
+<ul>
+<li>Retorna o valor armazenado na mônada para consulta.</li>
+
+</ul></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">ask</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">MonadReader</span> m <span style="color: #7590db;">=&gt;</span> m a
+</pre>
+</div>
+
+</section>
+<section id="slide-org35b1442">
+<h3 id="org35b1442">Adicionando estilos</h3>
+<ul>
+<li>Modificando o pipeline de compilação para usar a nova mônada</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">type</span> <span style="color: #ce537a; font-weight: bold;">CompilerM</span> a <span style="color: #7590db;">=</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">ReaderT</span> <span style="color: #ce537a; font-weight: bold;">Env</span> <span style="color: #ce537a; font-weight: bold;">IO</span><span style="color: #4f97d7;">)</span> a
+
+<span style="color: #bc6ec5; font-weight: bold;">runCompilerM</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Env</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">CompilerM</span> a <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">IO</span> a
+<span style="color: #bc6ec5; font-weight: bold;">runCompilerM</span> env m <span style="color: #7590db;">=</span> runReaderT m env
+</pre>
+</div>
+
+</section>
+<section id="slide-orge304bdb">
+<h3 id="orge304bdb">Adicionando estilos</h3>
+<ul>
+<li>Modificando o início do pipeline</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">startPipeline</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">IO</span> <span style="color: #4f97d7; font-weight: bold;">()</span>
+<span style="color: #bc6ec5; font-weight: bold;">startPipeline</span>
+  <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">do</span>
+      options <span style="color: #7590db;">&lt;-</span> optionsParser
+      <span style="color: #4f97d7; font-weight: bold;">case</span> options <span style="color: #4f97d7; font-weight: bold;">of</span>
+        <span style="color: #ce537a; font-weight: bold;">Single</span> inp out <span style="color: #7590db;">-&gt;</span>
+          runCompilerM defaultEnv <span style="color: #4f97d7;">(</span>filePipeline <span style="color: #ce537a; font-weight: bold;">False</span> inp out<span style="color: #4f97d7;">)</span>
+        <span style="color: #ce537a; font-weight: bold;">Directory</span> inpDir outDir env <span style="color: #7590db;">-&gt;</span>
+          runCompilerM env <span style="color: #4f97d7;">(</span>directoryPipeline inpDir outDir<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org7f45820">
+<h3 id="org7f45820">Adicionando estilos</h3>
+<ul>
+<li>Modificando o pipeline de arquivos individuais
+<ul>
+<li>Uso da função <code>ask</code></li>
+
+</ul></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">filePipeline</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Bool</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Input</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Output</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">CompilerM</span> <span style="color: #4f97d7; font-weight: bold;">()</span>
+<span style="color: #bc6ec5; font-weight: bold;">filePipeline</span> dirMode inpFile outFile 
+  <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">do</span>
+      env <span style="color: #7590db;">&lt;-</span> ask
+      progressMessage dirMode inpFile
+      <span style="color: #4f97d7;">(</span>title,inpHandle,outHandle<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">&lt;-</span> liftIO <span style="color: #7590db;">$</span> createHandles inpFile outFile
+      content <span style="color: #7590db;">&lt;-</span> liftIO <span style="color: #7590db;">$</span> hGetContents inpHandle
+      <span style="color: #4f97d7; font-weight: bold;">let</span> header <span style="color: #7590db;">=</span> title_ title <span style="color: #7590db;">&lt;&gt;</span> stylesheet_ <span style="color: #4f97d7;">(</span>stylePath env<span style="color: #4f97d7;">)</span> 
+      res <span style="color: #7590db;">&lt;-</span> pipeline header content
+      writeAndCloseHandles res inpHandle outHandle
+</pre>
+</div>
+
+</section>
+<section id="slide-orgaff36a8">
+<h3 id="orgaff36a8">Adicionando estilos</h3>
+<ul>
+<li>Demais funções tiveram alterações pontuais
+<ul>
+<li>Modificação da assinatura de tipos</li>
+<li>Uso de <code>liftIO</code>.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgdf152a9">
+<h3 id="orgdf152a9">Adicionando estilos</h3>
+<ul>
+<li>Código contendo essa versão está disponível na branch <code>main</code>.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org152275c">
+<h2 id="org152275c">Concluindo</h2>
+<div class="outline-text-2" id="text-org152275c">
+</div>
+</section>
+<section id="slide-org2c499b0">
+<h3 id="org2c499b0">Concluindo</h3>
+<ul>
+<li>Com isso, terminamos nossa revisão de Haskell.</li>
+<li>Produzimos um compilador de um subconjunto de Markdown para HTML.
+<ul>
+<li>Utilizamos várias bibliotecas úteis de Haskell.</li>
+<li>Apresentamos o padrão functional core / imperative shell</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org8d308d6">
+<h3 id="org8d308d6">Concluindo</h3>
+<ul>
+<li>Utilizamos monad transformers em um exemplo muito simples.</li>
+
+<li>Recomendo ver um exemplo um pouco mais interessante disponível no seguinte <a href="https://github.com/mgrabmueller/TransformersStepByStep">repositório</a>.</li>
+
+</ul>
+
+</section>
+<section id="slide-org74a54be">
+<h3 id="org74a54be">Concluindo</h3>
+<ul>
+<li>Próxima aula: iniciamos o primeiro tópico de compiladores
+<ul>
+<li>Análise léxica</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org904ea0b">
+<h2 id="org904ea0b">Exercícios</h2>
+<div class="outline-text-2" id="text-org904ea0b">
+</div>
+</section>
+<section id="slide-orga6266de">
+<h3 id="orga6266de">Exercícios</h3>
+<ul>
+<li>Em exercícios anteriores, você extendeu o compilador de Markdown para gerar slides beamer.
+<ul>
+<li>Modifique a versão atual para gerar slides para todos os arquivos em um diretório</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org35cdcb9">
+<h3 id="org35cdcb9">Exercícios</h3>
+<ul>
+<li>Modifique o parser de argumentos de linha de comando para permitir a especificação do template de slides a ser usado como argumento de linha de comando.
+<ul>
+<li><a href="https://latex-beamer.com/tutorials/beamer-themes/">Lista de templates disponíveis</a>.</li>
+
+</ul></li>
+<li>Entrega via Github classroom.</li>
+
+</ul>
+</section>
+</section>
+</div>
+</div>
+<script src="file:///home/rodrigo/reveal.js/dist/reveal.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/markdown/markdown.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/notes/notes.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/search/search.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/zoom/zoom.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+overview: true,
+
+transition: 'convex',
+transitionSpeed: 'default',
+
+// Plugins with reveal.js 4.x
+plugins: [ RevealMarkdown, RevealNotes, RevealSearch, RevealZoom ],
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+]
+
+});
+</script>
+</body>
+</html>

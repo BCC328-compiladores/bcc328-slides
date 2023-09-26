@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Revisão de Haskell</title>
+<meta name="author" content="Construção de compiladores I"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/reveal.css"/>
+
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/theme/white.css" id="theme"/>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1 class="title">Revisão de Haskell</h1><h2 class="author">Construção de compiladores I</h2>
+</section>
+
+<section>
+<section id="slide-org6fe5583">
+<h2 id="org6fe5583">Objetivos</h2>
+<div class="outline-text-2" id="text-org6fe5583">
+</div>
+</section>
+<section id="slide-orge603238">
+<h3 id="orge603238">Objetivos</h3>
+<ul>
+<li>Revisar conceitos de programação funcional utilizando Haskell.</li>
+
+<li>Apresentar a aplicação dos conceitos para construir um compilador protótipo.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org6616360">
+<h2 id="org6616360">Markdown</h2>
+<div class="outline-text-2" id="text-org6616360">
+</div>
+</section>
+<section id="slide-org3f79e9a">
+<h3 id="org3f79e9a">Markdown</h3>
+<ul>
+<li>Formato amplamente utilizado para representação de documentos.</li>
+
+<li>Popularizado pela adoção de plataformas como Github e 
+ferramentas como o pandoc.</li>
+
+</ul>
+
+
+</section>
+<section id="slide-org95de8ba">
+<h3 id="org95de8ba">Markdown</h3>
+<ul>
+<li>Componentes do compilador.
+<ul>
+<li>Analisadores léxico e sintático: produção da AST do formato.</li>
+
+<li>Gerador de código: produção de HTML.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org56378f0">
+<h3 id="org56378f0">Markdown</h3>
+<ul>
+<li>Primeiro passo: criar uma biblioteca para criação de HTML bem formado.</li>
+<li>Faremos isso criando uma EDSL para HTML</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org5ca81ad">
+<h2 id="org5ca81ad">EDSLs</h2>
+<div class="outline-text-2" id="text-org5ca81ad">
+</div>
+</section>
+<section id="slide-org2c61a4b">
+<h3 id="org2c61a4b">EDSLs</h3>
+<ul>
+<li>Em Haskell, é bem comum desenvolvermos EDSLs
+<ul>
+<li><b>E</b> mbedded <b>D</b> omain <b>S</b> pecific <b>L</b> anguage</li>
+
+</ul></li>
+<li>DSLs estão em toda parte
+<ul>
+<li>makefiles, sql, dot, html&#x2026;</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orge7ca6c7">
+<h3 id="orge7ca6c7">EDSLs</h3>
+<ul>
+<li>Mas porque "Embedded"?
+<ul>
+<li>EDSLs utilizam todo os recursos da linguagem de origem.</li>
+<li>Vantagem: não é necessário construir um compilador do "zero".</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org2b54022">
+<h3 id="org2b54022">EDSLs</h3>
+<ul>
+<li>Mas qual o problema que a EDSL de Html vai resolver?</li>
+
+<li>A princípio, podemos produzir Html usando operações sobre strings&#x2026;</li>
+
+</ul>
+
+</section>
+<section id="slide-orgb1fea07">
+<h3 id="orgb1fea07">EDSLs</h3>
+<ul>
+<li>Problemas de uso de strings: 
+<ul>
+<li>Quem garante que construímos &lt;title&gt;&lt;\title&gt; somente dentro 
+de um &lt;head&gt; usando strings?</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org3b57d26">
+<h3 id="org3b57d26">EDSLs</h3>
+<ul>
+<li>Estratégia de projeto: Uma biblioteca de combinadores
+<ul>
+<li>Funções para elementos primitivos.</li>
+<li>Funções para combinar elementos HTML</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgc84a064">
+<h2 id="orgc84a064">EDSL para Html</h2>
+<div class="outline-text-2" id="text-orgc84a064">
+</div>
+</section>
+<section id="slide-orga2c0ba2">
+<h3 id="orga2c0ba2">EDSL para Html</h3>
+<ul>
+<li>Definição de tipos:
+<ul>
+<li>Tipos encapsulam strings correspondente a estrutura de HTML.</li>
+
+</ul></li>
+
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">newtype</span> <span style="color: #ce537a; font-weight: bold;">Html</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Html</span> <span style="color: #ce537a; font-weight: bold;">String</span>
+
+<span style="color: #4f97d7; font-weight: bold;">newtype</span> <span style="color: #ce537a; font-weight: bold;">Structure</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Structure</span> <span style="color: #ce537a; font-weight: bold;">String</span>
+
+<span style="color: #4f97d7; font-weight: bold;">newtype</span> <span style="color: #ce537a; font-weight: bold;">Content</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Content</span> <span style="color: #ce537a; font-weight: bold;">String</span>
+
+<span style="color: #4f97d7; font-weight: bold;">newtype</span> <span style="color: #ce537a; font-weight: bold;">Head</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Head</span> <span style="color: #ce537a; font-weight: bold;">String</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orgf64cabd">
+<h3 id="orgf64cabd">EDSL para HTML</h3>
+<ul>
+<li>Definindo um novo tipo
+<ul>
+<li><code>newtype</code> permite definir tipos com um único construtor.</li>
+
+</ul></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">newtype</span> <span style="color: #ce537a; font-weight: bold;">Html</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Html</span> <span style="color: #ce537a; font-weight: bold;">String</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orgaa50c0d">
+<h3 id="orgaa50c0d">EDSL para HTML</h3>
+<ul>
+<li>Construtores são funções.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #ce537a; font-weight: bold;">Html</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Html</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org6bfb07c">
+<h3 id="org6bfb07c">EDSL para HTML</h3>
+<ul>
+<li>Gerando o código HTML:
+<ul>
+<li>Uso de casamento de padrão</li>
+
+</ul></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">render</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Html</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">String</span>
+<span style="color: #bc6ec5; font-weight: bold;">render</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Html</span> str<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> str
+</pre>
+</div>
+
+</section>
+<section id="slide-org4c6dd23">
+<h3 id="org4c6dd23">EDSL para HTML</h3>
+<ul>
+<li>Qual a vantagem disso? Porque não strings?
+<ul>
+<li>Vamos "ocultar" a estrutura de tipos.</li>
+<li>Manipulação apenas por funções.</li>
+<li>Funções garantem a geração de HTML válido.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgc626320">
+<h3 id="orgc626320">EDSL para Html</h3>
+<ul>
+<li>Criando uma tag qualquer:</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">el</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">String</span>
+<span style="color: #bc6ec5; font-weight: bold;">el</span> tag content <span style="color: #7590db;">=</span>
+  <span style="color: #2d9574;">"&lt;"</span> <span style="color: #7590db;">&lt;&gt;</span> tag <span style="color: #7590db;">&lt;&gt;</span> <span style="color: #2d9574;">"&gt;"</span> <span style="color: #7590db;">&lt;&gt;</span> content <span style="color: #7590db;">&lt;&gt;</span> <span style="color: #2d9574;">"&lt;/"</span> <span style="color: #7590db;">&lt;&gt;</span> tag <span style="color: #7590db;">&lt;&gt;</span> <span style="color: #2d9574;">"&gt;"</span>
+</pre>
+</div>
+
+
+</section>
+<section id="slide-org1fd51cb">
+<h3 id="org1fd51cb">EDSL para Html</h3>
+<ul>
+<li>Mas o que é a função <code>&lt;&gt;</code>?</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">Semigroup</span> a <span style="color: #4f97d7; font-weight: bold;">where</span>
+  <span style="color: #4f97d7;">(</span><span style="color: #7590db;">&lt;&gt;</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">::</span> a <span style="color: #7590db;">-&gt;</span> a <span style="color: #7590db;">-&gt;</span> a
+
+<span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">Semigroup</span> a <span style="color: #7590db;">=&gt;</span> <span style="color: #ce537a; font-weight: bold;">Monoid</span> a <span style="color: #4f97d7; font-weight: bold;">where</span>
+  mempty <span style="color: #7590db;">::</span> a
+</pre>
+</div>
+
+</section>
+<section id="slide-org25a8c22">
+<h3 id="org25a8c22">EDSL para Html</h3>
+<ul>
+<li><code>Semigroup</code> e <code>Monoid</code> são classes de tipos 
+<ul>
+<li>Duas operações definidas: <code>(&lt;&gt;)</code> e <code>mempty</code>.</li>
+
+</ul></li>
+<li>Requisitos
+<ul>
+<li><code>(&lt;&gt;)</code> deve ser associativo.</li>
+<li><code>mempty</code> deve ser elemento neutro de <code>(&lt;&gt;)</code>.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org739ba19">
+<h3 id="org739ba19">EDSL para Html</h3>
+<ul>
+<li>Listas são instância de <code>Semigroup</code> e <code>Monoid</code>:
+<ul>
+<li>Strings são apenas listas de caracteres.</li>
+
+</ul></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">instance</span> <span style="color: #ce537a; font-weight: bold;">Semigroup</span> <span style="color: #4f97d7;">[</span>a<span style="color: #4f97d7;">]</span> <span style="color: #4f97d7; font-weight: bold;">where</span>
+  xs <span style="color: #7590db;">&lt;&gt;</span> ys <span style="color: #7590db;">=</span> xs <span style="color: #7590db;">++</span> ys
+
+<span style="color: #4f97d7; font-weight: bold;">instance</span> <span style="color: #ce537a; font-weight: bold;">Monoid</span> <span style="color: #4f97d7;">[</span>a<span style="color: #4f97d7;">]</span> <span style="color: #4f97d7; font-weight: bold;">where</span>
+   mempty        <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">[]</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org8f07ea9">
+<h3 id="org8f07ea9">EDSL para Html</h3>
+<ul>
+<li>A partir da função <code>el</code> podemos criar outras tags.</li>
+
+<li>Código para definir a tag <code>&lt;b&gt; ... &lt;/b&gt;</code>:</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">getContentString</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Content</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">String</span>
+<span style="color: #bc6ec5; font-weight: bold;">getContentString</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Content</span> str<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> str
+
+<span style="color: #bc6ec5; font-weight: bold;">b_</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Content</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Content</span>
+<span style="color: #bc6ec5; font-weight: bold;">b_</span> content <span style="color: #7590db;">=</span>
+  <span style="color: #ce537a; font-weight: bold;">Content</span> <span style="color: #7590db;">$</span> el <span style="color: #2d9574;">"b"</span> <span style="color: #4f97d7;">(</span>getContentString content<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org4f596c3">
+<h3 id="org4f596c3">EDSL para Html</h3>
+<ul>
+<li>Demais tags seguem estrutura similar.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">i_</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Content</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Content</span>
+<span style="color: #bc6ec5; font-weight: bold;">i_</span> content <span style="color: #7590db;">=</span>
+  <span style="color: #ce537a; font-weight: bold;">Content</span> <span style="color: #7590db;">$</span> el <span style="color: #2d9574;">"i"</span> <span style="color: #4f97d7;">(</span>getContentString content<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org9480c48">
+<h3 id="org9480c48">EDSL para HTML</h3>
+<ul>
+<li>Como usar essa DSL para construir HTML?</li>
+
+</ul>
+
+</section>
+<section id="slide-org4586a83">
+<h3 id="org4586a83">EDSL para HTML</h3>
+<ul>
+<li>Construir esse HTML simples:</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-html">&lt;<span style="color: #bc6ec5; font-weight: bold;">html</span>&gt;
+  &lt;<span style="color: #bc6ec5; font-weight: bold;">head</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">My title</span>&lt;/<span style="color: #bc6ec5; font-weight: bold;">title</span>&gt;
+  &lt;/<span style="color: #bc6ec5; font-weight: bold;">head</span>&gt;
+  &lt;<span style="color: #bc6ec5; font-weight: bold;">body</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">h1</span>&gt;<span style="font-weight: bold; text-decoration: underline;">Heading</span>&lt;/<span style="color: #bc6ec5; font-weight: bold;">h1</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;Paragraph #1&lt;/<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;Paragraph #2&lt;/<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;
+  &lt;/<span style="color: #bc6ec5; font-weight: bold;">body</span>&gt;
+&lt;/<span style="color: #bc6ec5; font-weight: bold;">html</span>&gt;
+</pre>
+</div>
+
+</section>
+<section id="slide-org6d03f22">
+<h3 id="org6d03f22">EDSL para HTML</h3>
+<ul>
+<li>Representação na EDSL:</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">myhtml</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Html</span>
+<span style="color: #bc6ec5; font-weight: bold;">myhtml</span> <span style="color: #7590db;">=</span>
+  html_
+    <span style="color: #4f97d7;">(</span>title_ <span style="color: #2d9574;">"My title"</span><span style="color: #4f97d7;">)</span>
+    <span style="color: #4f97d7;">(</span><span style="color: #bc6ec5;">(</span>h_ <span style="color: #a45bad;">1</span> <span style="color: #2d9574;">(</span>txt_ <span style="color: #2d9574;">"Heading"</span><span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">)</span>    <span style="color: #7590db;">&lt;&gt;</span>
+     <span style="color: #bc6ec5;">(</span>p_ <span style="color: #7590db;">$</span> txt_ <span style="color: #2d9574;">"Paragraph #1"</span><span style="color: #bc6ec5;">)</span> <span style="color: #7590db;">&lt;&gt;</span>
+     <span style="color: #bc6ec5;">(</span>p_ <span style="color: #7590db;">$</span> txt_ <span style="color: #2d9574;">"Paragraph #2"</span><span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org4dbc06a">
+<h3 id="org4dbc06a">EDSL para HTML</h3>
+<ul>
+<li>Elementos da DSL são combinados utilizando <code>Monoid</code>.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">instance</span> <span style="color: #ce537a; font-weight: bold;">Semigroup</span> <span style="color: #ce537a; font-weight: bold;">Head</span> <span style="color: #4f97d7; font-weight: bold;">where</span>
+  <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Head</span> h1<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">&lt;&gt;</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Head</span> h2<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Head</span> <span style="color: #4f97d7;">(</span>h1 <span style="color: #7590db;">&lt;&gt;</span> h2<span style="color: #4f97d7;">)</span>
+
+<span style="color: #4f97d7; font-weight: bold;">instance</span> <span style="color: #ce537a; font-weight: bold;">Monoid</span> <span style="color: #ce537a; font-weight: bold;">Head</span> <span style="color: #4f97d7; font-weight: bold;">where</span>
+  mempty <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Head</span> <span style="color: #2d9574;">""</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orgb8afaf4">
+<h3 id="orgb8afaf4">EDSL para HTML</h3>
+<ul>
+<li>Tipos <code>Structure</code> e <code>Content</code> também são monóides.</li>
+
+</ul>
+
+</section>
+<section id="slide-org11401b9">
+<h3 id="org11401b9">EDSL para HTML</h3>
+<ul>
+<li>Definida no módulo <code>Markup.Printer.Html.Internal</code>.</li>
+
+<li>Esse módulo é encapsulado por <code>Markup.Printer.Html</code> que
+exporta apenas funções para manipular os tipos <code>Html, Structure, Content</code>.</li>
+
+</ul>
+
+</section>
+<section id="slide-org074193e">
+<h3 id="org074193e">EDSL para HTML</h3>
+<ul>
+<li>Definição do cabeçalho</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">module</span> <span style="color: #ce537a; font-weight: bold;">Markup.Printer.Html</span> <span style="color: #4f97d7;">(</span> <span style="color: #ce537a; font-weight: bold;">Html</span>
+                           , <span style="color: #ce537a; font-weight: bold;">Head</span>
+                           , title_
+                           , <span style="color: #ce537a; font-weight: bold;">Structure</span>
+                           , html_
+                           , h_
+                           , p_
+                           , ul_
+                           , code_
+                           , <span style="color: #ce537a; font-weight: bold;">Content</span>
+                           , txt_
+                           , b_
+                           , i_
+                           , render
+                           <span style="color: #4f97d7;">)</span>  <span style="color: #4f97d7; font-weight: bold;">where</span>
+
+<span style="color: #4f97d7; font-weight: bold;">import</span> <span style="color: #ce537a; font-weight: bold;">Markup.Printer.Html.Internal</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org04ef1d3">
+<h3 id="org04ef1d3">EDSL para HTML</h3>
+<ul>
+<li>Seguindo esse padrão, manipulação de valores <code>HTML</code> só
+pode ser feito usando funções da EDSL.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orge08a101">
+<h2 id="orge08a101">De Markdown para HTML</h2>
+<div class="outline-text-2" id="text-orge08a101">
+</div>
+</section>
+<section id="slide-org538cb6b">
+<h3 id="org538cb6b">De Markdown para HTML</h3>
+<ul>
+<li>Agora que representamos HTML, vamos modelar a entrada do compilador.</li>
+
+</ul>
+
+</section>
+<section id="slide-org9e89548">
+<h3 id="org9e89548">De Markdown para HTML</h3>
+<ul>
+<li>Primeiro, devemos representar a estrutura de Markdown como um tipo
+Haskell</li>
+
+</ul>
+
+</section>
+<section id="slide-orgb2d1da9">
+<h3 id="orgb2d1da9">De Markdown para HTML</h3>
+<ul>
+<li>Documentos são listas de estruturas.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">type</span> <span style="color: #ce537a; font-weight: bold;">Document</span> <span style="color: #7590db;">=</span> <span style="color: #4f97d7;">[</span><span style="color: #ce537a; font-weight: bold;">Structure</span><span style="color: #4f97d7;">]</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org747e8b4">
+<h3 id="org747e8b4">De Markdown para HTML</h3>
+<ul>
+<li>Estruturas são dos seguintes tipos:
+<ul>
+<li>Cabeçalhos</li>
+<li>Parágrafos</li>
+<li>Listas não ordenadas</li>
+<li>Código fonte</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org33d1d03">
+<h3 id="org33d1d03">De Markdown para HTML</h3>
+<ul>
+<li>Representação em Haskell</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">data</span> <span style="color: #ce537a; font-weight: bold;">Structure</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Heading</span> <span style="color: #ce537a; font-weight: bold;">Natural</span> <span style="color: #ce537a; font-weight: bold;">String</span>
+  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">Paragraph</span> <span style="color: #ce537a; font-weight: bold;">String</span>
+  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">UnorderedList</span> <span style="color: #4f97d7;">[</span><span style="color: #ce537a; font-weight: bold;">String</span><span style="color: #4f97d7;">]</span> 
+  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">CodeBlock</span> <span style="color: #4f97d7;">[</span><span style="color: #ce537a; font-weight: bold;">String</span><span style="color: #4f97d7;">]</span>
+  <span style="color: #4f97d7; font-weight: bold;">deriving</span> <span style="color: #ce537a; font-weight: bold;">Show</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org641231c">
+<h3 id="org641231c">De Markdown para HTML</h3>
+<ul>
+<li>Exemplos de representação: cabeçalhos e parágrafos.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-org"><span style="color: #4f97d7; font-size: 130%; font-weight: bold;">*</span><span style="color: #4f97d7; font-size: 130%; font-weight: bold;"> BCC328 - Constru&#231;&#227;o de compiladores I</span>
+
+Revis&#227;o de Haskell
+</pre>
+</div>
+
+</section>
+<section id="slide-orgb774cc3">
+<h3 id="orgb774cc3">De Markdown para HTML</h3>
+<ul>
+<li>Representação em Haskell:</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">example1</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Document</span>
+<span style="color: #bc6ec5; font-weight: bold;">example1</span> <span style="color: #7590db;">=</span>
+  <span style="color: #4f97d7;">[</span> <span style="color: #ce537a; font-weight: bold;">Heading</span> <span style="color: #a45bad;">1</span> <span style="color: #2d9574;">"BCC328 - Constru&#231;&#227;o de compiladores I"</span>
+  , <span style="color: #ce537a; font-weight: bold;">Paragraph</span> <span style="color: #2d9574;">"Revis&#227;o de Haskell"</span>
+  <span style="color: #4f97d7;">]</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org59a4d00">
+<h3 id="org59a4d00">De Markdown para HTML</h3>
+<ul>
+<li>Exemplos de representação: Listas e código fonte.</li>
+
+</ul>
+
+<pre class="example">
+- Como compilar código Haskell:
+&gt; ➜ ghc Main.hs
+&gt; [1 of 1] Compiling Main ( Main.hs, Main.o )
+&gt; Linking Main ...
+Com isso o GHC irá criar os seguintes arquivos:
+- Main.hi: Arquivo de interface.
+- Main.o: Código objeto antes de link-edição.
+- Main (ou Main.exe no Windows): executável
+</pre>
+
+</section>
+<section id="slide-org3158007">
+<h3 id="org3158007">De Markdown para HTML</h3>
+<ul>
+<li>Representação em Haskell:</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">example2</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Document</span>
+<span style="color: #bc6ec5; font-weight: bold;">example2</span> <span style="color: #7590db;">=</span>
+  <span style="color: #4f97d7;">[</span> <span style="color: #ce537a; font-weight: bold;">UnorderedList</span> <span style="color: #bc6ec5;">[</span><span style="color: #2d9574;">"Como compilar c&#243;digo Haskell:"</span><span style="color: #bc6ec5;">]</span>
+  , <span style="color: #ce537a; font-weight: bold;">CodeBlock</span> <span style="color: #bc6ec5;">[</span> <span style="color: #2d9574;">"&#10140; ghc Main.hs"</span>
+              , <span style="color: #2d9574;">"[1 of 1] Compiling Main ( Main.hs, Main.o )"</span>
+              , <span style="color: #2d9574;">"Linking Main ..."</span><span style="color: #bc6ec5;">]</span>
+  , <span style="color: #ce537a; font-weight: bold;">Paragraph</span> <span style="color: #2d9574;">"Com isso o GHC ir&#225; criar os seguintes arquivos:"</span>
+  , <span style="color: #ce537a; font-weight: bold;">UnorderedList</span> <span style="color: #bc6ec5;">[</span> <span style="color: #2d9574;">"Main.hi: Arquivo de interface."</span>
+                  , <span style="color: #2d9574;">"Main.o: C&#243;digo objeto antes de link-edi&#231;&#227;o."</span>
+                  , <span style="color: #2d9574;">"Main (ou Main.exe no Windows): execut&#225;vel"</span><span style="color: #bc6ec5;">]</span>
+  <span style="color: #4f97d7;">]</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orgdec2e00">
+<h3 id="orgdec2e00">De Markdown para HTML</h3>
+<ul>
+<li>Gerando HTML a partir de um documento.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">translate</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">AST.Document</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">HTML.Structure</span>
+<span style="color: #bc6ec5; font-weight: bold;">translate</span> <span style="color: #7590db;">=</span> foldMap translateStructure
+
+<span style="color: #bc6ec5; font-weight: bold;">foldMap</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Monoid</span> m <span style="color: #7590db;">=&gt;</span> <span style="color: #4f97d7;">(</span>a <span style="color: #7590db;">-&gt;</span> m<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #4f97d7;">[</span>a<span style="color: #4f97d7;">]</span> <span style="color: #7590db;">-&gt;</span> m
+<span style="color: #bc6ec5; font-weight: bold;">foldMap</span> f <span style="color: #7590db;">=</span> foldr <span style="color: #4f97d7;">(</span><span style="color: #bc6ec5;">(</span><span style="color: #7590db;">&lt;&gt;</span><span style="color: #bc6ec5;">)</span> <span style="color: #7590db;">.</span> f<span style="color: #4f97d7;">)</span> mempty
+</pre>
+</div>
+
+</section>
+<section id="slide-orgef8caf0">
+<h3 id="orgef8caf0">De Markdown para HTML</h3>
+<ul>
+<li>Gerando HTML a partir de estruturas.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">import</span> <span style="color: #4f97d7; font-weight: bold;">qualified</span> <span style="color: #ce537a; font-weight: bold;">Markup.Language.Syntax</span> <span style="color: #4f97d7; font-weight: bold;">as</span> <span style="color: #ce537a; font-weight: bold;">AST</span>
+<span style="color: #4f97d7; font-weight: bold;">import</span> <span style="color: #4f97d7; font-weight: bold;">qualified</span> <span style="color: #ce537a; font-weight: bold;">Markup.Printer.Html</span> <span style="color: #4f97d7; font-weight: bold;">as</span> <span style="color: #ce537a; font-weight: bold;">HTML</span>
+
+<span style="color: #bc6ec5; font-weight: bold;">translateStructure</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">AST.Structure</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">HTML.Structure</span>
+<span style="color: #bc6ec5; font-weight: bold;">translateStructure</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">AST.Heading</span> n txt<span style="color: #4f97d7;">)</span>
+  <span style="color: #7590db;">=</span> HTML.h_ n <span style="color: #7590db;">$</span> HTML.txt_ txt
+<span style="color: #bc6ec5; font-weight: bold;">translateStructure</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">AST.Paragraph</span> p<span style="color: #4f97d7;">)</span>
+  <span style="color: #7590db;">=</span> HTML.p_ <span style="color: #7590db;">$</span> HTML.txt_ p
+<span style="color: #bc6ec5; font-weight: bold;">translateStructure</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">AST.UnorderedList</span> ds<span style="color: #4f97d7;">)</span>
+  <span style="color: #7590db;">=</span> HTML.ul_ <span style="color: #7590db;">$</span> map <span style="color: #4f97d7;">(</span>HTML.p_ <span style="color: #7590db;">.</span> HTML.txt_<span style="color: #4f97d7;">)</span> ds
+<span style="color: #bc6ec5; font-weight: bold;">translateStructure</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">AST.CodeBlock</span> ds<span style="color: #4f97d7;">)</span>
+  <span style="color: #7590db;">=</span> HTML.code_ <span style="color: #4f97d7;">(</span>unlines ds<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-org1d825d0">
+<h2 id="org1d825d0">Testes</h2>
+<div class="outline-text-2" id="text-org1d825d0">
+</div>
+</section>
+<section id="slide-orgf6d3364">
+<h3 id="orgf6d3364">Testes</h3>
+<ul>
+<li>Infraestrutura de golden tests disponível.</li>
+
+<li>Golden tests
+<ul>
+<li>Entradas disponíveis como arquivos.</li>
+<li>Saídas esperadas disponíveis como arquivos.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orga1ff0cb">
+<h3 id="orga1ff0cb">Testes</h3>
+<ul>
+<li>Execução dos testes
+<ul>
+<li>Após iniciar o <code>nix-shell</code>, execute:</li>
+
+</ul></li>
+
+</ul>
+
+<pre class="example">
+cabal new-test
+</pre>
+
+</section>
+</section>
+<section>
+<section id="slide-org0d54b38">
+<h2 id="org0d54b38">Concluindo</h2>
+<div class="outline-text-2" id="text-org0d54b38">
+</div>
+</section>
+<section id="slide-org55448f5">
+<h3 id="org55448f5">Concluindo</h3>
+<ul>
+<li>Nesta aula revisamos alguns conceitos da linguagem Haskell:
+<ul>
+<li>Definição de tipos de dados.</li>
+<li>Definição de funções por casamento de padrão.</li>
+<li>Funções de ordem superior</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgc0762fd">
+<h3 id="orgc0762fd">Concluindo</h3>
+<ul>
+<li>Próxima aula
+<ul>
+<li>Parsing e mônadas.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgcb09ba2">
+<h2 id="orgcb09ba2">Exercícios</h2>
+<div class="outline-text-2" id="text-orgcb09ba2">
+</div>
+</section>
+<section id="slide-org5eb4fc7">
+<h3 id="org5eb4fc7">Exercícios</h3>
+<ul>
+<li>Estenda a EDSL de HTML para prover suporte a:
+<ul>
+<li>Listas ordenadas</li>
+<li>Links</li>
+<li>Imagens</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org28e6159">
+<h3 id="org28e6159">Exercícios</h3>
+<ul>
+<li>Estenda o tipo de dados de documentos para prover suporte a:
+<ul>
+<li>Listas ordenadas</li>
+<li>Links</li>
+<li>Imagens</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org129fda4">
+<h3 id="org129fda4">Exercícios</h3>
+<ul>
+<li>Adapte o processo de compilação para considerar esses novos recursos.</li>
+
+<li>Entrega via Github Classroom.</li>
+
+</ul>
+</section>
+</section>
+</div>
+</div>
+<script src="file:///home/rodrigo/reveal.js/dist/reveal.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/markdown/markdown.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/notes/notes.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/search/search.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/zoom/zoom.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+overview: true,
+
+transition: 'convex',
+transitionSpeed: 'default',
+
+// Plugins with reveal.js 4.x
+plugins: [ RevealMarkdown, RevealNotes, RevealSearch, RevealZoom ],
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+]
+
+});
+</script>
+</body>
+</html>

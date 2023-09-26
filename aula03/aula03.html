@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Revisão de Haskell</title>
+<meta name="author" content="Construção de compiladores I"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/reveal.css"/>
+
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/theme/white.css" id="theme"/>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1 class="title">Revisão de Haskell</h1><h2 class="author">Construção de compiladores I</h2>
+</section>
+
+<section>
+<section id="slide-orgbe750ba">
+<h2 id="orgbe750ba">Objetivos</h2>
+<div class="outline-text-2" id="text-orgbe750ba">
+</div>
+</section>
+<section id="slide-orga4148d7">
+<h3 id="orga4148d7">Objetivos</h3>
+<ul>
+<li>Revisar conceitos sobre mônadas e separação entre funções puras e
+impuras em Haskell.</li>
+
+<li>Finalização da implementação do compilador.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgb096ccd">
+<h2 id="orgb096ccd">Markdown</h2>
+<div class="outline-text-2" id="text-orgb096ccd">
+</div>
+</section>
+<section id="slide-org3db51bd">
+<h3 id="org3db51bd">Markdown</h3>
+<ul>
+<li>Iniciamos nosso curso com o projeto de um mini-compilador de Markdown.</li>
+
+<li>Objetivo: revisar conceitos da linguagem Haskell</li>
+
+</ul>
+
+</section>
+<section id="slide-org3a0e97d">
+<h3 id="org3a0e97d">Markdown</h3>
+<ul>
+<li>Até o momento:
+<ul>
+<li>Fazemos o parsing de markdown para uma AST.</li>
+<li>Definimos uma EDSL para gerar HTML.</li>
+<li>Transformamos a AST em HTML usando a EDSL.</li>
+
+</ul></li>
+
+<li>O que falta?</li>
+
+</ul>
+
+</section>
+<section id="slide-orgdf55146">
+<h3 id="orgdf55146">Markdown</h3>
+<ul>
+<li>Interação com usuário
+<ul>
+<li>Receber nome de arquivos de entrada / saída.</li>
+<li>Ler o arquivo de entrada.</li>
+<li>Escrever o arquivo de resultado.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgf1a0c87">
+<h3 id="orgf1a0c87">Markdown</h3>
+<ul>
+<li>I/O é uma forma de efeito colateral
+<ul>
+<li>Resultado não depende apenas dos argumentos de entrada do código.</li>
+
+</ul></li>
+
+<li>A priori, Haskell impõe que todas as funções devem ser <b>puras</b>.
+<ul>
+<li>Pura = sem efeitos colaterais</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org5eb2fb2">
+<h3 id="org5eb2fb2">Markdown</h3>
+<ul>
+<li>Mas como fazer I/O ou outro tipo de efeito colateral em Haskell?
+<ul>
+<li>Devemos utilizar <b>mônadas</b>.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgd0a1c1e">
+<h2 id="orgd0a1c1e">Mônadas</h2>
+<div class="outline-text-2" id="text-orgd0a1c1e">
+</div>
+</section>
+<section id="slide-org0d60954">
+<h3 id="org0d60954">Mônadas</h3>
+<ul>
+<li>Haskell é uma linguagem puramente funcional.</li>
+
+<li>Por padrão, todas as funções em Haskell são puras
+<ul>
+<li>Não possuem efeitos colaterais: I/O, estado, exceções.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org18cf5c4">
+<h3 id="org18cf5c4">Mônadas</h3>
+<ul>
+<li>Funções puras são garantidas de retornar o mesmo resultado para mesmas entradas.
+<ul>
+<li>Facilita o teste.</li>
+<li>Facilita o raciocínio formal.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org38c5085">
+<h3 id="org38c5085">Mônadas</h3>
+<ul>
+<li>Porém, para um compilador, precisamos de entrada e saída.</li>
+
+</ul>
+
+</section>
+<section id="slide-org2570dcb">
+<h3 id="org2570dcb">Mônadas</h3>
+<ul>
+<li>Para lidar com efeitos colaterais, Haskell utiliza o conceito de mônada.
+<ul>
+<li>Mônadas são tipos que implementam a seguinte classe:</li>
+
+</ul></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">Applicative</span> m <span style="color: #7590db;">=&gt;</span> <span style="color: #ce537a; font-weight: bold;">Monad</span> m <span style="color: #4f97d7; font-weight: bold;">where</span>
+   return <span style="color: #7590db;">::</span> a <span style="color: #7590db;">-&gt;</span> m a
+   <span style="color: #4f97d7;">(</span><span style="color: #7590db;">&gt;&gt;=</span><span style="color: #4f97d7;">)</span>  <span style="color: #7590db;">::</span> m a <span style="color: #7590db;">-&gt;</span> <span style="color: #4f97d7;">(</span>a <span style="color: #7590db;">-&gt;</span> m b<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">-&gt;</span> m b
+</pre>
+</div>
+
+</section>
+<section id="slide-orgf374e44">
+<h3 id="orgf374e44">Mônadas</h3>
+<ul>
+<li>O operador <code>&gt;&gt;=</code> permite compor sequencialmente computações em uma mônada.</li>
+
+<li>Exemplo: ler um nome e imprimir uma mensagem de saudação.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">ex</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">IO</span> <span style="color: #4f97d7; font-weight: bold;">()</span>
+<span style="color: #bc6ec5; font-weight: bold;">ex</span> <span style="color: #7590db;">=</span> getLine <span style="color: #7590db;">&gt;&gt;=</span> <span style="color: #7590db;">\</span> s <span style="color: #7590db;">-&gt;</span> putStrLn <span style="color: #7590db;">$</span> <span style="color: #2d9574;">"Hello "</span> <span style="color: #7590db;">++</span> s
+</pre>
+</div>
+
+</section>
+<section id="slide-org962ca7c">
+<h3 id="org962ca7c">Mônadas</h3>
+<div class="org-src-container">
+
+<pre class="src src-haskell">getLine <span style="color: #bc6ec5; font-weight: bold;">&gt;&gt;=</span> <span style="color: #7590db;">\</span> s <span style="color: #7590db;">-&gt;</span> putStrLn <span style="color: #7590db;">$</span> <span style="color: #2d9574;">"Hello "</span> <span style="color: #7590db;">++</span> s
+</pre>
+</div>
+
+<ul>
+<li>Entendendo o código:
+<ul>
+<li>Primeiro usamos <code>getLine</code> para ler uma string do console.</li>
+<li>O resultado é passado para a função</li>
+
+</ul></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #7590db;">\</span> s <span style="color: #7590db;">-&gt;</span> putStrLn <span style="color: #7590db;">$</span> <span style="color: #2d9574;">"Hello "</span> <span style="color: #7590db;">++</span> s
+</pre>
+</div>
+
+</section>
+<section id="slide-org50e2eba">
+<h3 id="org50e2eba">Mônadas</h3>
+<ul>
+<li>Uso de <code>&gt;&gt;=</code> prejudica a legibilidade do código.</li>
+
+<li>Solução: notação <b>do</b></li>
+
+</ul>
+
+</section>
+<section id="slide-orgd31782d">
+<h3 id="orgd31782d">Mônadas</h3>
+<ul>
+<li>A notação <code>do</code> pode simplificar computações em mônadas.
+<ul>
+<li>Compilador traduz o <code>do</code> para usos de <code>&gt;&gt;=</code>.</li>
+
+</ul></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">ex1</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">IO</span> <span style="color: #4f97d7; font-weight: bold;">()</span>
+<span style="color: #bc6ec5; font-weight: bold;">ex1</span> <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">do</span>
+     s <span style="color: #7590db;">&lt;-</span> getLine
+     putStrLn <span style="color: #7590db;">$</span> <span style="color: #2d9574;">"Hello "</span> <span style="color: #7590db;">++</span> s
+</pre>
+</div>
+
+</section>
+<section id="slide-org5707602">
+<h3 id="org5707602">Mônadas</h3>
+<ul>
+<li>Então, utilizaremos mônadas apenas para realizar I/O?
+<ul>
+<li>Sim!</li>
+
+</ul></li>
+<li>Toda a lógica será implementada por funções <b>puras</b>.
+<ul>
+<li>Não dependem de fatores externos ao programa.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org83a9fac">
+<h3 id="org83a9fac">Mônadas</h3>
+<ul>
+<li>Padrão: Functional core / imperative shell
+<ul>
+<li>Funcionalidade central implementada por funções puras.</li>
+<li>Código puro "envolvido por uma casca" de funções em mônadas</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgcfb91c0">
+<h3 id="orgcfb91c0">Mônadas</h3>
+<ul>
+<li>Para leitura / escrita utilizaremos a biblioteca <code>System.IO</code></li>
+
+<li>Tipos utilizados:</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #ce537a; font-weight: bold;">FilePath</span>
+<span style="color: #ce537a; font-weight: bold;">Handle</span>
+<span style="color: #4f97d7; font-weight: bold;">data</span> <span style="color: #ce537a; font-weight: bold;">IOMode</span>
+   <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">ReadMode</span>
+   <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">WriteMode</span>
+   <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">AppendMode</span>
+   <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">ReadWriteMode</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org629f743">
+<h3 id="org629f743">Mônadas</h3>
+<ul>
+<li>Para leitura / escrita utilizaremos a biblioteca <code>System.IO</code></li>
+
+<li>Funções utilizadas:</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">openFile</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">FilePath</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">IOMode</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">IO</span> <span style="color: #ce537a; font-weight: bold;">Handle</span>
+<span style="color: #bc6ec5; font-weight: bold;">hClose</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Handle</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">IO</span> <span style="color: #4f97d7; font-weight: bold;">()</span>
+<span style="color: #bc6ec5; font-weight: bold;">stdin</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Handle</span>
+<span style="color: #bc6ec5; font-weight: bold;">stdout</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Handle</span>
+<span style="color: #bc6ec5; font-weight: bold;">hGetContents</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Handle</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">IO</span> <span style="color: #ce537a; font-weight: bold;">String</span>
+<span style="color: #bc6ec5; font-weight: bold;">hPutStrLn</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Handle</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">IO</span> <span style="color: #4f97d7; font-weight: bold;">()</span> 
+</pre>
+</div>
+
+</section>
+<section id="slide-org5b8519e">
+<h3 id="org5b8519e">Mônadas</h3>
+<ul>
+<li>Utilizamos as funções anteriores para leitura / escrita de dados usando I/O.</li>
+
+<li>Composição feita utilização notação <b>do</b></li>
+
+</ul>
+
+</section>
+<section id="slide-org5d02c46">
+<h3 id="org5d02c46">Mônadas</h3>
+<ul>
+<li>Exemplo: Confirmar a reescrita de arquivos de saída.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">confirmOverwrite</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">FilePath</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">IO</span> <span style="color: #ce537a; font-weight: bold;">Bool</span>
+<span style="color: #bc6ec5; font-weight: bold;">confirmOverwrite</span> path
+  <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">do</span>
+      putStrLn <span style="color: #7590db;">$</span> <span style="color: #2d9574;">"File:\n"</span> <span style="color: #7590db;">++</span> path <span style="color: #7590db;">++</span> <span style="color: #2d9574;">"\nexists. Confirm overwrite?"</span>
+      answer <span style="color: #7590db;">&lt;-</span> getLine
+      <span style="color: #4f97d7; font-weight: bold;">case</span> answer <span style="color: #4f97d7; font-weight: bold;">of</span>
+        <span style="color: #2d9574;">"y"</span> <span style="color: #7590db;">-&gt;</span> return <span style="color: #ce537a; font-weight: bold;">True</span>
+        <span style="color: #2d9574;">"n"</span> <span style="color: #7590db;">-&gt;</span> return <span style="color: #ce537a; font-weight: bold;">False</span>
+        <span style="color: #4f97d7; font-weight: bold;">_</span>   <span style="color: #7590db;">-&gt;</span> <span style="color: #4f97d7; font-weight: bold;">do</span>
+                 putStrLn <span style="color: #2d9574;">"Invalid answer! Please type y or n."</span>
+                 confirmOverwrite path
+</pre>
+</div>
+
+</section>
+<section id="slide-orgc07f619">
+<h3 id="orgc07f619">Mônadas</h3>
+<ul>
+<li>Com isso a implementação está concluída?
+<ul>
+<li>Não! Falta a <i>interação</i> com o usuário.</li>
+
+</ul></li>
+
+<li>Devemos receber argumentos de linha de comando e processá-los de maneira adequada.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org89a8c14">
+<h2 id="org89a8c14">Interação em console</h2>
+<div class="outline-text-2" id="text-org89a8c14">
+</div>
+</section>
+<section id="slide-orga4d761e">
+<h3 id="orga4d761e">Interação em console</h3>
+<ul>
+<li>Qual o formato da entrada esperado pela ferramenta?
+<ul>
+<li>Devemos especificar o arquivo de entrada e o de saída</li>
+<li>Se não for especificado, a saída deverá ser o console padrão.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org93b4705">
+<h3 id="org93b4705">Interação em console</h3>
+<dl>
+<dt>Em princípio, podemos utilizar a função ~getArgs</dt><dd>IO [String]~.
+<ul>
+<li>Analisamos a lista de <code>String</code> obtida.</li>
+<li>Validamos se os argumentos estão corretos.</li>
+<li>Emitir mensagens de erro / ajuda</li>
+
+</ul></dd>
+
+</dl>
+
+</section>
+<section id="slide-org9178e7a">
+<h3 id="org9178e7a">Interação em console</h3>
+<ul>
+<li>Muitas tarefas&#x2026;</li>
+
+<li>Melhor utilizar uma biblioteca especializada para isso.
+<ul>
+<li>Utilizaremos a biblioteca <code>optparse-applicative</code>.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org78e9b89">
+<h3 id="org78e9b89">Interação em console</h3>
+<ul>
+<li>Para usar essa biblioteca, devemos:
+<ul>
+<li>Definir tipos de dados para opções de entrada do programa</li>
+<li>Definir o parser destas opções</li>
+<li>Casamento de padrão sobre as opções</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org490a4b2">
+<h3 id="org490a4b2">Interação em console</h3>
+<ul>
+<li>Representando o argumento de entrada</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">data</span> <span style="color: #ce537a; font-weight: bold;">Input</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Stdin</span>
+  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">FileInput</span> <span style="color: #ce537a; font-weight: bold;">FilePath</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org2090f25">
+<h3 id="org2090f25">Interação em console</h3>
+<ul>
+<li>Representando o argumento de saída</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">data</span> <span style="color: #ce537a; font-weight: bold;">Output</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Stdout</span>
+  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">FileOutput</span> <span style="color: #ce537a; font-weight: bold;">FilePath</span>
+  <span style="color: #4f97d7; font-weight: bold;">deriving</span> <span style="color: #ce537a; font-weight: bold;">Show</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orgba0b202">
+<h3 id="orgba0b202">Interação em console</h3>
+<ul>
+<li>Agrupando entrada e saída</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">data</span> <span style="color: #ce537a; font-weight: bold;">Options</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Single</span> <span style="color: #ce537a; font-weight: bold;">Input</span> <span style="color: #ce537a; font-weight: bold;">Output</span>
+  <span style="color: #4f97d7; font-weight: bold;">deriving</span> <span style="color: #ce537a; font-weight: bold;">Show</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org2bbf0dd">
+<h3 id="org2bbf0dd">Interação em console</h3>
+<ul>
+<li>Criando o parser usando <code>optparse-applicative</code>.
+<ul>
+<li>Lidando apenas com entrada por arquivos.</li>
+
+</ul></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">pInputFile</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #ce537a; font-weight: bold;">Input</span>
+<span style="color: #bc6ec5; font-weight: bold;">pInputFile</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">FileInput</span> <span style="color: #7590db;">&lt;$&gt;</span> parser
+  <span style="color: #4f97d7; font-weight: bold;">where</span>
+    parser <span style="color: #7590db;">=</span>
+      strOption
+        <span style="color: #4f97d7;">(</span> long <span style="color: #2d9574;">"input"</span>
+          <span style="color: #7590db;">&lt;&gt;</span> short <span style="color: #2d9574;">'i'</span>
+          <span style="color: #7590db;">&lt;&gt;</span> metavar <span style="color: #2d9574;">"FILE"</span>
+          <span style="color: #7590db;">&lt;&gt;</span> help <span style="color: #2d9574;">"Input file"</span>
+        <span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org839f53d">
+<h3 id="org839f53d">Interação em console</h3>
+<ul>
+<li>Criando o parser para entradas</li>
+<li>Função <code>optional</code>
+<ul>
+<li>Retorna <code>Nothing</code> em caso de erro de parsing.</li>
+<li>Retorna o resultado no construtor <code>Just</code>.</li>
+
+</ul></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">pSingleInput</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #ce537a; font-weight: bold;">Input</span>
+<span style="color: #bc6ec5; font-weight: bold;">pSingleInput</span> <span style="color: #7590db;">=</span>
+  fromMaybe <span style="color: #ce537a; font-weight: bold;">Stdin</span> <span style="color: #7590db;">&lt;$&gt;</span> optional pInputFile
+</pre>
+</div>
+
+</section>
+<section id="slide-orgdb44fcd">
+<h3 id="orgdb44fcd">Interação em console</h3>
+<ul>
+<li>Parser para saída segue o mesmo formato.</li>
+
+</ul>
+
+</section>
+<section id="slide-org44bcea9">
+<h3 id="org44bcea9">Interação em console</h3>
+<ul>
+<li>Definição do parser.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">pSingle</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #ce537a; font-weight: bold;">Options</span>
+<span style="color: #bc6ec5; font-weight: bold;">pSingle</span> <span style="color: #7590db;">=</span>
+  <span style="color: #ce537a; font-weight: bold;">Single</span> <span style="color: #7590db;">&lt;$&gt;</span> pSingleInput <span style="color: #7590db;">&lt;*&gt;</span> pSingleOutput
+</pre>
+</div>
+
+</section>
+<section id="slide-org15ea613">
+<h3 id="org15ea613">Interação em console</h3>
+<ul>
+<li>Para executar o parser, precisamos adicionar informações para mensagens de ajuda.</li>
+
+<li>Para isso, devemos criar um valor de tipo <code>ParserInfo</code></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">opts</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">ParserInfo</span> <span style="color: #ce537a; font-weight: bold;">Options</span>
+<span style="color: #bc6ec5; font-weight: bold;">opts</span> <span style="color: #7590db;">=</span> info <span style="color: #4f97d7;">(</span>pSingle <span style="color: #7590db;">&lt;**&gt;</span> helper<span style="color: #4f97d7;">)</span>
+            <span style="color: #4f97d7;">(</span>fullDesc                            <span style="color: #7590db;">&lt;&gt;</span>
+             header <span style="color: #2d9574;">"BCC328 - Markdown compiler"</span> <span style="color: #7590db;">&lt;&gt;</span>
+             progDesc <span style="color: #2d9574;">"Simplified Markdown compiler"</span><span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+
+</section>
+<section id="slide-orgf8e1b9c">
+<h3 id="orgf8e1b9c">Interação em console</h3>
+<ul>
+<li>Com isso, a obtenção de quais opções foram passadas é dada por:</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">parse</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">IO</span> <span style="color: #ce537a; font-weight: bold;">Options</span>
+<span style="color: #bc6ec5; font-weight: bold;">parse</span> <span style="color: #7590db;">=</span> execParser opts
+</pre>
+</div>
+
+</section>
+<section id="slide-org4b6bee4">
+<h3 id="org4b6bee4">Interação em console</h3>
+<ul>
+<li>O parser construído automatiza tratamento de erros em opções e mensagens de ajuda.</li>
+
+</ul>
+
+</section>
+<section id="slide-orga245262">
+<h3 id="orga245262">Interação em console</h3>
+<ul>
+<li>Valores to tipo <code>Option</code> são usados para criar <code>Handles</code>:</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">createHandles</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Options</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">IO</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">String</span>, <span style="color: #ce537a; font-weight: bold;">Handle</span>, <span style="color: #ce537a; font-weight: bold;">Handle</span><span style="color: #4f97d7;">)</span>
+<span style="color: #bc6ec5; font-weight: bold;">createHandles</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Single</span> inp out<span style="color: #4f97d7;">)</span>
+  <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">do</span>
+      <span style="color: #4f97d7;">(</span>title, inpHandle<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">&lt;-</span> createInputHandle inp
+      outHandle <span style="color: #7590db;">&lt;-</span> createOutputHandle out
+      return <span style="color: #4f97d7;">(</span>title, inpHandle, outHandle<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org684e3a0">
+<h3 id="org684e3a0">Interação em console</h3>
+<ul>
+<li>Criação de <code>Handle</code> de entrada</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">createInputHandle</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Input</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">IO</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">String</span>, <span style="color: #ce537a; font-weight: bold;">Handle</span><span style="color: #4f97d7;">)</span>
+<span style="color: #bc6ec5; font-weight: bold;">createInputHandle</span> <span style="color: #ce537a; font-weight: bold;">Stdin</span> <span style="color: #7590db;">=</span> return <span style="color: #4f97d7;">(</span><span style="color: #2d9574;">""</span>, stdin<span style="color: #4f97d7;">)</span>
+<span style="color: #bc6ec5; font-weight: bold;">createInputHandle</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">FileInput</span> path<span style="color: #4f97d7;">)</span>
+  <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">(</span><span style="color: #ce537a; font-weight: bold;">,</span><span style="color: #4f97d7; font-weight: bold;">)</span> path <span style="color: #7590db;">&lt;$&gt;</span> openFile path <span style="color: #ce537a; font-weight: bold;">ReadMode</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orgda98737">
+<h3 id="orgda98737">Interação em console</h3>
+<ul>
+<li>Criação de <code>Handle</code> de saída é similar.</li>
+
+</ul>
+
+</section>
+<section id="slide-org1373ff6">
+<h3 id="org1373ff6">Interação em console</h3>
+<ul>
+<li>Criamos um parser para ler as entradas do compilador.</li>
+
+<li>O que falta?
+<ul>
+<li>Criarmos um pipeline que irá "ligar" a casca de IO com o núcleo do compilador.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org050a73e">
+<h3 id="org050a73e">Interação em console</h3>
+<ul>
+<li>Inicialização do pipeline
+<ul>
+<li>Criação de handles de entrada e de saída</li>
+
+</ul></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">startPipeline</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Handle</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Handle</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">IO</span> <span style="color: #4f97d7; font-weight: bold;">()</span>
+<span style="color: #bc6ec5; font-weight: bold;">startPipeline</span> title inpHandle outHandle
+  <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">do</span>
+      content <span style="color: #7590db;">&lt;-</span> hGetContents inpHandle
+      res <span style="color: #7590db;">&lt;-</span> pipeline <span style="color: #4f97d7;">(</span>title_ title<span style="color: #4f97d7;">)</span> content
+      hPutStrLn outHandle res
+</pre>
+</div>
+
+</section>
+<section id="slide-org1ce2e0e">
+<h3 id="org1ce2e0e">Interação em console</h3>
+<ul>
+<li>Definição do pipeline</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">pipeline</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Head</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">IO</span> <span style="color: #ce537a; font-weight: bold;">String</span>
+<span style="color: #bc6ec5; font-weight: bold;">pipeline</span> title content
+  <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">case</span> frontEnd content <span style="color: #4f97d7; font-weight: bold;">of</span>
+      <span style="color: #ce537a; font-weight: bold;">Left</span> err <span style="color: #7590db;">-&gt;</span> putStrLn err <span style="color: #7590db;">&gt;&gt;</span> exitFailure
+      <span style="color: #ce537a; font-weight: bold;">Right</span> ast <span style="color: #7590db;">-&gt;</span> return <span style="color: #7590db;">$</span> render <span style="color: #7590db;">$</span> backEnd title ast
+</pre>
+</div>
+
+</section>
+<section id="slide-org3fad811">
+<h3 id="org3fad811">Interação em console</h3>
+<ul>
+<li>Definição da função <code>main</code></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">main</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">IO</span> <span style="color: #4f97d7; font-weight: bold;">()</span>
+<span style="color: #bc6ec5; font-weight: bold;">main</span> <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">do</span>
+  options <span style="color: #7590db;">&lt;-</span> parse
+  <span style="color: #4f97d7;">(</span>title,inpHandle,outHandle<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">&lt;-</span> createHandles options
+  startPipeline title inpHandle outHandle
+  hClose inpHandle
+  hClose outHandle
+</pre>
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-orgb46a5dd">
+<h2 id="orgb46a5dd">Concluindo</h2>
+<div class="outline-text-2" id="text-orgb46a5dd">
+</div>
+</section>
+<section id="slide-org1d96971">
+<h3 id="org1d96971">Concluindo</h3>
+<ul>
+<li>Apresentamos o projeto de um compilador de um versão simplificada de Markdown para HTML.</li>
+
+<li>Compilador segue o padrão: functional core / imperative shell</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgdb47f1a">
+<h2 id="orgdb47f1a">Exercícios</h2>
+<div class="outline-text-2" id="text-orgdb47f1a">
+</div>
+</section>
+<section id="slide-orge9775d2">
+<h3 id="orge9775d2">Exercícios</h3>
+<ul>
+<li>Estenda a implementação do compilador desenvolvido para prover
+suporte a produção de slides LaTeX usando beamer.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgbcbcb0c">
+<h3 id="orgbcbcb0c">Exercícios</h3>
+<ul>
+<li>Para isso você deverá:
+<ul>
+<li>Criar uma EDSL para slides beamer.</li>
+<li>Traduzir documentos markdown para a EDSL
+<ul>
+<li>Considere que cada header de level 1 é um novo slide.</li>
+
+</ul></li>
+<li>Modificar a "casca" de IO para incluir a opção de produção de slides.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org71d8dd6">
+<h3 id="org71d8dd6">Exercícios</h3>
+<ul>
+<li>Estender a estrutura de testes para validar a sua implementação.</li>
+
+</ul>
+
+</section>
+<section id="slide-org7248a2c">
+<h3 id="org7248a2c">Exercícios</h3>
+<ul>
+<li>Você pode considerar útil a documentação da biblioteca <a href="https://github.com/pcapriotti/optparse-applicative">optparse-applicative</a>.</li>
+
+</ul>
+</section>
+</section>
+</div>
+</div>
+<script src="file:///home/rodrigo/reveal.js/dist/reveal.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/markdown/markdown.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/notes/notes.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/search/search.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/zoom/zoom.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+overview: true,
+
+transition: 'convex',
+transitionSpeed: 'default',
+
+// Plugins with reveal.js 4.x
+plugins: [ RevealMarkdown, RevealNotes, RevealSearch, RevealZoom ],
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+]
+
+});
+</script>
+</body>
+</html>

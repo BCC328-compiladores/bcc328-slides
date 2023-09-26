@@ -1,0 +1,192 @@
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\author{Construção de compiladores I}
+\date{}
+\title{Análise sintática}
+\hypersetup{
+ pdfauthor={Construção de compiladores I},
+ pdftitle={Análise sintática},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 28.2 (Org mode 9.6.7)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+
+\section*{Objetivos}
+\label{sec:orgdb362a4}
+
+\subsection*{Objetivos}
+\label{sec:orgd7dc65e}
+
+\begin{itemize}
+\item Introduzir a segunda etapa do front-end: a análise sintática.
+
+\item Introduzir o conceito de analisadores top-down e bottom-up.
+\end{itemize}
+
+\subsection*{Objetivos}
+\label{sec:org5e286bb}
+
+\begin{itemize}
+\item Apresentar a técnica de análise sintática descendente recursiva.
+\end{itemize}
+
+\section*{Análise sintática}
+\label{sec:org76b2cb6}
+
+\subsection*{Análise sintática}
+\label{sec:org11752dd}
+
+\begin{itemize}
+\item Responsável por determinar se o programa atende as restrições sintáticas
+da linguagem.
+\end{itemize}
+
+\subsection*{Análise sintática}
+\label{sec:org555344f}
+
+\begin{itemize}
+\item Regras sintáticas de uma linguagem são expressas utilizando gramáticas livres de contexto.
+\end{itemize}
+
+\subsection*{Análise sintática}
+\label{sec:orgbd41fe4}
+
+\begin{itemize}
+\item Porque utilizar GLCs e não ERs?
+\begin{itemize}
+\item ERs não são capazes de representar construções simples de linguagens.
+\end{itemize}
+\end{itemize}
+
+\subsection*{Análise sintática}
+\label{sec:orgc8f3db2}
+
+\begin{itemize}
+\item Vamos considerar um fragmento de expressões formado por variáveis, constantes inteiras
+adição, multiplicação.
+\end{itemize}
+
+\subsection*{Análise sintática}
+\label{sec:orgb300ac8}
+
+\begin{itemize}
+\item A seguinte ER representa essa linguagem:
+\end{itemize}
+
+\begin{array}{c}
+base = [a..z]([a..z] | [0..9])^* \\
+base((+|*)base)^*
+\end{array}
+
+\subsection*{Análise sintática}
+\label{sec:org00db93f}
+
+\begin{itemize}
+\item A ER anterior aceita palavras como \(a * b + c\).
+
+\item Porém, como determinar a precência entre operadores?
+\end{itemize}
+
+\subsection*{Análise sintática}
+\label{sec:org23647d7}
+
+\begin{itemize}
+\item Podemos usar a precedência usual da aritmética.
+
+\item Porém, não é possível impor uma ordem diferente de avaliação.
+\begin{itemize}
+\item Para isso, precisamos de parêntesis.
+\end{itemize}
+\end{itemize}
+
+\subsection*{Análise sintática}
+\label{sec:orga14d2c8}
+
+\begin{itemize}
+\item Ao incluir parêntesis, temos um problema:
+\begin{itemize}
+\item Como expressar usando ER que parêntesis estão corretos?
+\end{itemize}
+\end{itemize}
+
+\subsection*{Análise sintática}
+\label{sec:org4fba839}
+
+\begin{itemize}
+\item Pode-se provar que a linguagem de parêntesis balanceados não é regular.
+\begin{itemize}
+\item Usando o lema do bombeamento.
+\item Estrutura similar a \(\{0^n1^n\,|\,n\geq 0\}\).
+\end{itemize}
+\end{itemize}
+
+\subsection*{Análise sintática}
+\label{sec:org1124837}
+
+\begin{itemize}
+\item Dessa forma, precisamos utilizar GLCs para representar a estrutura sintática
+de linguagens.
+\end{itemize}
+
+\subsection*{Análise sintática}
+\label{sec:orgc5dd19a}
+
+\begin{itemize}
+\item Antes de apresentar técnicas de análise sintática, vamos revisar alguns
+conceitos sobre GLCs.
+\end{itemize}
+
+\section*{Gramáticas Livres de Contexto}
+\label{sec:org7a56ee4}
+
+\subsection*{Gramáticas livres de contexto}
+\label{sec:org22c0d8b}
+
+\begin{itemize}
+\item Uma GLC é \(G=(V,\Sigma,R,P)\), em que
+\begin{itemize}
+\item \(V\): conjunto de variáveis (não terminais)
+\item \(\Sigma\): alfabeto (terminais)
+\item \(R \subseteq V\times (V\cup\Sigma)^*\): regras (produções).
+\item \(P\in V\): variável de partida.
+\end{itemize}
+\end{itemize}
+
+\section*{Concluindo}
+\label{sec:orgc405299}
+
+\subsection*{Concluindo}
+\label{sec:orgf7b371b}
+
+\begin{itemize}
+\item Com isso, concluímos o conteúdo de análise léxica.
+
+\item Próxima aula: análise sintática.
+\end{itemize}
+
+\section*{Exercícios}
+\label{sec:orgb27175d}
+
+\subsection*{Exercícios}
+\label{sec:orgfe4ff75}
+
+\begin{itemize}
+\item Construa um analisador léxico, utilizando derivadas,  para a linguagem de expressões
+aritméticas. Seu analisador deve ler um arquivo, fornecido como argumento de linha
+de comando, e imprimir todos os tokens encontrados.
+\end{itemize}
+\end{document}

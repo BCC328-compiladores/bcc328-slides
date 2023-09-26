@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Derivadas e Análise Léxica</title>
+<meta name="author" content="Construção de compiladores I"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/reveal.css"/>
+
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/theme/white.css" id="theme"/>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1 class="title">Derivadas e Análise Léxica</h1><h2 class="author">Construção de compiladores I</h2>
+</section>
+
+<section>
+<section id="slide-org4981dba">
+<h2 id="org4981dba">Objetivos</h2>
+<div class="outline-text-2" id="text-org4981dba">
+</div>
+</section>
+<section id="slide-org65ea1d5">
+<h3 id="org65ea1d5">Objetivos</h3>
+<ul>
+<li>Apresentar outra técnica para obtenção de AFDs
+a partir de ERs: derivadas.</li>
+
+<li>Apresentar o gerador de analisadores léxicos para Haskell: Alex.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgb090600">
+<h2 id="orgb090600">Derivadas de ERs</h2>
+<div class="outline-text-2" id="text-orgb090600">
+</div>
+</section>
+<section id="slide-org5bea7e2">
+<h3 id="org5bea7e2">Derivadas de ERs</h3>
+<ul>
+<li>Definição de derivada de uma linguagem:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+\partial_{a}(L) & = & \{y \in \Sigma^*\,|\,ay \in L\}\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgdeefb22">
+<h3 id="orgdeefb22">Derivadas de ERs</h3>
+<ul>
+<li>Exemplo:</li>
+
+</ul>
+
+<div>
+\begin{array}{lc}
+\partial_{0}(\{10,\lambda,0,01\}) & = \\
+ \{\lambda,1\}\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org0a7e64d">
+<h3 id="org0a7e64d">Derivadas de ERs</h3>
+<ul>
+<li>A operação de derivada pode ser definida sobre ERs.
+<ul>
+<li>Definição da derivada é apenas uma função recursiva.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgbc2063b">
+<h3 id="orgbc2063b">Derivadas de ERs</h3>
+<ul>
+<li>Operação auxiliar: anulabilidade.</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+\nu(\emptyset)  & = & \bot\\
+\nu(\lambda)    & = & \top\\
+\nu(a)          & = & \bot\\
+\nu(e_1 + e_2)  & = & \nu(e_1) \lor \nu(e_2)\\
+\nu(e_1\,e_2)   & = & \nu(e_1)\land \nu(e_2)\\
+\nu(e_1^*)      & = & \top\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org7519ce3">
+<h3 id="org7519ce3">Derivadas de ERs</h3>
+<ul>
+<li>Definição da derivada</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+\partial_{a}(\emptyset)  & = & \emptyset \\
+\partial_{a}(\lambda) & = & \emptyset \\
+\partial_{a}(a)       & = & \lambda \\
+\partial_{a}(b)       & = & \emptyset\,\,\textrm{se }a \neq b\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org8e1680f">
+<h3 id="org8e1680f">Derivadas de ERs</h3>
+<ul>
+<li>Definição de derivada (continuação)</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+\partial_{a}(e_1 + e_2) & = & \partial_a(e_1)+\partial_a(e_2)\\
+\partial_{a}(e_1\,e_2)  & = & \partial_{a}(e_1)\,e_2 + \partial_{a}(e_2),\:\:\textrm{se }\nu(e_1) = \top\\
+\partial_{a}(e_1\,e_2)  & = & \partial_{a}(e_1)\,e_2\:\:\textrm{se }\nu(e_1) = \bot\\
+\partial_{a}(e_1^*)     & = & \partial_{a}(e_1)\,e_1^*\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgd14ffb2">
+<h3 id="orgd14ffb2">Derivadas de ERs</h3>
+<ul>
+<li>Número de derivadas é finito sobre uma ER \(e\) é finito.
+<ul>
+<li>Se considerarmos a equivalência de ER</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org53aa9da">
+<h3 id="org53aa9da">Derivadas de ERs</h3>
+<ul>
+<li>Equivalência de ERs</li>
+
+</ul>
+
+<div>
+\begin{array}{cc}
+   e + (e' + e'') \approx (e + e') + e'' & e + e \approx e \\
+   e + e' \approx e' + e & (ee')e'' \approx e(e'e'') \\
+   \emptyset e \approx \emptyset & e \emptyset \approx \emptyset \\
+   e \lambda \approx e  & \lambda e \approx e \\
+   e + \emptyset \approx e & \emptyset + e \approx e\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org02d091b">
+<h3 id="org02d091b">Derivadas de ERs</h3>
+<ul>
+<li>Exemplo: Cálculo da derivada de \((01)^*\).</li>
+
+</ul>
+
+<div>
+\begin{array}{lc}
+  \partial_0((01)^*) & = \\
+  \partial_0(01)(01)^* & = \\
+  \partial_0(0)1(01)^* & = \\
+  \lambda 1(01)^* & = \\
+   1(01)^* \\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org8bd298b">
+<h3 id="org8bd298b">Derivadas de ERs</h3>
+<ul>
+<li>Processando strings usando derivadas.</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+\widehat{\partial}(e,\lambda) & = & \nu(e)\\
+\widehat{\partial}(e,ay)      & = & \widehat{\partial}(\partial_{a}(e),y)\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orge7b1075">
+<h3 id="orge7b1075">Derivadas de ERs</h3>
+<ul>
+<li>Além de processar palavras diretamente, podemos construir AFDs diretamente
+a partir de uma ER.</li>
+
+</ul>
+
+</section>
+<section id="slide-org4c4adaf">
+<h3 id="org4c4adaf">Derivadas de ERs</h3>
+<ul>
+<li>O AFD correspondente a uma ER \(e\) é: \((E,\Sigma,\delta,e,F)\).
+<ul>
+<li>\(E\): conjunto de derivadas</li>
+<li>\(\delta(e,a) = e'\) se \(\partial_{a}(e) = e'\).</li>
+<li>\(F = \{e\,|\, \nu(e) = \top\}\).</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgdcd7cd2">
+<h3 id="orgdcd7cd2">Derivadas de ERs</h3>
+<ul>
+<li>Exemplo: Construir um AFD para \((01)^*\).
+<ul>
+<li>Já calculamos: \(\partial_{0}((01)^*) = 1(01)^*\).</li>
+<li>\(\partial_{1}((01)^*) = \emptyset\).</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org46e6042">
+<h3 id="org46e6042">Derivadas de ERs</h3>
+
+<div id="org71c94b1" class="figure">
+<p><img src="./imgs/image1.png" alt="image1.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-orgcd52d73">
+<h3 id="orgcd52d73">Derivadas de ERs</h3>
+<ul>
+<li>Repetindo o processo para outras ERs.
+<ul>
+<li>\(\partial_{0}(\emptyset) = \partial_{1}(\emptyset) = \emptyset\).</li>
+
+</ul></li>
+
+</ul>
+
+
+<div id="orgffa0e74" class="figure">
+<p><img src="./imgs/image2.png" alt="image2.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-org5471f93">
+<h3 id="org5471f93">Derivadas de ERs</h3>
+<ul>
+<li>Repetindo o processo para outras ERs.
+<ul>
+<li>\(\partial_{0}(1(01)^*) = \emptyset\).</li>
+<li>\(\partial_{1}(1(01)^*) = (01)^*\).</li>
+
+</ul></li>
+
+</ul>
+
+
+<div id="org9211844" class="figure">
+<p><img src="./imgs/image3.png" alt="image3.png" />
+</p>
+</div>
+
+
+</section>
+</section>
+<section>
+<section id="slide-orgdfe2403">
+<h2 id="orgdfe2403">Derivadas em Haskell</h2>
+<div class="outline-text-2" id="text-orgdfe2403">
+</div>
+</section>
+<section id="slide-orga27dded">
+<h3 id="orga27dded">Derivadas em Haskell</h3>
+<ul>
+<li>Derivadas são de implementação imediata em Haskell.</li>
+
+</ul>
+
+</section>
+<section id="slide-org41ddfd9">
+<h3 id="org41ddfd9">Derivadas em Haskell</h3>
+<ul>
+<li>Teste de anulabilidade.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">nullable</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Regex</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Bool</span>
+<span style="color: #bc6ec5; font-weight: bold;">nullable</span> <span style="color: #ce537a; font-weight: bold;">Empty</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">False</span>
+<span style="color: #bc6ec5; font-weight: bold;">nullable</span> <span style="color: #ce537a; font-weight: bold;">Lambda</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">True</span>
+<span style="color: #bc6ec5; font-weight: bold;">nullable</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Chr</span> <span style="color: #4f97d7; font-weight: bold;">_</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">False</span>
+<span style="color: #bc6ec5; font-weight: bold;">nullable</span> <span style="color: #4f97d7;">(</span>e1 <span style="color: #ce537a; font-weight: bold;">:+:</span> e2<span style="color: #4f97d7;">)</span>
+  <span style="color: #7590db;">=</span> nullable e1 <span style="color: #7590db;">||</span> nullable e2
+<span style="color: #bc6ec5; font-weight: bold;">nullable</span> <span style="color: #4f97d7;">(</span>e1 <span style="color: #ce537a; font-weight: bold;">:@:</span> e2<span style="color: #4f97d7;">)</span>
+  <span style="color: #7590db;">=</span> nullable e1 <span style="color: #7590db;">&amp;&amp;</span> nullable e2
+<span style="color: #bc6ec5; font-weight: bold;">nullable</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Star</span> e1<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">True</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orgac3e63d">
+<h3 id="orgac3e63d">Derivadas em Haskell</h3>
+<ul>
+<li>Antes de apresentar a função de cálculo de derivadas, é interessante
+introduzir algumas funções para realizar simplificações.</li>
+
+</ul>
+
+</section>
+<section id="slide-org8e4ad12">
+<h3 id="org8e4ad12">Derivadas em Haskell</h3>
+<ul>
+<li>Simplificando união.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7;">(</span><span style="color: #bc6ec5; font-weight: bold;">.+.</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Regex</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Regex</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Regex</span>
+<span style="color: #ce537a; font-weight: bold;">Empty</span> <span style="color: #bc6ec5; font-weight: bold;">.+.</span> e' <span style="color: #7590db;">=</span> e'
+e <span style="color: #bc6ec5; font-weight: bold;">.+.</span> <span style="color: #ce537a; font-weight: bold;">Empty</span>  <span style="color: #7590db;">=</span> e
+e <span style="color: #bc6ec5; font-weight: bold;">.+.</span> e'     <span style="color: #7590db;">=</span> e <span style="color: #ce537a; font-weight: bold;">:+:</span> e'
+</pre>
+</div>
+
+</section>
+<section id="slide-org96dcf2f">
+<h3 id="org96dcf2f">Derivadas em Haskell</h3>
+<ul>
+<li>Simplificando concatenação</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7;">(</span><span style="color: #bc6ec5; font-weight: bold;">.@.</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Regex</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Regex</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Regex</span>
+<span style="color: #ce537a; font-weight: bold;">Empty</span> <span style="color: #bc6ec5; font-weight: bold;">.@.</span> <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Empty</span>
+<span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #bc6ec5; font-weight: bold;">.@.</span> <span style="color: #ce537a; font-weight: bold;">Empty</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Empty</span>
+<span style="color: #ce537a; font-weight: bold;">Lambda</span> <span style="color: #bc6ec5; font-weight: bold;">.@.</span> e' <span style="color: #7590db;">=</span> e'
+e <span style="color: #bc6ec5; font-weight: bold;">.@.</span> <span style="color: #ce537a; font-weight: bold;">Lambda</span> <span style="color: #7590db;">=</span> e
+e <span style="color: #bc6ec5; font-weight: bold;">.@.</span> e' <span style="color: #7590db;">=</span> e <span style="color: #ce537a; font-weight: bold;">:@:</span> e'
+</pre>
+</div>
+
+</section>
+<section id="slide-orgf3ab6d3">
+<h3 id="orgf3ab6d3">Derivadas em Haskell</h3>
+<ul>
+<li>Simplificando o fecho de Kleene.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">star</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Regex</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Regex</span>
+<span style="color: #bc6ec5; font-weight: bold;">star</span> <span style="color: #ce537a; font-weight: bold;">Empty</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Lambda</span>
+<span style="color: #bc6ec5; font-weight: bold;">star</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Star</span> e<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> e
+<span style="color: #bc6ec5; font-weight: bold;">star</span> e <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Star</span> e
+</pre>
+</div>
+
+</section>
+<section id="slide-orgb9e2a64">
+<h3 id="orgb9e2a64">Derivadas em Haskell</h3>
+<ul>
+<li>Definição da derivada</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">deriv</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Char</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Regex</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Regex</span>
+<span style="color: #bc6ec5; font-weight: bold;">deriv</span> <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #ce537a; font-weight: bold;">Empty</span>  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Empty</span>
+<span style="color: #bc6ec5; font-weight: bold;">deriv</span> <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #ce537a; font-weight: bold;">Lambda</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Empty</span>
+<span style="color: #bc6ec5; font-weight: bold;">deriv</span> a <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Chr</span> b<span style="color: #4f97d7;">)</span>
+  <span style="color: #7590db;">|</span> a <span style="color: #7590db;">==</span> b <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Lambda</span>
+  <span style="color: #7590db;">|</span> otherwise <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Empty</span>
+<span style="color: #bc6ec5; font-weight: bold;">deriv</span> a <span style="color: #4f97d7;">(</span>e1 <span style="color: #ce537a; font-weight: bold;">:+:</span> e2<span style="color: #4f97d7;">)</span>
+  <span style="color: #7590db;">=</span> deriv a e1 <span style="color: #7590db;">.+.</span> deriv a e2
+<span style="color: #bc6ec5; font-weight: bold;">deriv</span> a <span style="color: #4f97d7;">(</span>e1 <span style="color: #ce537a; font-weight: bold;">:@:</span> e2<span style="color: #4f97d7;">)</span>
+  <span style="color: #7590db;">|</span> nullable e1 <span style="color: #7590db;">=</span> deriv a e1 <span style="color: #7590db;">.@.</span> e2 <span style="color: #7590db;">.+.</span> deriv a e2
+  <span style="color: #7590db;">|</span> otherwise   <span style="color: #7590db;">=</span> deriv a e1 <span style="color: #7590db;">.@.</span> e2
+<span style="color: #bc6ec5; font-weight: bold;">deriv</span> a <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Star</span> e1<span style="color: #4f97d7;">)</span>
+  <span style="color: #7590db;">=</span> deriv a e1 <span style="color: #7590db;">.@.</span> <span style="color: #4f97d7;">(</span>star e1<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org88c035b">
+<h3 id="org88c035b">Derivadas em Haskell</h3>
+<ul>
+<li>Aceitando uma string.</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">match</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Regex</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Bool</span>
+<span style="color: #bc6ec5; font-weight: bold;">match</span> e <span style="color: #4f97d7; font-weight: bold;">[]</span> <span style="color: #7590db;">=</span> nullable e
+<span style="color: #bc6ec5; font-weight: bold;">match</span> e <span style="color: #4f97d7;">(</span>c <span style="color: #ce537a; font-weight: bold;">:</span> cs<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> match <span style="color: #4f97d7;">(</span>deriv c e<span style="color: #4f97d7;">)</span> cs
+</pre>
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-org9f48aca">
+<h2 id="org9f48aca">Uso do gerador Alex</h2>
+<div class="outline-text-2" id="text-org9f48aca">
+</div>
+</section>
+<section id="slide-orgf568a7a">
+<h3 id="orgf568a7a">Uso do gerador Alex</h3>
+<ul>
+<li>A construção de um analisador léxico é uma tarefa automatizável.</li>
+
+</ul>
+
+</section>
+<section id="slide-org5147b5c">
+<h3 id="org5147b5c">Uso do gerador Alex</h3>
+<ul>
+<li>Veremos como usar a ferramenta Alex para construir um analisador a partir de uma especificação.
+<ul>
+<li>Especificações Alex são apenas expressões regulares.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org25b5de1">
+<h3 id="org25b5de1">Uso do gerador Alex</h3>
+<ul>
+<li>Para exemplificar o uso do Alex, vamos considerar uma linguagem de expressões.</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+e & \to  & n \,|\,v\,|\, e + e \,|\, e * e\, (e)\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org7ee32b8">
+<h3 id="org7ee32b8">Uso do gerador Alex</h3>
+<ul>
+<li>A sintaxe da linguagem de expressões aritméticas é formada pelos seguintes tokens:
+<ul>
+<li>Números: <i>n</i></li>
+<li>Variáveis: <i>v</i></li>
+<li>Símbolos: <i>+</i>, <i>*</i>, <i>(</i> e <i>)</i>.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org2a86815">
+<h3 id="org2a86815">Uso do gerador Alex</h3>
+<ul>
+<li>Especificações Alex são formadas por:
+<ul>
+<li>Trechos de código Haskell</li>
+<li>Definição do <i>wrapper</i> e de macros.</li>
+<li>Declaração dos tokens.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgdb2e3d8">
+<h3 id="orgdb2e3d8">Uso do gerador Alex</h3>
+<ul>
+<li>Trechos de código Haskell
+<ul>
+<li>Definir cabeçalho do módulo</li>
+<li>Tipos e funções.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org4101f31">
+<h3 id="org4101f31">Uso do gerador Alex</h3>
+<ul>
+<li>Cabeçalho do módulo</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7;">{</span>
+<span style="color: #4f97d7; font-weight: bold;">module</span> <span style="color: #ce537a; font-weight: bold;">Arith.Lexer</span> <span style="color: #bc6ec5;">(</span>lexer, testLexer<span style="color: #bc6ec5;">)</span> <span style="color: #4f97d7; font-weight: bold;">where</span>
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orgacad50e">
+<h3 id="orgacad50e">Uso do gerador Alex</h3>
+<ul>
+<li>Definição do tipo <code>Token</code></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">data</span> <span style="color: #ce537a; font-weight: bold;">Token</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">TNumber</span> <span style="color: #ce537a; font-weight: bold;">Int</span>
+  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">TVar</span> <span style="color: #ce537a; font-weight: bold;">String</span>
+  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">TAdd</span>
+  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">TMul</span>
+  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">TLParen</span>
+  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">TRParen</span>
+  <span style="color: #4f97d7; font-weight: bold;">deriving</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Eq</span>, <span style="color: #ce537a; font-weight: bold;">Show</span><span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orgba529b2">
+<h3 id="orgba529b2">Uso do gerador Alex</h3>
+<ul>
+<li>Funções auxiliares
+<ul>
+<li>Função <code>alexScanTokens</code> gerada automaticamente.</li>
+
+</ul></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">lexer</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #4f97d7;">[</span><span style="color: #ce537a; font-weight: bold;">Token</span><span style="color: #4f97d7;">]</span>
+<span style="color: #bc6ec5; font-weight: bold;">lexer</span> <span style="color: #7590db;">=</span> alexScanTokens
+
+<span style="color: #bc6ec5; font-weight: bold;">testLexer</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">IO</span> <span style="color: #4f97d7; font-weight: bold;">()</span>
+<span style="color: #bc6ec5; font-weight: bold;">testLexer</span>
+  <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">do</span>
+      s <span style="color: #7590db;">&lt;-</span> getLine
+      <span style="color: #4f97d7; font-weight: bold;">let</span> tokens <span style="color: #7590db;">=</span> lexer s
+      mapM_ print tokens
+</pre>
+</div>
+
+</section>
+<section id="slide-org7ec5012">
+<h3 id="org7ec5012">Uso do gerador Alex</h3>
+<ul>
+<li>Macros para conjuntos de caracteres.</li>
+
+</ul>
+
+<pre class="example">
+$digit = 0-9            -- digits
+$alpha = [a-zA-Z]       -- alphabetic characters
+</pre>
+
+</section>
+<section id="slide-orgbf74c43">
+<h3 id="orgbf74c43">Uso do gerador Alex</h3>
+<ul>
+<li>Macros para expressões regulares</li>
+
+</ul>
+
+<pre class="example">
+@identifier = $alpha[$alpha $digit]* -- identifiers
+@number     = $digit+
+</pre>
+
+</section>
+<section id="slide-orgbb136e5">
+<h3 id="orgbb136e5">Uso do gerador Alex</h3>
+<ul>
+<li>Especificação de tokens.</li>
+
+</ul>
+
+<pre class="example">
+tokens :-
+  $white+                 ; -- removing whitespace
+  "//".*                  ; -- removing line comments
+  @number                 { \ s -&gt; TNumber (read s) }
+  @identifier             { \ s -&gt; TVar s }
+  \+                      { \ _ -&gt; TAdd }
+  \*                      { \ _ -&gt; TMul }
+  \(                      { \ _ -&gt; TLParen }
+  \)                      { \ _ -&gt; TRParen }
+</pre>
+
+</section>
+<section id="slide-org6bfa0a0">
+<h3 id="org6bfa0a0">Uso de gerador Alex</h3>
+<ul>
+<li>Arquivo <code>Arith/Lexer.x</code> contém a especificação.</li>
+
+<li>Produzindo o analisador léxico.
+<ul>
+<li>Produz o arquivo <code>Arith/Lexer.hs</code></li>
+
+</ul></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-shell">alex Lexer.x 
+</pre>
+</div>
+
+</section>
+<section id="slide-org2f7e7f7">
+<h3 id="org2f7e7f7">Uso do gerador Alex</h3>
+<ul>
+<li>A partir da especificação, o Alex:
+<ul>
+<li>Produz um analisador baseado em AFD mínimo para as ERs definidas.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgf41a38c">
+<h3 id="orgf41a38c">Uso do gerador Alex</h3>
+<ul>
+<li>Permite a definição rápida de analisadores para linguagens reais.</li>
+
+</ul>
+
+</section>
+<section id="slide-org13c85b9">
+<h3 id="org13c85b9">Uso do gerador Alex</h3>
+<ul>
+<li>Problemas
+<ul>
+<li>Não há verificação de tipos em ações do analisador.</li>
+<li>Necessidade de dominar outra linguagem.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org225fb11">
+<h2 id="org225fb11">Concluindo</h2>
+<div class="outline-text-2" id="text-org225fb11">
+</div>
+</section>
+<section id="slide-org6d4279b">
+<h3 id="org6d4279b">Concluindo</h3>
+<ul>
+<li>Com isso, concluímos o conteúdo de análise léxica.</li>
+
+<li>Próxima aula: análise sintática.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org4cb9171">
+<h2 id="org4cb9171">Exercícios</h2>
+<div class="outline-text-2" id="text-org4cb9171">
+</div>
+</section>
+<section id="slide-org1086dc9">
+<h3 id="org1086dc9">Exercícios</h3>
+<ul>
+<li>Construa um analisador léxico, utilizando derivadas,  para a linguagem de expressões
+aritméticas. Seu analisador deve ler um arquivo, fornecido como argumento de linha
+de comando, e imprimir todos os tokens encontrados.</li>
+
+</ul>
+</section>
+</section>
+</div>
+</div>
+<script src="file:///home/rodrigo/reveal.js/dist/reveal.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/markdown/markdown.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/notes/notes.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/search/search.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/zoom/zoom.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+overview: true,
+
+transition: 'convex',
+transitionSpeed: 'default',
+
+// Plugins with reveal.js 4.x
+plugins: [ RevealMarkdown, RevealNotes, RevealSearch, RevealZoom ],
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+]
+
+});
+</script>
+</body>
+</html>
