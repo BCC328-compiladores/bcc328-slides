@@ -579,8 +579,6 @@ factParser = numParser  <|>
     rparen = symbol RParen
 #+end_src
 
-
-
 * Concluindo
 
 ** Concluindo

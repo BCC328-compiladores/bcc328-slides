@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Análise LR(0)</title>
+<meta name="author" content="Construção de compiladores I"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/reveal.css"/>
+
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/theme/white.css" id="theme"/>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1 class="title">Análise LR(0)</h1><h2 class="author">Construção de compiladores I</h2>
+</section>
+
+
+<section>
+<section id="slide-orgcdf2f2e">
+<h2 id="orgcdf2f2e">Objetivos</h2>
+<div class="outline-text-2" id="text-orgcdf2f2e">
+</div>
+</section>
+<section id="slide-org5931e11">
+<h3 id="org5931e11">Objetivos</h3>
+<ul>
+<li>Continuar o estudo do analisador LR(0).</li>
+
+<li>Introduzir o conceito de conflitos em analisadores LR.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orga192e8e">
+<h2 id="orga192e8e">Introdução</h2>
+<div class="outline-text-2" id="text-orga192e8e">
+</div>
+</section>
+<section id="slide-org0f6ddd2">
+<h3 id="org0f6ddd2">Introdução</h3>
+<ul>
+<li>Na aula anterior, vimos o as funções de fechamento e goto, utilizadas para a
+construção de itens LR(0)</li>
+
+</ul>
+
+</section>
+<section id="slide-org9b5d2d8">
+<h3 id="org9b5d2d8">Introdução</h3>
+<ul>
+<li>Nesta aula, vamos ver como construir o autômato LR(0) e como obter a tabela de parsing LR(0).</li>
+
+<li>Aprender o algoritmo de análise sintática LR(0).</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgbd61cb9">
+<h2 id="orgbd61cb9">Construção do AFD LR(0)</h2>
+<div class="outline-text-2" id="text-orgbd61cb9">
+</div>
+</section>
+<section id="slide-org73d9a9c">
+<h3 id="org73d9a9c">Construção do AFD LR(0)</h3>
+<ul>
+<li>Para construir a tabela LR(0), utilizaremos as funções de fechamento e goto.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgd352fa5">
+<h3 id="orgd352fa5">Construção do AFD LR(0)</h3>
+<ul>
+<li>Fechamento do conjunto de itens \(I\).
+<ul>
+<li>\(I\subseteq closure(I)\).</li>
+<li>Se \(A \to \alpha \textbf{.}B\beta \in I\), incluir toda regra \(B \to \gamma\) em I.</li>
+<li>Repetir passo anterior enquanto possível.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org582366f">
+<h3 id="org582366f">Construção do AFD LR(0)</h3>
+<ul>
+<li>Definimos \(goto(I,X)\):
+<ul>
+<li>\(J \leftarrow \emptyset\)</li>
+<li>Para cada item \(A \to \alpha .X\beta \in I\)
+<ul>
+<li>Adicione \(A \to \alpha X.\beta\) a \(J\).</li>
+
+</ul></li>
+<li>retorne \(closure(J)\).</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org1db6a90">
+<h3 id="org1db6a90">Construção do AFD LR(0)</h3>
+<ul>
+<li>Construção de todos os conjuntos de itens:
+<ul>
+<li>Inicie \(T\) com \(closure(\{S' \to \textbf{.}S\})\).</li>
+<li>Inicie \(E\) com \(\emptyset\).</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgbff28c6">
+<h3 id="orgbff28c6">Construção do AFD LR(0)</h3>
+<ul>
+<li>Para cada conjunto \(I \in T\):
+<ul>
+<li>Para cada \(A \to \alpha .X \beta \in I\).
+<ul>
+<li>Seja \(J = goto(I,a)\).</li>
+<li>\(T \leftarrow T \cup \{J\}\) e \(E \leftarrow E \cup\{I \to^{X} J\}\).</li>
+
+</ul></li>
+
+</ul></li>
+<li>Repetir enquanto \(T\) ou \(E\) forem modificados.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgc271be7">
+<h3 id="orgc271be7">Construção do AFD LR(0)</h3>
+<ul>
+<li>Vamos considerar novamente a gramática de exemplo:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+  S  & \to & \textbf{(}L\textbf{)}\,|\, \textbf{x}\\
+  L  & \to & L\,\textbf{,}\,S\,|\,S\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org6975896">
+<h3 id="org6975896">Construção do AFD LR(0)</h3>
+<ul>
+<li>Inicialmente, vamos criar uma nova variável inicial.</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+  S' & \to & S\textbf{.}\\
+  S  & \to & \textbf{(}L\textbf{)}\,|\, \textbf{x}\\
+  L  & \to & L\,\textbf{,}\,S\,|\,S\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org8c7cf41">
+<h3 id="org8c7cf41">Construção do AFD LR(0)</h3>
+<ul>
+<li>Inicializando \(T \leftarrow closure(\{S'\to \textbf{.}S\})\).
+<ul>
+<li>Chamaremos esse conjunto de \(I_1\)</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{rll}
+\{ & S \to \textbf{.}S &, \\
+   & S \to \textbf{.(}L\textbf{)} & , \\
+   & S \to \textbf{.x} & \}\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org19ca65f">
+<h3 id="org19ca65f">Construção do AFD LR(0)</h3>
+<ul>
+<li>Processando \(goto(I_1,x)\):
+<ul>
+<li>Criando um estado \(I_2\)</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & \textbf{x.}\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org62f9cdb">
+<h3 id="org62f9cdb">Construção do AFD LR(0)</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{l}
+E = \{(I_1,x,I_2)\}
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgff88c3e">
+<h3 id="orgff88c3e">Construção do AFD LR(0)</h3>
+<ul>
+<li>Processando \(goto(I_1,()\):
+<ul>
+<li>Criando um estado \(I_3\)</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & \textbf{(.}L\textbf{)}\\
+L & \to & \textbf{.}L\textbf{,}S\\
+L & \to & \textbf{.}S\\
+S & \to & \textbf{.(}L\textbf{)}\\
+S & \to & \textbf{.x}\\
+\end{array}
+
+</div>
+
+
+</section>
+<section id="slide-org9429e86">
+<h3 id="org9429e86">Construção do AFD LR(0)</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{l}
+E = \{(I_1,x,I_2),(I_1,(,I_3)\}
+\end{array}
+
+</div>
+
+
+</section>
+<section id="slide-org0bb7ac0">
+<h3 id="org0bb7ac0">Construção do AFD LR(0)</h3>
+<ul>
+<li>Processando \(goto(I_1,S)\):
+<ul>
+<li>Criando um estado \(I_4\)</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S' & \to & S.
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgfb36c26">
+<h3 id="orgfb36c26">Construção do AFD LR(0)</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{l}
+E = \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4)\}
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org84d221c">
+<h3 id="org84d221c">Construção do AFD LR(0)</h3>
+<ul>
+<li>Com isso, concluímos as transições sobre \(I_1\).</li>
+
+</ul>
+
+</section>
+<section id="slide-org11ca0c9">
+<h3 id="org11ca0c9">Construção do AFD LR(0)</h3>
+<ul>
+<li>Agora, vamos considerar o conjunto \(I_2\):</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & \textbf{x.}\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org3edb607">
+<h3 id="org3edb607">Construção do AFD LR(0)</h3>
+<ul>
+<li>Nenhuma transição pode ser construída a partir de</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & \textbf{x.}\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgca8b838">
+<h3 id="orgca8b838">Construção do AFD LR(0)</h3>
+<ul>
+<li>Agora, vamos considerar o conjunto \(I_3\):</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & \textbf{(.}L\textbf{)}\\
+L & \to & \textbf{.}L\textbf{,}S\\
+L & \to & \textbf{.}S\\
+S & \to & \textbf{.(}L\textbf{)}\\
+S & \to & \textbf{.x}\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgfa43492">
+<h3 id="orgfa43492">Construção do AFD LR(0)</h3>
+<ul>
+<li>Calculando \(goto(I_3,x)\)</li>
+
+<li>Única produção a ser considerada:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & \textbf{.x}\\
+\end{array}
+
+</div>
+
+
+</section>
+<section id="slide-orge9451f3">
+<h3 id="orge9451f3">Construção do AFD LR(0)</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2) \}\\
+\end{array}
+
+</div>
+
+
+</section>
+<section id="slide-org96eccc8">
+<h3 id="org96eccc8">Construção do AFD LR(0)</h3>
+<ul>
+<li>Logo, obtemos o estado \(I_2\):</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & \textbf{x.}\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgd2d56cb">
+<h3 id="orgd2d56cb">Construção do AFD LR(0)</h3>
+<ul>
+<li>Calculando \(goto(I_3,()\).</li>
+<li>Produção base</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & .(L)
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org4a3a3df">
+<h3 id="org4a3a3df">Construção do AFD LR(0)</h3>
+<ul>
+<li>Calculando o \(closure(\{S \to (.L)\}\).
+<ul>
+<li>Incluindo produções \(L\)</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & (.L)\\
+L & \to & \textbf{.}L\textbf{,}S\\
+L & \to & \textbf{.}S\\
+\end{array}
+
+</div>
+
+
+</section>
+<section id="slide-org20a5105">
+<h3 id="org20a5105">Construção do AFD LR(0)</h3>
+<ul>
+<li>Calculando o \(closure(\{S \to (.L)\}\).
+<ul>
+<li>Incluindo produções \(S\)</li>
+<li>Estado \(I_3\)</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & (.L)\\
+S & \to & .x\\
+L & \to & \textbf{.}L\textbf{,}S\\
+L & \to & \textbf{.}S\\
+S & \to & \textbf{.(}L\textbf{)}\\
+\end{array}
+
+</div>
+
+
+</section>
+<section id="slide-org8a2a95c">
+<h3 id="org8a2a95c">Construção do AFD LR(0)</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3) \}\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org5de1f41">
+<h3 id="org5de1f41">Construção do AFD LR(0)</h3>
+<ul>
+<li>Calculando \(goto(I_3,L)\)
+<ul>
+<li>Vamos chamar esse estado de \(I_5\)</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & (L.)\\
+S & \to & L.,S\\
+\end{array}
+
+</div>
+
+
+</section>
+<section id="slide-org1be76aa">
+<h3 id="org1be76aa">Construção do AFD LR(0)</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5)\} \\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgb2ca591">
+<h3 id="orgb2ca591">Construção do AFD LR(0)</h3>
+<ul>
+<li>Calculando \(goto(I_3,S)\):
+<ul>
+<li>Chamaremos esse estado de \(I_6\)</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+L & \to & S.\\
+\end{array}
+
+</div>
+
+
+</section>
+<section id="slide-org161801a">
+<h3 id="org161801a">Construção do AFD LR(0)</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6)\}
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org9115146">
+<h3 id="org9115146">Construção do AFD LR(0)</h3>
+<ul>
+<li>Agora, vamos considerar o estado \(I_4\)
+<ul>
+<li>Não há transições possíveis.</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S' & \to & S.
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org01096e9">
+<h3 id="org01096e9">Construção do AFD LR(0)</h3>
+<ul>
+<li>Agora, vamos considerar o estado \(I_5\)</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & (L.)\\
+S & \to & L.,S\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org0063ef7">
+<h3 id="org0063ef7">Construção do AFD LR(0)</h3>
+<ul>
+<li>Calculando \(goto(I_5,))\)
+<ul>
+<li>Chamaremos esse estado de \(I_7\).</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & (L).\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org0e59f1e">
+<h3 id="org0e59f1e">Construção do AFD LR(0)</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6),(I_5,),I_7)\}
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org22c338f">
+<h3 id="org22c338f">Construção do AFD LR(0)</h3>
+<ul>
+<li>Calculando \(goto(I_5, ,)\)
+<ul>
+<li>Chamaremos esse estado de \(I_8\)</li>
+
+</ul></li>
+
+<li>Produção base</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & L,.S\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orge223113">
+<h3 id="orge223113">Construção do AFD LR(0)</h3>
+<ul>
+<li>Calculando \(closure(\{S\to L,.S\})\):
+<ul>
+<li>Chamaremos esse estado de \(I_8\)</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & L,.S\\
+S & \to & .(L)\\
+S & \to & .x\\
+\end{array}
+
+</div>
+
+
+</section>
+<section id="slide-orge58485b">
+<h3 id="orge58485b">Construção do AFD LR(0)</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6),(I_5,),I_7), (I_5,,,I_8)\}
+\end{array}
+
+</div>
+
+
+</section>
+<section id="slide-org321bc5f">
+<h3 id="org321bc5f">Construção do AFD LR(0)</h3>
+<ul>
+<li>Agora, vamos considerar o estado \(I_6\):
+<ul>
+<li>Não há transições possíveis.</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+L & \to & S.\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org2d6f01b">
+<h3 id="org2d6f01b">Construção do AFD LR(0)</h3>
+<ul>
+<li>Agora vamos considerar o estado \(I_7\):
+<ul>
+<li>Não há transições possíveis.</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & (L).\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org425049a">
+<h3 id="org425049a">Construção do AFD LR(0)</h3>
+<ul>
+<li>Agora vamos consderar o estado \(I_8\):</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & L,.S\\
+S & \to & .(L)\\
+S & \to & .x\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org8a18afd">
+<h3 id="org8a18afd">Construção do AFD LR(0)</h3>
+<ul>
+<li>Calculando \(goto(I_8,x)\)</li>
+
+<li>Produção base: \(S \to .x\)</li>
+
+<li>Resultado: estado \(I_2\)</li>
+
+</ul>
+
+
+</section>
+<section id="slide-org1b3b36a">
+<h3 id="org1b3b36a">Construção do AFD LR(0)</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6),(I_5,),I_7), (I_5,,,I_8), \\
+  &   &   (I_8,x,I_2)\}
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgd78e654">
+<h3 id="orgd78e654">Construção do AFD LR(0)</h3>
+<ul>
+<li>Calculando \(goto(I_8,()\)</li>
+
+<li>Produção base: \(S \to (.S)\)</li>
+
+<li>Resultado: estado \(I_3\).</li>
+
+</ul>
+
+
+</section>
+<section id="slide-org4b32af2">
+<h3 id="org4b32af2">Construção do AFD LR(0)</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6),(I_5,),I_7), (I_5,,,I_8), \\
+  &   &   (I_8,x,I_2),(I_8,(,I_3))\}
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org448b355">
+<h3 id="org448b355">Construção do AFD LR(0)</h3>
+<ul>
+<li>Calculando \(goto(I_8,S)\)
+<ul>
+<li>Vamos chamar esse estado de \(I_9\).</li>
+
+</ul></li>
+
+<li>Produção base: S &rarr; L,S.</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & L,S.
+\end{array}
+
+</div>
+
+
+</section>
+<section id="slide-org5d2d551">
+<h3 id="org5d2d551">Construção do AFD LR(0)</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6),(I_5,),I_7), (I_5,,,I_8), \\
+  &   &   (I_8,x,I_2),(I_8,(,I_3)), (I_8,S,I_9)\}
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org26b5811">
+<h3 id="org26b5811">Construção do AFD LR(0)</h3>
+<ul>
+<li>Agora vamos considerar o estado \(I_9\)
+<ul>
+<li>Não há transições possíveis.</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & L,S.
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org98ab07f">
+<h3 id="org98ab07f">Construção do AFD LR(0)</h3>
+<ul>
+<li>Como não há modificações, o algoritmo termina</li>
+
+<li>Agora, temos o AFD LR(0) para a gramática.</li>
+
+</ul>
+
+</section>
+<section id="slide-org50bc288">
+<h3 id="org50bc288">Construção do AFD LR(0)</h3>
+<ul>
+<li>Desenho do AFD LR(0) para a gramática na lousa.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org7d2b6b3">
+<h2 id="org7d2b6b3">Construção da tabela</h2>
+<div class="outline-text-2" id="text-org7d2b6b3">
+</div>
+</section>
+<section id="slide-org065bb8f">
+<h3 id="org065bb8f">Construção da tabela</h3>
+<ul>
+<li>Usando o AFD, podemos construir a tabela de parsing para a gramática.</li>
+
+</ul>
+
+</section>
+<section id="slide-org4727454">
+<h3 id="org4727454">Construção da tabela</h3>
+<ul>
+<li>Tabela de parsing formada por dois componentes
+<ul>
+<li>Ações de shift / reduce</li>
+<li>Ações para goto</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org8f9b2a5">
+<h3 id="org8f9b2a5">Construção da tabela</h3>
+<ul>
+<li>Para cada aresta \((I,X,J)\)
+<ul>
+<li>Se \(X\) é terminal, \(A[I,X] = shift\:J\)</li>
+<li>Se \(X\) é não terminal, \(G[I,X] = goto\:J\)</li>
+<li>Para cada estado \(I\) contendo S' &rarr; S., \(A[I,.] = accept\)</li>
+<li>Para cada estado \(I\) contendo A &rarr; &gamma;., \(A[I,x] = reduce\:A\), para todo token \(x\).</li>
+<li>Demais entradas da tabela são marcadas como \(reject\).</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org8f873a4">
+<h3 id="org8f873a4">Construção da tabela</h3>
+<ul>
+<li>Construção da tabela na lousa.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org820cfa3">
+<h2 id="org820cfa3">Algoritmo de análise</h2>
+<div class="outline-text-2" id="text-org820cfa3">
+</div>
+</section>
+<section id="slide-org839c5b5">
+<h3 id="org839c5b5">Algoritmo de análise</h3>
+<ul>
+<li>Inicialize o algoritmo com a entrada $w\(\\) e a pilha contendo o estado inicial do AFD LR(0).</li>
+
+<li>Seja \(s\) o estado no topo da pilha.</li>
+
+<li>Seja \(a\) o primeiro símbolo da entrada.</li>
+
+</ul>
+
+</section>
+<section id="slide-org9e426cd">
+<h3 id="org9e426cd">Algoritmo de análise</h3>
+<ul>
+<li>Repita enquanto possível
+<ul>
+<li>Se \(A[s,a] = shift\:t\)
+<ul>
+<li>Empilhe \(t\) e \(a\) é o próximo símbolo de entrada</li>
+
+</ul></li>
+<li>Se \(A[s,a] = reduce\:A\to\beta\)
+<ul>
+<li>Desempilhe \(|\beta|\).</li>
+<li>Seja \(t\) o topo da pilha.</li>
+<li>Empilhe \(G[t,A]\).</li>
+
+</ul></li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org46fbfba">
+<h3 id="org46fbfba">Algoritmo de análise</h3>
+<ul>
+<li>Repita enquanto possível (cont.)
+<ul>
+<li>Se \(A[s,a] = accept\), pare com sucesso.</li>
+<li>Se \(A[s,a] = reject\), pare com erro.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgbf0d50b">
+<h3 id="orgbf0d50b">Algoritmo de análise</h3>
+<ul>
+<li>Exemplo na lousa: Uso da tabela para análise sintática de (x,x).</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org8830f36">
+<h2 id="org8830f36">Conflitos</h2>
+<div class="outline-text-2" id="text-org8830f36">
+</div>
+</section>
+<section id="slide-orgf33c1ec">
+<h3 id="orgf33c1ec">Conflitos</h3>
+<ul>
+<li>Seria possível realizar o parsing de toda GLC usando analisadores ascendentes?</li>
+
+</ul>
+
+</section>
+<section id="slide-orgb310768">
+<h3 id="orgb310768">Conflitos</h3>
+<ul>
+<li>A resposta é <b>não</b>.</li>
+
+</ul>
+
+</section>
+<section id="slide-org1729158">
+<h3 id="org1729158">Conflitos</h3>
+<ul>
+<li>Existem gramáticas que podem fazer o analisador não ser capaz de decidir,
+com base na pilha e entrada, se ele deve:
+<ul>
+<li>Realizar um shift ou reduce.</li>
+<li>Decidir sobre qual produção reduzir.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org8dcefcd">
+<h3 id="org8dcefcd">Conflitos</h3>
+<ul>
+<li>O primeiro tipo de conflito é conhecido como conflito de shift/reduce.</li>
+<li>O segundo tipo de conflito é conhecido como conflito de reduce/reduce.</li>
+
+</ul>
+
+</section>
+<section id="slide-org8deb88b">
+<h3 id="org8deb88b">Conflitos</h3>
+<ul>
+<li>Exemplo: gramática com conflito shift/reduce</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+  S & \to  & \textbf{if } E \textbf{ then } S \textbf{ else }S\\
+    & \mid & \textbf{if } E \textbf{ then } S \,|\,\textbf{other}\\
+  E & \to  & \textbf{id}
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgbeb0f42">
+<h3 id="orgbeb0f42">Conflitos</h3>
+<ul>
+<li>Suponha:
+<ul>
+<li>Pilha contendo: \textbf{if other then other}</li>
+<li>Entrada: \textbf{else} &#x2026; \$</li>
+
+</ul></li>
+
+<li>Pode-se realizar shift ou reduzir por \(S\).</li>
+
+</ul>
+
+</section>
+<section id="slide-org9aa4c9e">
+<h3 id="org9aa4c9e">Conflitos</h3>
+<ul>
+<li>Exemplo: gramática com conflito reduce/reduce</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+  S & \to  & \textbf{id(}L\textbf{)}\,|\,E\:\textbf{=}\,E\\
+  L & \to  & L\textbf{,}P\,|\,P\\
+  P & \to  & \textbf{id}\\
+  E & \to  & \textbf{id}\,|\,\textbf{id(}F\textbf{)}\\
+  F & \to  & F \textbf{,} E\,|\,E
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org3eb0b79">
+<h3 id="org3eb0b79">Conflitos</h3>
+<ul>
+<li>Suponha
+<ul>
+<li>Pilha contendo: \textbf{id( id}</li>
+<li>Entrada: \textbf{, id)}&#x2026;</li>
+
+</ul></li>
+<li>Pode reduzir \textbf{id} por \(E\) ou \(P\).</li>
+
+</ul>
+
+</section>
+<section id="slide-org0eb0a21">
+<h3 id="org0eb0a21">Conflitos</h3>
+<ul>
+<li>Conflitos aparecem durante a construção de tabelas.
+<ul>
+<li>Mais de uma ação por entrada da tabela.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgb0aef9a">
+<h2 id="orgb0aef9a">Concluindo</h2>
+<div class="outline-text-2" id="text-orgb0aef9a">
+</div>
+</section>
+<section id="slide-org337a0a8">
+<h3 id="org337a0a8">Concluindo</h3>
+<ul>
+<li>Nesta aula apresentamos a construção de tabelas LR(0)</li>
+
+<li>Apresentamos o conceito de conflitos em analisadores LR.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgdeea8d0">
+<h3 id="orgdeea8d0">Concluindo</h3>
+<ul>
+<li>Próxima aula: Analisadores sintáticos SLR.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgbd8fdb3">
+<h2 id="orgbd8fdb3">Exercícios</h2>
+<div class="outline-text-2" id="text-orgbd8fdb3">
+</div>
+</section>
+<section id="slide-org12709b6">
+<h3 id="org12709b6">Exercícios</h3>
+<ul>
+<li>Determine se a seguinte gramática possui conflitos,
+utilizando o algoritmo de construção de tabelas LR(0).</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+E & \to & T \textbf{+} E\,|\,T\\
+T & \to & \textbf{x}\\
+\end{array}
+
+</div>
+</section>
+</section>
+</div>
+</div>
+<script src="file:///home/rodrigo/reveal.js/dist/reveal.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/markdown/markdown.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/notes/notes.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/search/search.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/zoom/zoom.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+overview: true,
+
+transition: 'convex',
+transitionSpeed: 'default',
+
+// Plugins with reveal.js 4.x
+plugins: [ RevealMarkdown, RevealNotes, RevealSearch, RevealZoom ],
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+]
+
+});
+</script>
+</body>
+</html>

@@ -315,9 +315,18 @@ sample :: Parser AST
 sample = try startWithZero <|>
          try startWithOne  <|>
          pure Empty
- where
-   startWithZero = Zero <$> symbol "0" *> sample <*> sample
-   startWithOne = One <$> symbol "1" *> sample <*> sample
+
+startWithZero :: Parser AST
+startWithZero
+  = f <$> symbol "0" <*> sample <*> symbol "1"  <*> sample
+    where
+      f _ t _ t' = Zero t t'
+
+startWithOne :: Parser AST
+startWithOne
+  = g <$> symbol "1" <*> sample <*> symbol "0"  <*> sample
+    where
+      g _ t _ t' = One t t'
 #+end_src
 
 ** Functores aplicativos

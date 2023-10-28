@@ -378,7 +378,6 @@ merge' a w1 nt@(Var b) w2@(w21 : w2s) fMinus1
 
 - Próxima aula: Análise sintática LL(1)
 
-
 * Exercícios
 
 ** Exercícios

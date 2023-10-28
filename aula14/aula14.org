@@ -1,0 +1,718 @@
+#+OPTIONS: num:nil toc:nil
+#+OPTIONS: date:nil reveal_mathjax:t
+#+OPTIONS: tex t
+#+OPTIONS: timestamp:nil
+#+OPTIONS: org-confirm-babel-evaluate nil
+#+REVEAL_THEME: white
+#+REVEAL_HLEVEL: 1
+#+REVEAL_ROOT: file:///home/rodrigo/reveal.js
+
+#+Title: Análise LR(1)
+#+Author: Construção de compiladores I
+
+
+* Objetivos
+
+** Objetivos
+
+- Apresentar o algoritmo de análise sintática LR(1).
+
+* Introdução
+
+** Introdução
+
+- Nas aulas anteriores, vimos o as funções de fechamento e goto,
+  utilizadas para a construção de itens LR(0), do autômato LR(0)
+  e do algoritmo de análise sintática LR(0) e SLR.
+
+** Introdução
+
+- Nesta aula, vamos conhecer outro algoritmo de análise
+  ascendente: LR(1)
+
+- O algoritmo LR(1) será um algoritmo que usará o conceito de *lookahead*.
+
+** Introdução
+
+- *Lookahead*: primeiro símbolo da entrada, ainda não processado pelo algoritmo.
+
+** Introdução
+
+- Um item LR(1) é formado por uma produção, contendo um marcador, e um símbolo de lookahead.
+
+- Se $A \to \alpha$ é uma regra, então $[A \to .\alpha, a]$ é um item e $a$ é o lookahead.
+
+* Construção dos itens LR(1)
+
+** Construção dos itens LR(1)
+
+- Fechamento de conjunto de itens $I$.
+  - $I\subseteq closure(I)$.
+  - Para cada item $[A\to \alpha \textbf{.}B\beta,a]$ em $I$
+    - Para cada regra $B \to \gamma$ em $G'$
+      - Para cada $b\in first(\beta a)$
+        - Adicione $[B \to .\gamma,b]$ em $I$
+- Repita enquanto houver alterações em $I$.
+
+** Construção dos itens LR(1)
+
+- Função de $goto(I,X)$
+  - Inicialize $J$ como $\emptyset$.
+  - Para cada item $[A\to \alpha .X \beta,a]$ em $I$
+    - Adicione o item $[A \to \alpha X. \beta, a]$ ao conjunto $J$.
+  - retorne $closure(J)$
+
+** Construção dos itens LR(1)
+
+- Função de construção de itens $G'$
+  - inicializa $C$ como closure({[S \to .S, $]})
+    - Para cada conjunto $I \in C$
+      - Para cada símbolo $X$ de $G'$
+        - se $goto(I,X) \neq \emptyset \land goto(I,X) \not\in C$
+          - Adicione $goto(I,X)$ em $C$
+  - repetir enquanto houver alterações em $C$.
+
+* Exemplo
+
+** Exemplo
+
+- Vamos considerar a gramática de exemplo:
+
+\begin{array}{lcl}
+  S  & \to & \textbf{(}L\textbf{)}\,|\, \textbf{x}\\
+  L  & \to & L\,\textbf{,}\,S\,|\,S\\
+\end{array}
+
+** Exemplo
+
+- Inicialmente, vamos criar uma nova variável inicial.
+
+\begin{array}{lcl}
+  S' & \to & S\textbf{.}\\
+  S  & \to & \textbf{(}L\textbf{)}\,|\, \textbf{x}\\
+  L  & \to & L\,\textbf{,}\,S\,|\,S\\
+\end{array}
+
+** Exemplo
+
+- Vamos construir o conjunto de itens LR(1)
+
+** Exemplo
+
+- Inicializando $C$ com closure({[S \to .S, $]}).
+  - Chamaremos esse conjunto de $I_1$
+
+\begin{array}{lcl|l}
+   S & \to & \textbf{.}S & \$\\
+\end{array}
+
+
+** Exemplo
+
+- Inicializando $C$ com closure({[S \to .S, $]}).
+  - Chamaremos esse conjunto de $I_1$
+  - Incluindo produções $S$
+
+\begin{array}{lcl|l}
+   S & \to & \textbf{.}S & \$\\
+   S & \to & \textbf{.(}L\textbf{)} & \$\\
+   S & \to & \textbf{.x} & \$\\
+\end{array}
+
+
+** Exemplo
+
+- Processando $goto(I_1,S)$:
+  - Criando um estado $I_2$
+  - Não há mais produções a incluir.
+
+\begin{array}{lcl|l}
+S' & \to & S. & \$\\
+\end{array}
+
+** Exemplo
+
+- Atualizando arestas:
+
+\begin{array}{l}
+E = \{(I_1,S,I_2)\}
+\end{array}
+
+** Exemplo
+
+- Processando $goto(I_1,()$:
+  - Criando um estado $I_3$
+
+\begin{array}{lcl|l}
+  S & \to & (.L) & \$\\
+\end{array}
+
+
+* PAREI AQUI
+
+** Exemplo
+
+- Processando $goto(I_1,()$:
+  - Criando um estado $I_3$.
+  - Incluindo produções $L$.
+
+\begin{array}{lcl|l}
+  S & \to & (.L)   & \$\\
+  L & \to & .L , S & ) \\
+  L & \to & .S     & ) \\
+\end{array}
+
+
+** Exemplo
+
+- Processando $goto(I_1,()$:
+  - Criando um estado $I_3$.
+  - Incluindo produções $S$.
+
+\begin{array}{lcl}
+  S & \to & (.L)\\
+  L & \to & .L , S \\
+  L & \to & .S \\
+  S & \to & .(L)\\
+  S & \to & .x\\
+\end{array}
+
+
+** Exemplo
+
+- Processando $goto(I_1,()$:
+  - Criando um estado $I_3$.
+  - Não há mais produções a incluir.
+
+\begin{array}{lcl}
+  S & \to & (.L)\\
+  L & \to & .L , S \\
+  L & \to & .S \\
+  S & \to & .(L)\\
+  S & \to & .x\\
+\end{array}
+
+** Exemplo
+
+- Processando $goto(I_1,x)$:
+  - Criando um estado $I_4$.
+  - Não há mais produções a incluir.
+
+\begin{array}{lcl}
+  S & \to & x.,$
+\end{array}
+
+** Exemplo
+
+- Atualizando arestas:
+
+\begin{array}{l}
+E = \{(I_1,S,I_2),(I_1,(,I_3)\}
+\end{array}
+
+
+** Exemplo
+
+- Processando $goto(I_1,S)$:
+  - Criando um estado $I_4$
+
+\begin{array}{lcl}
+S' & \to & S.
+\end{array}
+
+** Exemplo
+
+- Atualizando arestas:
+
+\begin{array}{l}
+E = \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4)\}
+\end{array}
+
+** Exemplo
+
+- Com isso, concluímos as transições sobre $I_1$.
+
+** Exemplo
+
+- Agora, vamos considerar o conjunto $I_2$:
+
+\begin{array}{lcl}
+S & \to & \textbf{x.}\\
+\end{array}
+
+** Exemplo
+
+- Nenhuma transição pode ser construída a partir de
+
+\begin{array}{lcl}
+S & \to & \textbf{x.}\\
+\end{array}
+
+** Exemplo
+
+- Agora, vamos considerar o conjunto $I_3$:
+
+\begin{array}{lcl}
+S & \to & \textbf{(.}L\textbf{)}\\
+L & \to & \textbf{.}L\textbf{,}S\\
+L & \to & \textbf{.}S\\
+S & \to & \textbf{.(}L\textbf{)}\\
+S & \to & \textbf{.x}\\
+\end{array}
+
+** Exemplo
+
+- Calculando $goto(I_3,x)$
+
+- Única produção a ser considerada:
+
+\begin{array}{lcl}
+S & \to & \textbf{.x}\\
+\end{array}
+
+
+** Exemplo
+
+- Atualizando arestas:
+
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2) \}\\
+\end{array}
+
+
+** Exemplo
+
+- Logo, obtemos o estado $I_2$:
+
+\begin{array}{lcl}
+S & \to & \textbf{x.}\\
+\end{array}
+
+** Exemplo
+
+- Calculando $goto(I_3,()$.
+- Produção base
+
+\begin{array}{lcl}
+S & \to & .(L)
+\end{array}
+
+** Exemplo
+
+- Calculando o $closure(\{S \to (.L)\}$.
+  - Incluindo produções $L$
+
+\begin{array}{lcl}
+S & \to & (.L)\\
+L & \to & \textbf{.}L\textbf{,}S\\
+L & \to & \textbf{.}S\\
+\end{array}
+
+** Exemplo
+
+- Calculando o $closure(\{S \to (.L)\}$.
+  - Incluindo produções $S$
+  - Estado $I_3$
+
+\begin{array}{lcl}
+S & \to & (.L)\\
+S & \to & .x\\
+L & \to & \textbf{.}L\textbf{,}S\\
+L & \to & \textbf{.}S\\
+S & \to & \textbf{.(}L\textbf{)}\\
+\end{array}
+
+
+** Exemplo
+
+- Atualizando arestas:
+
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3) \}\\
+\end{array}
+
+** Exemplo
+
+- Calculando $goto(I_3,L)$
+  - Vamos chamar esse estado de $I_5$
+
+\begin{array}{lcl}
+S & \to & (L.)\\
+S & \to & L.,S\\
+\end{array}
+
+
+** Exemplo
+
+- Atualizando arestas:
+
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5)\} \\
+\end{array}
+
+** Exemplo
+
+- Calculando $goto(I_3,S)$:
+  - Chamaremos esse estado de $I_6$
+
+\begin{array}{lcl}
+L & \to & S.\\
+\end{array}
+
+
+** Exemplo
+
+- Atualizando arestas:
+
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6)\}
+\end{array}
+
+** Exemplo
+
+- Agora, vamos considerar o estado $I_4$
+  - Não há transições possíveis.
+
+\begin{array}{lcl}
+S' & \to & S.
+\end{array}
+
+** Exemplo
+
+- Agora, vamos considerar o estado $I_5$
+
+\begin{array}{lcl}
+S & \to & (L.)\\
+S & \to & L.,S\\
+\end{array}
+
+** Exemplo
+
+- Calculando $goto(I_5,))$
+  - Chamaremos esse estado de $I_7$.
+
+\begin{array}{lcl}
+S & \to & (L).\\
+\end{array}
+
+** Exemplo
+
+- Atualizando arestas:
+
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6),(I_5,),I_7)\}
+\end{array}
+
+** Exemplo
+
+- Calculando $goto(I_5, ,)$
+  - Chamaremos esse estado de $I_8$
+
+- Produção base
+
+\begin{array}{lcl}
+S & \to & L,.S\\
+\end{array}
+
+** Exemplo
+
+- Calculando $closure(\{S\to L,.S\})$:
+  - Chamaremos esse estado de $I_8$
+
+\begin{array}{lcl}
+S & \to & L,.S\\
+S & \to & .(L)\\
+S & \to & .x\\
+\end{array}
+
+
+** Exemplo
+
+- Atualizando arestas:
+
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6),(I_5,),I_7), (I_5,,,I_8)\}
+\end{array}
+
+
+** Exemplo
+
+- Agora, vamos considerar o estado $I_6$:
+  - Não há transições possíveis.
+
+\begin{array}{lcl}
+L & \to & S.\\
+\end{array}
+
+** Exemplo
+
+- Agora vamos considerar o estado $I_7$:
+  - Não há transições possíveis.
+
+\begin{array}{lcl}
+S & \to & (L).\\
+\end{array}
+
+** Exemplo
+
+- Agora vamos consderar o estado $I_8$:
+
+\begin{array}{lcl}
+S & \to & L,.S\\
+S & \to & .(L)\\
+S & \to & .x\\
+\end{array}
+
+** Exemplo
+
+- Calculando $goto(I_8,x)$
+
+- Produção base: $S \to .x$
+
+- Resultado: estado $I_2$
+
+
+** Exemplo
+
+- Atualizando arestas:
+
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6),(I_5,),I_7), (I_5,,,I_8), \\
+  &   &   (I_8,x,I_2)\}
+\end{array}
+
+** Exemplo
+
+- Calculando $goto(I_8,()$
+
+- Produção base: $S \to (.S)$
+
+- Resultado: estado $I_3$.
+
+
+** Exemplo
+
+- Atualizando arestas:
+
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6),(I_5,),I_7), (I_5,,,I_8), \\
+  &   &   (I_8,x,I_2),(I_8,(,I_3))\}
+\end{array}
+
+** Exemplo
+
+- Calculando $goto(I_8,S)$
+  - Vamos chamar esse estado de $I_9$.
+
+- Produção base: S \to L,S.
+
+\begin{array}{lcl}
+S & \to & L,S.
+\end{array}
+
+
+** Exemplo
+
+- Atualizando arestas:
+
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6),(I_5,),I_7), (I_5,,,I_8), \\
+  &   &   (I_8,x,I_2),(I_8,(,I_3)), (I_8,S,I_9)\}
+\end{array}
+
+** Exemplo
+
+- Agora vamos considerar o estado $I_9$
+  - Não há transições possíveis.
+
+\begin{array}{lcl}
+S & \to & L,S.
+\end{array}
+
+** Exemplo
+
+- Como não há modificações, o algoritmo termina
+
+- Agora, temos o AFD LR(0) para a gramática.
+
+** Exemplo
+
+- Desenho do AFD LR(0) para a gramática na lousa.
+
+** Exemplo
+
+- Construção dos conjuntos follow(A)
+
+** Exemplo
+
+- Primeiro calculando os conjuntos first.
+  - first(S') = first(S) = first((L)) \cup first(x) = {(,x}.
+  - first(L) = first(S) = {(,x}.
+
+** Exemplo
+
+- Calculando follow:
+  - follow(S') = {$,(, ,}
+  - follow(S) = { ), ,}
+  - follow(L) = { ), ,}
+
+** Exemplo
+
+- Agora vamos construir a tabela de análise.
+
+- Primeiro, considerando o estado $I_1$.
+
+** Exemplo
+
+- Produção $S \to x$:
+  - Como goto($I_1$,x) = $I_2$, temos que A[1,x] = shift 2.
+
+** Exemplo
+
+- Produção $S \to (L)$:
+  - Como goto($I_1$,() = $I_3$, temos que A[1,(] = shift 3.
+
+** Exemplo
+
+- Como goto($I_1$, S) = $I_4$, temos que G[1,S] = goto 4.
+
+** Exemplo
+
+- Considerando o estado $I_2$.
+
+- Como S \to x. e follow(S) = {), ,}, temos que
+  - A[2,)] = A[2, ,] = reduce $S \to x$.
+
+** Exemplo
+
+- Considerando o estado $I_3$.
+  - Como goto($I_3$,x) = $I_2$, temos que A[3,x] = shift 2.
+  - Como goto($I_3,($) = $I_3$, temos que A[3,)] = shift 3.
+
+** Exemplo
+
+- Como goto($I_3$,L) = $I_5$, temos que G[3,L] = goto 5.
+- Como goto($I_3$,S) = $I_6$, temos que G[3,S] = goto 6.
+
+** Exemplo
+
+- Considerando o estado $I_4$.
+  - Como S' \to S., temos que A[4,$] = accept.
+
+** Exemplo
+
+- Considerando o estado $I_5$.
+  - Como goto($I_5$,)) = $I_7$, temos que A[5,)] = shift 7.
+  - Como goto($I_5$, ,) = $I_8$, temos que A[5, ,] = shift 8.
+
+** Exemplo
+
+- Considerando o estado $I_6$.
+  - Como L \to S. e follow(L) = {), ,}, temos que:
+    - A[6,)] = A[6, ,] = reduce $L \to S$.
+
+** Exemplo
+
+- Considerando o estado $I_7$.
+  - Como S \to (L) e follow(S) = {), ,}, temos que:
+    - A[7,)] = A[7, ,] = reduce $S \to (L)$
+
+** Exemplo
+
+- Considerando o estado $I_8$.
+  - Como goto($I_8$, () = $I_3$, temos que A[8,(] = shift 3
+  - Como goto($I_8$, x) = $I_2$, temos que A[8,x] = shift 2
+
+** Exemplo
+
+- Como goto($I_8$,S) = $I_9$, temos que G[8,S] = goto 9.
+
+** Exemplo
+
+- Considerando o estado $I_9$.
+  - Como L  \to L,S. e follow(L) = {), ,}, temos que:
+    - A[9,)] = A[9, ,] = reduce $L \to L, S$.
+
+** Exemplo
+
+- Desenho da tabela na lousa.
+
+- Uso da tabela para análise sintática de (x,x).
+
+* Construção da tabela SLR
+
+** Construção da tabela SLR
+
+- Seja $G$ a gramática original. Estenda $G$ com uma nova variável inicial.
+  Chamaremos essa nova gramática de $G'$.
+
+- Calcule follow($A$) para cada não terminal $A$ de $G'$.
+
+** Construção da tabela SLR
+
+- Construção do AFD LR(0).
+
+- Construção da tabela SLR.
+
+** Construção da tabela SLR
+
+- Construa o conjunto $C=\{I_1,...,I_n\}$ de itens canônicos para a
+  gramática $G'$.
+
+- Cada item $I_i$ produz o estado $i$. As ações da tabela são
+  determinadas como se segue.
+
+** Construção da tabela SLR
+
+- Se $A \to \alpha .a\beta \in I_i$ e $goto(I_i,a) = I_j$, marque a
+  entrada A[i,a] = shift j.
+
+** Construção da tabela SLR
+
+- Se $A \to \alpha. \in I_i$, marque A[i,a] = reduce $A \to \alpha$,
+  para todo $a\in follow(A) - \{S'\}$.
+
+** Construção da tabela SLR
+
+- Se $S' \to S. \in I_i$, marque A[i,$] = accept.
+
+** Construção da tabela SLR
+
+- Se $goto(I_i,a) = I_j$, marque G[i,a] = goto j.
+
+- Qualquer entrada não marcada, são consideradas como rejeitar.
+
+* Concluindo
+
+** Concluindo
+
+- Nesta aula apresentamos a construção de tabelas SLR.
+
+- Próxima aula: Analisadores sintáticos LR(1).
+
+* Exercícios
+
+** Exercícios
+
+- Determine se a seguinte gramática possui conflitos,
+  utilizando o algoritmo de construção de tabelas SLR.
+
+\begin{array}{lcl}
+E & \to & T \textbf{+} E\,|\,T\\
+T & \to & \textbf{x}\\
+\end{array}

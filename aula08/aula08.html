@@ -20,13 +20,13 @@
 </section>
 
 <section>
-<section id="slide-org4a6708a">
-<h2 id="org4a6708a">Objetivos</h2>
-<div class="outline-text-2" id="text-org4a6708a">
+<section id="slide-org52486f4">
+<h2 id="org52486f4">Objetivos</h2>
+<div class="outline-text-2" id="text-org52486f4">
 </div>
 </section>
-<section id="slide-orgad0bbdb">
-<h3 id="orgad0bbdb">Objetivos</h3>
+<section id="slide-org8613f7f">
+<h3 id="org8613f7f">Objetivos</h3>
 <ul>
 <li>Introduzir a segunda etapa do front-end: a análise sintática.</li>
 
@@ -35,8 +35,8 @@
 </ul>
 
 </section>
-<section id="slide-orgec748da">
-<h3 id="orgec748da">Objetivos</h3>
+<section id="slide-org109f851">
+<h3 id="org109f851">Objetivos</h3>
 <ul>
 <li>Apresentar a técnica de análise sintática descendente recursiva.</li>
 
@@ -45,13 +45,13 @@
 </section>
 </section>
 <section>
-<section id="slide-org26a7b7d">
-<h2 id="org26a7b7d">Análise sintática</h2>
-<div class="outline-text-2" id="text-org26a7b7d">
+<section id="slide-orga220a94">
+<h2 id="orga220a94">Análise sintática</h2>
+<div class="outline-text-2" id="text-orga220a94">
 </div>
 </section>
-<section id="slide-org04eb2ac">
-<h3 id="org04eb2ac">Análise sintática</h3>
+<section id="slide-org978d4ba">
+<h3 id="org978d4ba">Análise sintática</h3>
 <ul>
 <li>Responsável por determinar se o programa atende as restrições sintáticas
 da linguagem.</li>
@@ -59,16 +59,16 @@ da linguagem.</li>
 </ul>
 
 </section>
-<section id="slide-org880ca1b">
-<h3 id="org880ca1b">Análise sintática</h3>
+<section id="slide-org48aa8f5">
+<h3 id="org48aa8f5">Análise sintática</h3>
 <ul>
 <li>Regras sintáticas de uma linguagem são expressas utilizando gramáticas livres de contexto.</li>
 
 </ul>
 
 </section>
-<section id="slide-org2cff48c">
-<h3 id="org2cff48c">Análise sintática</h3>
+<section id="slide-org510cec2">
+<h3 id="org510cec2">Análise sintática</h3>
 <ul>
 <li>Porque utilizar GLCs e não ERs?
 <ul>
@@ -79,8 +79,8 @@ da linguagem.</li>
 </ul>
 
 </section>
-<section id="slide-orgc9af696">
-<h3 id="orgc9af696">Análise sintática</h3>
+<section id="slide-org42bac22">
+<h3 id="org42bac22">Análise sintática</h3>
 <ul>
 <li>Vamos considerar um fragmento de expressões formado por variáveis, constantes inteiras
 adição, multiplicação.</li>
@@ -88,8 +88,8 @@ adição, multiplicação.</li>
 </ul>
 
 </section>
-<section id="slide-org41e4408">
-<h3 id="org41e4408">Análise sintática</h3>
+<section id="slide-orga7fee4a">
+<h3 id="orga7fee4a">Análise sintática</h3>
 <ul>
 <li>A seguinte ER representa essa linguagem:</li>
 
@@ -104,8 +104,8 @@ base((+|*)base)^*
 </div>
 
 </section>
-<section id="slide-org5230486">
-<h3 id="org5230486">Análise sintática</h3>
+<section id="slide-org9bc7dc5">
+<h3 id="org9bc7dc5">Análise sintática</h3>
 <ul>
 <li>A ER anterior aceita palavras como \(a * b + c\).</li>
 
@@ -114,8 +114,8 @@ base((+|*)base)^*
 </ul>
 
 </section>
-<section id="slide-orga468224">
-<h3 id="orga468224">Análise sintática</h3>
+<section id="slide-orgfbdfe53">
+<h3 id="orgfbdfe53">Análise sintática</h3>
 <ul>
 <li>Podemos usar a precedência usual da aritmética.</li>
 
@@ -128,8 +128,8 @@ base((+|*)base)^*
 </ul>
 
 </section>
-<section id="slide-org407ba0a">
-<h3 id="org407ba0a">Análise sintática</h3>
+<section id="slide-org42177ef">
+<h3 id="org42177ef">Análise sintática</h3>
 <ul>
 <li>Ao incluir parêntesis, temos um problema:
 <ul>
@@ -140,8 +140,8 @@ base((+|*)base)^*
 </ul>
 
 </section>
-<section id="slide-orgbd58271">
-<h3 id="orgbd58271">Análise sintática</h3>
+<section id="slide-org103b7de">
+<h3 id="org103b7de">Análise sintática</h3>
 <ul>
 <li>Pode-se provar que a linguagem de parêntesis balanceados não é regular.
 <ul>
@@ -153,8 +153,8 @@ base((+|*)base)^*
 </ul>
 
 </section>
-<section id="slide-orgc2d8e3b">
-<h3 id="orgc2d8e3b">Análise sintática</h3>
+<section id="slide-org92cae88">
+<h3 id="org92cae88">Análise sintática</h3>
 <ul>
 <li>Dessa forma, precisamos utilizar GLCs para representar a estrutura sintática
 de linguagens.</li>
@@ -162,8 +162,8 @@ de linguagens.</li>
 </ul>
 
 </section>
-<section id="slide-orgffabcc8">
-<h3 id="orgffabcc8">Análise sintática</h3>
+<section id="slide-org136c88f">
+<h3 id="org136c88f">Análise sintática</h3>
 <ul>
 <li>Antes de apresentar técnicas de análise sintática, vamos revisar alguns
 conceitos sobre GLCs.</li>
@@ -173,13 +173,13 @@ conceitos sobre GLCs.</li>
 </section>
 </section>
 <section>
-<section id="slide-orgf605380">
-<h2 id="orgf605380">Gramáticas Livres de Contexto</h2>
-<div class="outline-text-2" id="text-orgf605380">
+<section id="slide-org97e36f2">
+<h2 id="org97e36f2">Gramáticas Livres de Contexto</h2>
+<div class="outline-text-2" id="text-org97e36f2">
 </div>
 </section>
-<section id="slide-org1854d2b">
-<h3 id="org1854d2b">Gramáticas livres de contexto</h3>
+<section id="slide-orgbffbe89">
+<h3 id="orgbffbe89">Gramáticas livres de contexto</h3>
 <ul>
 <li>Uma GLC é \(G=(V,\Sigma,R,P)\), em que
 <ul>
@@ -193,8 +193,8 @@ conceitos sobre GLCs.</li>
 </ul>
 
 </section>
-<section id="slide-orgd5740c0">
-<h3 id="orgd5740c0">Gramáticas livres de contexto</h3>
+<section id="slide-orgb4257d6">
+<h3 id="orgb4257d6">Gramáticas livres de contexto</h3>
 <ul>
 <li>Gramática de expressões</li>
 
@@ -208,8 +208,8 @@ E & \to & (E) \,|\, E + E \,|\, E * E\,|\, num\,|\,var\\
 </div>
 
 </section>
-<section id="slide-orgc18377b">
-<h3 id="orgc18377b">Gramáticas livres de contexto</h3>
+<section id="slide-orgebc3466">
+<h3 id="orgebc3466">Gramáticas livres de contexto</h3>
 <ul>
 <li>\(V = \{E\}\)</li>
 <li>\(\Sigma = \{num, var, (, ), *, +\}\)</li>
@@ -218,8 +218,8 @@ E & \to & (E) \,|\, E + E \,|\, E * E\,|\, num\,|\,var\\
 </ul>
 
 </section>
-<section id="slide-orgee28a61">
-<h3 id="orgee28a61">Gramáticas livres de contexto</h3>
+<section id="slide-org06a2f78">
+<h3 id="org06a2f78">Gramáticas livres de contexto</h3>
 <ul>
 <li>Determinamos se uma palavra pertence ou não à linguagem
 de uma gramática construindo uma <b>derivação</b></li>
@@ -227,8 +227,8 @@ de uma gramática construindo uma <b>derivação</b></li>
 </ul>
 
 </section>
-<section id="slide-org9ad3773">
-<h3 id="org9ad3773">Gramáticas livres de contexto</h3>
+<section id="slide-org5adecae">
+<h3 id="org5adecae">Gramáticas livres de contexto</h3>
 <ul>
 <li>Exemplo: Derivação de \(num + num * num\).</li>
 
@@ -243,8 +243,8 @@ E       & \Rightarrow &
 
 
 </section>
-<section id="slide-org4f4b81f">
-<h3 id="org4f4b81f">Gramáticas livres de contexto</h3>
+<section id="slide-org3a8541d">
+<h3 id="org3a8541d">Gramáticas livres de contexto</h3>
 <ul>
 <li>Exemplo: Derivação de \(num + num * num\).</li>
 
@@ -261,8 +261,8 @@ E + E   \\
 
 
 </section>
-<section id="slide-org6a721d0">
-<h3 id="org6a721d0">Gramáticas livres de contexto</h3>
+<section id="slide-org80b1db4">
+<h3 id="org80b1db4">Gramáticas livres de contexto</h3>
 <ul>
 <li>Exemplo: Derivação de \(num + num * num\).</li>
 
@@ -278,8 +278,8 @@ E + E   & \Rightarrow & \textbf{regra } E \to num\\
 
 
 </section>
-<section id="slide-org2b49419">
-<h3 id="org2b49419">Gramáticas livres de contexto</h3>
+<section id="slide-orga5304db">
+<h3 id="orga5304db">Gramáticas livres de contexto</h3>
 <ul>
 <li>Exemplo: Derivação de \(num + num * num\).</li>
 
@@ -296,8 +296,8 @@ num + E \\
 
 
 </section>
-<section id="slide-org4be9d22">
-<h3 id="org4be9d22">Gramáticas livres de contexto</h3>
+<section id="slide-org9a53e1c">
+<h3 id="org9a53e1c">Gramáticas livres de contexto</h3>
 <ul>
 <li>Exemplo: Derivação de \(num + num * num\).</li>
 
@@ -315,8 +315,8 @@ num + E * E\\
 
 
 </section>
-<section id="slide-org84172bf">
-<h3 id="org84172bf">Gramáticas livres de contexto</h3>
+<section id="slide-org6577f99">
+<h3 id="org6577f99">Gramáticas livres de contexto</h3>
 <ul>
 <li>Exemplo: Derivação de \(num + num * num\).</li>
 
@@ -334,8 +334,8 @@ num + E * E & \Rightarrow & \textbf{regra } E \to num\\
 
 
 </section>
-<section id="slide-org3127bb3">
-<h3 id="org3127bb3">Gramáticas livres de contexto</h3>
+<section id="slide-orgcdb27f6">
+<h3 id="orgcdb27f6">Gramáticas livres de contexto</h3>
 <ul>
 <li>Exemplo: Derivação de \(num + num * num\).</li>
 
@@ -354,8 +354,8 @@ num + num * E \\
 
 
 </section>
-<section id="slide-orgfe969fe">
-<h3 id="orgfe969fe">Gramáticas livres de contexto</h3>
+<section id="slide-orga8c78fa">
+<h3 id="orga8c78fa">Gramáticas livres de contexto</h3>
 <ul>
 <li>Exemplo: Derivação de \(num + num * num\).</li>
 
@@ -374,8 +374,8 @@ num + num * num
 </div>
 
 </section>
-<section id="slide-org6750d6e">
-<h3 id="org6750d6e">Gramáticas livres de contexto</h3>
+<section id="slide-orgbb82d77">
+<h3 id="orgbb82d77">Gramáticas livres de contexto</h3>
 <ul>
 <li>O exemplo anterior foi de uma <b>derivação mais à esquerda</b>
 <ul>
@@ -386,8 +386,8 @@ num + num * num
 </ul>
 
 </section>
-<section id="slide-org7c4f6e4">
-<h3 id="org7c4f6e4">Gramáticas livres de contexto</h3>
+<section id="slide-org8ce2092">
+<h3 id="org8ce2092">Gramáticas livres de contexto</h3>
 <ul>
 <li>Note que essa gramática de expressões permite:</li>
 
@@ -402,8 +402,8 @@ E * E   \\
 </div>
 
 </section>
-<section id="slide-orgc8e6b1c">
-<h3 id="orgc8e6b1c">Gramáticas livres de contexto</h3>
+<section id="slide-org4ec4663">
+<h3 id="org4ec4663">Gramáticas livres de contexto</h3>
 <ul>
 <li>Com isso temos <b>duas</b> derivações distintas para a mesma palavra.</li>
 
@@ -412,22 +412,22 @@ E * E   \\
 </ul>
 
 </section>
-<section id="slide-org9c0bbf8">
-<h3 id="org9c0bbf8">Gramáticas livres de contexto</h3>
+<section id="slide-org4e11eca">
+<h3 id="org4e11eca">Gramáticas livres de contexto</h3>
 <ul>
 <li>Árvores de derivação: representação hierárquica da derivação.</li>
 
 </ul>
 
 
-<div id="orgda4ce89" class="figure">
+<div id="orgf2d09b9" class="figure">
 <p><img src="./imgs/image1.png" alt="image1.png" />
 </p>
 </div>
 
 </section>
-<section id="slide-orgef22d28">
-<h3 id="orgef22d28">Gramáticas livres de contexto</h3>
+<section id="slide-org9e08966">
+<h3 id="org9e08966">Gramáticas livres de contexto</h3>
 <ul>
 <li>Em algumas situações é necessário modificar regras de uma gramática para usar certas técnicas de análise sintática.</li>
 
@@ -438,21 +438,21 @@ E * E   \\
 </section>
 </section>
 <section>
-<section id="slide-org03f562a">
-<h2 id="org03f562a">Transformações de gramáticas</h2>
-<div class="outline-text-2" id="text-org03f562a">
+<section id="slide-org678814d">
+<h2 id="org678814d">Transformações de gramáticas</h2>
+<div class="outline-text-2" id="text-org678814d">
 </div>
 </section>
-<section id="slide-org2fdfdaf">
-<h3 id="org2fdfdaf">Transformações de gramáticas</h3>
+<section id="slide-org9d2a221">
+<h3 id="org9d2a221">Transformações de gramáticas</h3>
 <ul>
 <li>Fatoração à esquerda: Evitar mais de uma regra com o mesmo prefixo</li>
 
 </ul>
 
 </section>
-<section id="slide-org2b66640">
-<h3 id="org2b66640">Transformações de gramáticas</h3>
+<section id="slide-org27e3b63">
+<h3 id="org27e3b63">Transformações de gramáticas</h3>
 <ul>
 <li>Exemplo:</li>
 
@@ -479,8 +479,8 @@ E * E   \\
 </div>
 
 </section>
-<section id="slide-org9341a9f">
-<h3 id="org9341a9f">Transformações de gramáticas</h3>
+<section id="slide-org0acab79">
+<h3 id="org0acab79">Transformações de gramáticas</h3>
 <ul>
 <li>Introdução de prioridades.
 <ul>
@@ -492,8 +492,8 @@ E * E   \\
 </ul>
 
 </section>
-<section id="slide-orgfca7175">
-<h3 id="orgfca7175">Transformações de gramáticas</h3>
+<section id="slide-orgfa9a63a">
+<h3 id="orgfa9a63a">Transformações de gramáticas</h3>
 <ul>
 <li>Forma geral para introduzir prioridades:
 <ul>
@@ -512,8 +512,8 @@ E_i & \to & E_{i + 1} \,|\, E_i Op_i E_{i + 1}
 </div>
 
 </section>
-<section id="slide-org679ab39">
-<h3 id="org679ab39">Transformações de gramáticas</h3>
+<section id="slide-orgc47ee47">
+<h3 id="orgc47ee47">Transformações de gramáticas</h3>
 <ul>
 <li>Eliminar recursão à esquerda
 <ul>
@@ -531,8 +531,8 @@ A & \to & Ay_1\,|\,...\,|\,Ay_n\,|\,w_1\,|\,...\,|\,w_k\\
 </div>
 
 </section>
-<section id="slide-org17e0349">
-<h3 id="org17e0349">Transformações de gramáticas</h3>
+<section id="slide-org23ddf7e">
+<h3 id="org23ddf7e">Transformações de gramáticas</h3>
 <ul>
 <li>Pode ser transformada em</li>
 
@@ -547,8 +547,8 @@ Z & \to & w_1Z\,|\,...\,|\,w_kZ\,|\,w_1\,...\,|\,w_k\\
 </div>
 
 </section>
-<section id="slide-org3efaf13">
-<h3 id="org3efaf13">Transformações de gramáticas</h3>
+<section id="slide-org2a4d4a0">
+<h3 id="org2a4d4a0">Transformações de gramáticas</h3>
 <ul>
 <li>Exemplo:
 <ul>
@@ -567,8 +567,8 @@ E & \to & num \,|\,var\,|\,(E)\,|\,E+E\,|\,E * E\\
 
 
 </section>
-<section id="slide-org6509246">
-<h3 id="org6509246">Transformações de gramáticas</h3>
+<section id="slide-org4d77624">
+<h3 id="org4d77624">Transformações de gramáticas</h3>
 <ul>
 <li>Exemplo:
 <ul>
@@ -588,8 +588,8 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </div>
 
 </section>
-<section id="slide-orgdc97f93">
-<h3 id="orgdc97f93">Transformação de gramáticas</h3>
+<section id="slide-orga83f74d">
+<h3 id="orga83f74d">Transformação de gramáticas</h3>
 <ul>
 <li>Eliminar recursão a esquerda.
 <ul>
@@ -610,13 +610,13 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </section>
 </section>
 <section>
-<section id="slide-org7b64b8b">
-<h2 id="org7b64b8b">Análise sintática</h2>
-<div class="outline-text-2" id="text-org7b64b8b">
+<section id="slide-org64a4a46">
+<h2 id="org64a4a46">Análise sintática</h2>
+<div class="outline-text-2" id="text-org64a4a46">
 </div>
 </section>
-<section id="slide-org89f085f">
-<h3 id="org89f085f">Análise sintática</h3>
+<section id="slide-org010073b">
+<h3 id="org010073b">Análise sintática</h3>
 <ul>
 <li>Dois tipos de algoritmos:
 <ul>
@@ -628,8 +628,8 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </ul>
 
 </section>
-<section id="slide-org30f08c7">
-<h3 id="org30f08c7">Análise sintática</h3>
+<section id="slide-org420e74c">
+<h3 id="org420e74c">Análise sintática</h3>
 <ul>
 <li>Analisador sintático top-down
 <ul>
@@ -646,8 +646,8 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </ul>
 
 </section>
-<section id="slide-orgba1f55c">
-<h3 id="orgba1f55c">Análise sintática</h3>
+<section id="slide-org7a9aa89">
+<h3 id="org7a9aa89">Análise sintática</h3>
 <ul>
 <li>Analisador sintático bottom-up
 <ul>
@@ -659,8 +659,8 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </ul>
 
 </section>
-<section id="slide-org5364ef4">
-<h3 id="org5364ef4">Análise sintática</h3>
+<section id="slide-orgda47c6f">
+<h3 id="orgda47c6f">Análise sintática</h3>
 <ul>
 <li>Nesta aula, vamos focar em uma técnica top-down.
 <ul>
@@ -673,13 +673,13 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </section>
 </section>
 <section>
-<section id="slide-org8f800e0">
-<h2 id="org8f800e0">Análise descendente</h2>
-<div class="outline-text-2" id="text-org8f800e0">
+<section id="slide-org6c18cc3">
+<h2 id="org6c18cc3">Análise descendente</h2>
+<div class="outline-text-2" id="text-org6c18cc3">
 </div>
 </section>
-<section id="slide-orgd6719af">
-<h3 id="orgd6719af">Análise descendente</h3>
+<section id="slide-org202f2fb">
+<h3 id="org202f2fb">Análise descendente</h3>
 <ul>
 <li>Técnica simples para codificação manual de analisadores sintáticos.</li>
 
@@ -692,8 +692,8 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </ul>
 
 </section>
-<section id="slide-org5b7fcdc">
-<h3 id="org5b7fcdc">Análise descendente</h3>
+<section id="slide-orgef4f625">
+<h3 id="orgef4f625">Análise descendente</h3>
 <ul>
 <li>Analisador para \(A \to X_1 ... X_n\):
 <ul>
@@ -709,8 +709,8 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </ul>
 
 </section>
-<section id="slide-org8bc7ab5">
-<h3 id="org8bc7ab5">Análise descendente</h3>
+<section id="slide-org7077228">
+<h3 id="org7077228">Análise descendente</h3>
 <ul>
 <li>Vantagem:
 <ul>
@@ -727,16 +727,16 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </ul>
 
 </section>
-<section id="slide-org16294f5">
-<h3 id="org16294f5">Análise descendente</h3>
+<section id="slide-org36251b8">
+<h3 id="org36251b8">Análise descendente</h3>
 <ul>
 <li>Em Haskell, analisadores descendentes são codificados por combinadores.</li>
 
 </ul>
 
 </section>
-<section id="slide-orgf87b50a">
-<h3 id="orgf87b50a">Análise descendente</h3>
+<section id="slide-orgdff47de">
+<h3 id="orgdff47de">Análise descendente</h3>
 <ul>
 <li>Combinadores são uma EDSL para expressar gramáticas.
 <ul>
@@ -747,16 +747,16 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </ul>
 
 </section>
-<section id="slide-org7c6a5d7">
-<h3 id="org7c6a5d7">Análise descendente</h3>
+<section id="slide-org15669f0">
+<h3 id="org15669f0">Análise descendente</h3>
 <ul>
 <li>Veremos uma implementação simples de uma EDSL para gramáticas.</li>
 
 </ul>
 
 </section>
-<section id="slide-org7c11295">
-<h3 id="org7c11295">Análise descendente</h3>
+<section id="slide-org3242a97">
+<h3 id="org3242a97">Análise descendente</h3>
 <ul>
 <li>Representação de parsers</li>
 
@@ -770,8 +770,8 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </div>
 
 </section>
-<section id="slide-org03dd8f0">
-<h3 id="org03dd8f0">Análise descendente</h3>
+<section id="slide-org104fa7c">
+<h3 id="org104fa7c">Análise descendente</h3>
 <ul>
 <li>Parsers são functores</li>
 
@@ -785,8 +785,8 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </div>
 
 </section>
-<section id="slide-orgb42032d">
-<h3 id="orgb42032d">Análise descendente</h3>
+<section id="slide-orgb550f3f">
+<h3 id="orgb550f3f">Análise descendente</h3>
 <ul>
 <li>Parsers são applicatives</li>
 
@@ -802,8 +802,8 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </div>
 
 </section>
-<section id="slide-orge562f06">
-<h3 id="orge562f06">Análise descendente</h3>
+<section id="slide-orgba17c41">
+<h3 id="orgba17c41">Análise descendente</h3>
 <ul>
 <li>Parsers são alternatives</li>
 
@@ -818,8 +818,8 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </div>
 
 </section>
-<section id="slide-orge856066">
-<h3 id="orge856066">Análise descendente</h3>
+<section id="slide-org804a992">
+<h3 id="org804a992">Análise descendente</h3>
 <ul>
 <li>Parsers são mônadas</li>
 
@@ -835,8 +835,8 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </div>
 
 </section>
-<section id="slide-orgb26b7f1">
-<h3 id="orgb26b7f1">Análise descendente</h3>
+<section id="slide-orgb097724">
+<h3 id="orgb097724">Análise descendente</h3>
 <ul>
 <li>Processando o primeiro token da entrada</li>
 
@@ -853,8 +853,8 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </div>
 
 </section>
-<section id="slide-orgd1cca3f">
-<h3 id="orgd1cca3f">Análise descendente</h3>
+<section id="slide-orgd2aadc3">
+<h3 id="orgd2aadc3">Análise descendente</h3>
 <ul>
 <li>Processando um token que satisfaz uma condição.</li>
 
@@ -870,8 +870,8 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </div>
 
 </section>
-<section id="slide-org8a54702">
-<h3 id="org8a54702">Análise descendente</h3>
+<section id="slide-org889d79a">
+<h3 id="org889d79a">Análise descendente</h3>
 <ul>
 <li>Processando um certo token.</li>
 
@@ -885,8 +885,8 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </div>
 
 </section>
-<section id="slide-orgcdaccd0">
-<h3 id="orgcdaccd0">Análise descendente</h3>
+<section id="slide-orga902bbf">
+<h3 id="orga902bbf">Análise descendente</h3>
 <ul>
 <li>Devido a lazy evaluation, podemos entender recursão à esquerda em expressões como uma lista de separadores.</li>
 
@@ -895,8 +895,8 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </ul>
 
 </section>
-<section id="slide-org7c52000">
-<h3 id="org7c52000">Análise descendente</h3>
+<section id="slide-org384e14f">
+<h3 id="org384e14f">Análise descendente</h3>
 <ul>
 <li>Função <code>chainl</code></li>
 
@@ -912,8 +912,8 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </div>
 
 </section>
-<section id="slide-org273cc8a">
-<h3 id="org273cc8a">Análise descendente</h3>
+<section id="slide-org1485b9a">
+<h3 id="org1485b9a">Análise descendente</h3>
 <ul>
 <li>Automatizando parsers de expressões</li>
 
@@ -931,8 +931,8 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </div>
 
 </section>
-<section id="slide-orged8fbdb">
-<h3 id="orged8fbdb">Análise descendente</h3>
+<section id="slide-org637387e">
+<h3 id="org637387e">Análise descendente</h3>
 <ul>
 <li>Tipo do token</li>
 
@@ -952,8 +952,8 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </div>
 
 </section>
-<section id="slide-org4ed9dcc">
-<h3 id="org4ed9dcc">Análise descendente</h3>
+<section id="slide-org3e74f03">
+<h3 id="org3e74f03">Análise descendente</h3>
 <ul>
 <li>Tipo de expressões</li>
 
@@ -971,8 +971,8 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </div>
 
 </section>
-<section id="slide-org3d97f80">
-<h3 id="org3d97f80">Análise descendente</h3>
+<section id="slide-org239c181">
+<h3 id="org239c181">Análise descendente</h3>
 <ul>
 <li>Criando o parser de expressões</li>
 
@@ -988,8 +988,8 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </div>
 
 </section>
-<section id="slide-org808e513">
-<h3 id="org808e513">Análise descendente</h3>
+<section id="slide-org3b244b3">
+<h3 id="org3b244b3">Análise descendente</h3>
 <ul>
 <li>Parser para termos</li>
 
@@ -1005,8 +1005,8 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </div>
 
 </section>
-<section id="slide-orgba311a8">
-<h3 id="orgba311a8">Análise descendente</h3>
+<section id="slide-org2e41ce9">
+<h3 id="org2e41ce9">Análise descendente</h3>
 <ul>
 <li>Parser para fatores</li>
 
@@ -1025,18 +1025,16 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </pre>
 </div>
 
-
-
 </section>
 </section>
 <section>
-<section id="slide-org00159c8">
-<h2 id="org00159c8">Concluindo</h2>
-<div class="outline-text-2" id="text-org00159c8">
+<section id="slide-org81d01b7">
+<h2 id="org81d01b7">Concluindo</h2>
+<div class="outline-text-2" id="text-org81d01b7">
 </div>
 </section>
-<section id="slide-org505cf26">
-<h3 id="org505cf26">Concluindo</h3>
+<section id="slide-org339ff07">
+<h3 id="org339ff07">Concluindo</h3>
 <ul>
 <li>Apresentamos uma introdução à análise sintática.</li>
 
@@ -1045,8 +1043,8 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </ul>
 
 </section>
-<section id="slide-orgec304c8">
-<h3 id="orgec304c8">Concluindo</h3>
+<section id="slide-orgccfd00a">
+<h3 id="orgccfd00a">Concluindo</h3>
 <ul>
 <li>Apresentamos a técnica de análise sintática descendente recursiva.</li>
 
@@ -1055,8 +1053,8 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </ul>
 
 </section>
-<section id="slide-orgff6fe01">
-<h3 id="orgff6fe01">Concluindo</h3>
+<section id="slide-orgca91f8f">
+<h3 id="orgca91f8f">Concluindo</h3>
 <ul>
 <li>Próxima aula: análise sintática LL(1).</li>
 
@@ -1065,13 +1063,13 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </section>
 </section>
 <section>
-<section id="slide-orgb2a2a07">
-<h2 id="orgb2a2a07">Exercícios</h2>
-<div class="outline-text-2" id="text-orgb2a2a07">
+<section id="slide-orge32d535">
+<h2 id="orge32d535">Exercícios</h2>
+<div class="outline-text-2" id="text-orge32d535">
 </div>
 </section>
-<section id="slide-org479ed76">
-<h3 id="org479ed76">Exercícios</h3>
+<section id="slide-orgd732173">
+<h3 id="orgd732173">Exercícios</h3>
 <ul>
 <li>Construa um analisador sintático descendente recursivo para seguinte
 linguagem de fórmulas da lógica proposicional.</li>

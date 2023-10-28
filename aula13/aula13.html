@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Análise SLR</title>
+<meta name="author" content="Construção de compiladores I"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/reveal.css"/>
+
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/theme/white.css" id="theme"/>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1 class="title">Análise SLR</h1><h2 class="author">Construção de compiladores I</h2>
+</section>
+
+
+<section>
+<section id="slide-orgbfbb72b">
+<h2 id="orgbfbb72b">Objetivos</h2>
+<div class="outline-text-2" id="text-orgbfbb72b">
+</div>
+</section>
+<section id="slide-orgbe57e9d">
+<h3 id="orgbe57e9d">Objetivos</h3>
+<ul>
+<li>Apresentar o algoritmo de análise sintática SLR.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgc91b3b5">
+<h2 id="orgc91b3b5">Introdução</h2>
+<div class="outline-text-2" id="text-orgc91b3b5">
+</div>
+</section>
+<section id="slide-org45c88e5">
+<h3 id="org45c88e5">Introdução</h3>
+<ul>
+<li>Nas aulas anteriores, vimos o as funções de fechamento e goto,
+utilizadas para a construção de itens LR(0), do autômato LR(0)
+e do algoritmo de análise sintática LR(0).</li>
+
+</ul>
+
+</section>
+<section id="slide-org439cd19">
+<h3 id="org439cd19">Introdução</h3>
+<ul>
+<li>Nesta aula, vamos conhecer outro algoritmo de análise
+ascendente: SLR</li>
+
+<li>O algoritmo SLR consiste de uma pequena modificação na construção
+de tabela usada pelo algoritmo LR(0).</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org7381822">
+<h2 id="org7381822">Construção da tabela SLR</h2>
+<div class="outline-text-2" id="text-org7381822">
+</div>
+</section>
+<section id="slide-orgd030a2d">
+<h3 id="orgd030a2d">Construção da tabela SLR</h3>
+<ul>
+<li>Seja \(G\) a gramática original. Estenda \(G\) com uma nova variável inicial.
+Chamaremos essa nova gramática de \(G'\).</li>
+
+<li>Calcule follow(\(A\)) para cada não terminal \(A\) de \(G'\).</li>
+
+</ul>
+
+</section>
+<section id="slide-org1ded9af">
+<h3 id="org1ded9af">Construção da tabela SLR</h3>
+<ul>
+<li>Construção do AFD LR(0).</li>
+
+<li>Construção da tabela SLR.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgc6fc47b">
+<h3 id="orgc6fc47b">Construção da tabela SLR</h3>
+<ul>
+<li>Construa o conjunto \(C=\{I_1,...,I_n\}\) de itens canônicos para a
+gramática \(G'\).</li>
+
+<li>Cada item \(I_i\) produz o estado \(i\). As ações da tabela são
+determinadas como se segue.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgc8fa74a">
+<h3 id="orgc8fa74a">Construção da tabela SLR</h3>
+<ul>
+<li>Se \(A \to \alpha .a\beta \in I_i\) e \(goto(I_i,a) = I_j\), marque a
+entrada A[i,a] = shift j.</li>
+
+</ul>
+
+</section>
+<section id="slide-org3687ec9">
+<h3 id="org3687ec9">Construção da tabela SLR</h3>
+<ul>
+<li>Se \(A \to \alpha. \in I_i\), marque A[i,a] = reduce \(A \to \alpha\),
+para todo \(a\in follow(A) - \{S'\}\).</li>
+
+</ul>
+
+</section>
+<section id="slide-orgd852619">
+<h3 id="orgd852619">Construção da tabela SLR</h3>
+<ul>
+<li>Se \(S' \to S. \in I_i\), marque A[i,$] = accept.</li>
+
+</ul>
+
+</section>
+<section id="slide-org376c3ff">
+<h3 id="org376c3ff">Construção da tabela SLR</h3>
+<ul>
+<li>Se \(goto(I_i,a) = I_j\), marque G[i,a] = goto j.</li>
+
+<li>Qualquer entrada não marcada, são consideradas como rejeitar.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org6ccfbfc">
+<h2 id="org6ccfbfc">Exemplo</h2>
+<div class="outline-text-2" id="text-org6ccfbfc">
+</div>
+</section>
+<section id="slide-org47c29a1">
+<h3 id="org47c29a1">Exemplo</h3>
+<ul>
+<li>Vamos considerar a gramática de exemplo:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+  S  & \to & \textbf{(}L\textbf{)}\,|\, \textbf{x}\\
+  L  & \to & L\,\textbf{,}\,S\,|\,S\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org3b90be2">
+<h3 id="org3b90be2">Exemplo</h3>
+<ul>
+<li>Inicialmente, vamos criar uma nova variável inicial.</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+  S' & \to & S\textbf{.}\\
+  S  & \to & \textbf{(}L\textbf{)}\,|\, \textbf{x}\\
+  L  & \to & L\,\textbf{,}\,S\,|\,S\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgf52379a">
+<h3 id="orgf52379a">Exemplo</h3>
+<ul>
+<li>Vamos construir o AFD LR(0).</li>
+
+</ul>
+
+</section>
+<section id="slide-org50a3d79">
+<h3 id="org50a3d79">Exemplo</h3>
+<ul>
+<li>Inicializando \(C \leftarrow closure(\{S'\to \textbf{.}S\})\).
+<ul>
+<li>Chamaremos esse conjunto de \(I_1\)</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{rll}
+\{ & S \to \textbf{.}S &, \\
+   & S \to \textbf{.(}L\textbf{)} & , \\
+   & S \to \textbf{.x} & \}\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org8781fe4">
+<h3 id="org8781fe4">Exemplo</h3>
+<ul>
+<li>Processando \(goto(I_1,x)\):
+<ul>
+<li>Criando um estado \(I_2\)</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & \textbf{x.}\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org7851eb5">
+<h3 id="org7851eb5">Exemplo</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{l}
+E = \{(I_1,x,I_2)\}
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org29b9b13">
+<h3 id="org29b9b13">Exemplo</h3>
+<ul>
+<li>Processando \(goto(I_1,()\):
+<ul>
+<li>Criando um estado \(I_3\)</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & \textbf{(.}L\textbf{)}\\
+L & \to & \textbf{.}L\textbf{,}S\\
+L & \to & \textbf{.}S\\
+S & \to & \textbf{.(}L\textbf{)}\\
+S & \to & \textbf{.x}\\
+\end{array}
+
+</div>
+
+
+</section>
+<section id="slide-org38cd44c">
+<h3 id="org38cd44c">Exemplo</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{l}
+E = \{(I_1,x,I_2),(I_1,(,I_3)\}
+\end{array}
+
+</div>
+
+
+</section>
+<section id="slide-org47a1f84">
+<h3 id="org47a1f84">Exemplo</h3>
+<ul>
+<li>Processando \(goto(I_1,S)\):
+<ul>
+<li>Criando um estado \(I_4\)</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S' & \to & S.
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org37916ad">
+<h3 id="org37916ad">Exemplo</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{l}
+E = \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4)\}
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgbef6a9a">
+<h3 id="orgbef6a9a">Exemplo</h3>
+<ul>
+<li>Com isso, concluímos as transições sobre \(I_1\).</li>
+
+</ul>
+
+</section>
+<section id="slide-org0e34646">
+<h3 id="org0e34646">Exemplo</h3>
+<ul>
+<li>Agora, vamos considerar o conjunto \(I_2\):</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & \textbf{x.}\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org74ee03e">
+<h3 id="org74ee03e">Exemplo</h3>
+<ul>
+<li>Nenhuma transição pode ser construída a partir de</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & \textbf{x.}\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgf5387d7">
+<h3 id="orgf5387d7">Exemplo</h3>
+<ul>
+<li>Agora, vamos considerar o conjunto \(I_3\):</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & \textbf{(.}L\textbf{)}\\
+L & \to & \textbf{.}L\textbf{,}S\\
+L & \to & \textbf{.}S\\
+S & \to & \textbf{.(}L\textbf{)}\\
+S & \to & \textbf{.x}\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org1e53000">
+<h3 id="org1e53000">Exemplo</h3>
+<ul>
+<li>Calculando \(goto(I_3,x)\)</li>
+
+<li>Única produção a ser considerada:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & \textbf{.x}\\
+\end{array}
+
+</div>
+
+
+</section>
+<section id="slide-orgb77195d">
+<h3 id="orgb77195d">Exemplo</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2) \}\\
+\end{array}
+
+</div>
+
+
+</section>
+<section id="slide-org4e832f4">
+<h3 id="org4e832f4">Exemplo</h3>
+<ul>
+<li>Logo, obtemos o estado \(I_2\):</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & \textbf{x.}\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org4586993">
+<h3 id="org4586993">Exemplo</h3>
+<ul>
+<li>Calculando \(goto(I_3,()\).</li>
+<li>Produção base</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & .(L)
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org6cebf7b">
+<h3 id="org6cebf7b">Exemplo</h3>
+<ul>
+<li>Calculando o \(closure(\{S \to (.L)\}\).
+<ul>
+<li>Incluindo produções \(L\)</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & (.L)\\
+L & \to & \textbf{.}L\textbf{,}S\\
+L & \to & \textbf{.}S\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgb0a85a4">
+<h3 id="orgb0a85a4">Exemplo</h3>
+<ul>
+<li>Calculando o \(closure(\{S \to (.L)\}\).
+<ul>
+<li>Incluindo produções \(S\)</li>
+<li>Estado \(I_3\)</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & (.L)\\
+S & \to & .x\\
+L & \to & \textbf{.}L\textbf{,}S\\
+L & \to & \textbf{.}S\\
+S & \to & \textbf{.(}L\textbf{)}\\
+\end{array}
+
+</div>
+
+
+</section>
+<section id="slide-org3d8ade2">
+<h3 id="org3d8ade2">Exemplo</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3) \}\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgb9ed2ee">
+<h3 id="orgb9ed2ee">Exemplo</h3>
+<ul>
+<li>Calculando \(goto(I_3,L)\)
+<ul>
+<li>Vamos chamar esse estado de \(I_5\)</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & (L.)\\
+S & \to & L.,S\\
+\end{array}
+
+</div>
+
+
+</section>
+<section id="slide-org585f3fa">
+<h3 id="org585f3fa">Exemplo</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5)\} \\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org0dafd7e">
+<h3 id="org0dafd7e">Exemplo</h3>
+<ul>
+<li>Calculando \(goto(I_3,S)\):
+<ul>
+<li>Chamaremos esse estado de \(I_6\)</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+L & \to & S.\\
+\end{array}
+
+</div>
+
+
+</section>
+<section id="slide-org65e9016">
+<h3 id="org65e9016">Exemplo</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6)\}
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org0757469">
+<h3 id="org0757469">Exemplo</h3>
+<ul>
+<li>Agora, vamos considerar o estado \(I_4\)
+<ul>
+<li>Não há transições possíveis.</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S' & \to & S.
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org2a7d6ce">
+<h3 id="org2a7d6ce">Exemplo</h3>
+<ul>
+<li>Agora, vamos considerar o estado \(I_5\)</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & (L.)\\
+S & \to & L.,S\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgdc03bff">
+<h3 id="orgdc03bff">Exemplo</h3>
+<ul>
+<li>Calculando \(goto(I_5,))\)
+<ul>
+<li>Chamaremos esse estado de \(I_7\).</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & (L).\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orga2d8d9f">
+<h3 id="orga2d8d9f">Exemplo</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6),(I_5,),I_7)\}
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orge7edbab">
+<h3 id="orge7edbab">Exemplo</h3>
+<ul>
+<li>Calculando \(goto(I_5, ,)\)
+<ul>
+<li>Chamaremos esse estado de \(I_8\)</li>
+
+</ul></li>
+
+<li>Produção base</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & L,.S\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org7d5072a">
+<h3 id="org7d5072a">Exemplo</h3>
+<ul>
+<li>Calculando \(closure(\{S\to L,.S\})\):
+<ul>
+<li>Chamaremos esse estado de \(I_8\)</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & L,.S\\
+S & \to & .(L)\\
+S & \to & .x\\
+\end{array}
+
+</div>
+
+
+</section>
+<section id="slide-org2a4b551">
+<h3 id="org2a4b551">Exemplo</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6),(I_5,),I_7), (I_5,,,I_8)\}
+\end{array}
+
+</div>
+
+
+</section>
+<section id="slide-org1af8236">
+<h3 id="org1af8236">Exemplo</h3>
+<ul>
+<li>Agora, vamos considerar o estado \(I_6\):
+<ul>
+<li>Não há transições possíveis.</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+L & \to & S.\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org131169d">
+<h3 id="org131169d">Exemplo</h3>
+<ul>
+<li>Agora vamos considerar o estado \(I_7\):
+<ul>
+<li>Não há transições possíveis.</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & (L).\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgb7e4903">
+<h3 id="orgb7e4903">Exemplo</h3>
+<ul>
+<li>Agora vamos consderar o estado \(I_8\):</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & L,.S\\
+S & \to & .(L)\\
+S & \to & .x\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org7519b08">
+<h3 id="org7519b08">Exemplo</h3>
+<ul>
+<li>Calculando \(goto(I_8,x)\)</li>
+
+<li>Produção base: \(S \to .x\)</li>
+
+<li>Resultado: estado \(I_2\)</li>
+
+</ul>
+
+
+</section>
+<section id="slide-org7c17a37">
+<h3 id="org7c17a37">Exemplo</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6),(I_5,),I_7), (I_5,,,I_8), \\
+  &   &   (I_8,x,I_2)\}
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgf15544f">
+<h3 id="orgf15544f">Exemplo</h3>
+<ul>
+<li>Calculando \(goto(I_8,()\)</li>
+
+<li>Produção base: \(S \to (.S)\)</li>
+
+<li>Resultado: estado \(I_3\).</li>
+
+</ul>
+
+
+</section>
+<section id="slide-org8a760b0">
+<h3 id="org8a760b0">Exemplo</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6),(I_5,),I_7), (I_5,,,I_8), \\
+  &   &   (I_8,x,I_2),(I_8,(,I_3))\}
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org9f08d47">
+<h3 id="org9f08d47">Exemplo</h3>
+<ul>
+<li>Calculando \(goto(I_8,S)\)
+<ul>
+<li>Vamos chamar esse estado de \(I_9\).</li>
+
+</ul></li>
+
+<li>Produção base: S &rarr; L,S.</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & L,S.
+\end{array}
+
+</div>
+
+
+</section>
+<section id="slide-orgd29bdf9">
+<h3 id="orgd29bdf9">Exemplo</h3>
+<ul>
+<li>Atualizando arestas:</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6),(I_5,),I_7), (I_5,,,I_8), \\
+  &   &   (I_8,x,I_2),(I_8,(,I_3)), (I_8,S,I_9)\}
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgbda6910">
+<h3 id="orgbda6910">Exemplo</h3>
+<ul>
+<li>Agora vamos considerar o estado \(I_9\)
+<ul>
+<li>Não há transições possíveis.</li>
+
+</ul></li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+S & \to & L,S.
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org9f997d4">
+<h3 id="org9f997d4">Exemplo</h3>
+<ul>
+<li>Como não há modificações, o algoritmo termina</li>
+
+<li>Agora, temos o AFD LR(0) para a gramática.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgf28ee19">
+<h3 id="orgf28ee19">Exemplo</h3>
+<ul>
+<li>Desenho do AFD LR(0) para a gramática na lousa.</li>
+
+</ul>
+
+</section>
+<section id="slide-org4a4c634">
+<h3 id="org4a4c634">Exemplo</h3>
+<ul>
+<li>Construção dos conjuntos follow(A)</li>
+
+</ul>
+
+</section>
+<section id="slide-org5a0b192">
+<h3 id="org5a0b192">Exemplo</h3>
+<ul>
+<li>Primeiro calculando os conjuntos first.
+<ul>
+<li>first(S') = first(S) = first((L)) &cup; first(x) = {(,x}.</li>
+<li>first(L) = first(S) = {(,x}.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgda25e68">
+<h3 id="orgda25e68">Exemplo</h3>
+<ul>
+<li>Calculando follow:
+<ul>
+<li>follow(S') = {$,(, ,}</li>
+<li>follow(S) = { ), ,}</li>
+<li>follow(L) = { ), ,}</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgff34a95">
+<h3 id="orgff34a95">Exemplo</h3>
+<ul>
+<li>Agora vamos construir a tabela de análise.</li>
+
+<li>Primeiro, considerando o estado \(I_1\).</li>
+
+</ul>
+
+</section>
+<section id="slide-org5c0e0ca">
+<h3 id="org5c0e0ca">Exemplo</h3>
+<ul>
+<li>Produção \(S \to x\):
+<ul>
+<li>Como goto(\(I_1\),x) = \(I_2\), temos que A[1,x] = shift 2.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgdebc7a7">
+<h3 id="orgdebc7a7">Exemplo</h3>
+<ul>
+<li>Produção \(S \to (L)\):
+<ul>
+<li>Como goto(\(I_1\),() = \(I_3\), temos que A[1,(] = shift 3.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orge5568fc">
+<h3 id="orge5568fc">Exemplo</h3>
+<ul>
+<li>Como goto(\(I_1\), S) = \(I_4\), temos que G[1,S] = goto 4.</li>
+
+</ul>
+
+</section>
+<section id="slide-org32c6c22">
+<h3 id="org32c6c22">Exemplo</h3>
+<ul>
+<li>Considerando o estado \(I_2\).</li>
+
+<li>Como S &rarr; x. e follow(S) = {), ,}, temos que
+<ul>
+<li>A[2,)] = A[2, ,] = reduce \(S \to x\).</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orga0683e6">
+<h3 id="orga0683e6">Exemplo</h3>
+<ul>
+<li>Considerando o estado \(I_3\).
+<ul>
+<li>Como goto(\(I_3\),x) = \(I_2\), temos que A[3,x] = shift 2.</li>
+<li>Como goto(\(I_3,(\)) = \(I_3\), temos que A[3,)] = shift 3.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org6f77b6c">
+<h3 id="org6f77b6c">Exemplo</h3>
+<ul>
+<li>Como goto(\(I_3\),L) = \(I_5\), temos que G[3,L] = goto 5.</li>
+<li>Como goto(\(I_3\),S) = \(I_6\), temos que G[3,S] = goto 6.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgecbe1fa">
+<h3 id="orgecbe1fa">Exemplo</h3>
+<ul>
+<li>Considerando o estado \(I_4\).
+<ul>
+<li>Como S' &rarr; S., temos que A[4,$] = accept.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org11754d6">
+<h3 id="org11754d6">Exemplo</h3>
+<ul>
+<li>Considerando o estado \(I_5\).
+<ul>
+<li>Como goto(\(I_5\),)) = \(I_7\), temos que A[5,)] = shift 7.</li>
+<li>Como goto(\(I_5\), ,) = \(I_8\), temos que A[5, ,] = shift 8.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org063e064">
+<h3 id="org063e064">Exemplo</h3>
+<ul>
+<li>Considerando o estado \(I_6\).
+<ul>
+<li>Como L &rarr; S. e follow(L) = {), ,}, temos que:
+<ul>
+<li>A[6,)] = A[6, ,] = reduce \(L \to S\).</li>
+
+</ul></li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org78f36d1">
+<h3 id="org78f36d1">Exemplo</h3>
+<ul>
+<li>Considerando o estado \(I_7\).
+<ul>
+<li>Como S &rarr; (L) e follow(S) = {), ,}, temos que:
+<ul>
+<li>A[7,)] = A[7, ,] = reduce \(S \to (L)\)</li>
+
+</ul></li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgb3a8c34">
+<h3 id="orgb3a8c34">Exemplo</h3>
+<ul>
+<li>Considerando o estado \(I_8\).
+<ul>
+<li>Como goto(\(I_8\), () = \(I_3\), temos que A[8,(] = shift 3</li>
+<li>Como goto(\(I_8\), x) = \(I_2\), temos que A[8,x] = shift 2</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgda9428b">
+<h3 id="orgda9428b">Exemplo</h3>
+<ul>
+<li>Como goto(\(I_8\),S) = \(I_9\), temos que G[8,S] = goto 9.</li>
+
+</ul>
+
+</section>
+<section id="slide-org756b1e6">
+<h3 id="org756b1e6">Exemplo</h3>
+<ul>
+<li>Considerando o estado \(I_9\).
+<ul>
+<li>Como L  &rarr; L,S. e follow(L) = {), ,}, temos que:
+<ul>
+<li>A[9,)] = A[9, ,] = reduce \(L \to L, S\).</li>
+
+</ul></li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org210011e">
+<h3 id="org210011e">Exemplo</h3>
+<ul>
+<li>Desenho da tabela na lousa.</li>
+
+<li>Uso da tabela para análise sintática de (x,x).</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgb6f99d2">
+<h2 id="orgb6f99d2">Concluindo</h2>
+<div class="outline-text-2" id="text-orgb6f99d2">
+</div>
+</section>
+<section id="slide-orgd9ff7e4">
+<h3 id="orgd9ff7e4">Concluindo</h3>
+<ul>
+<li>Nesta aula apresentamos a construção de tabelas SLR.</li>
+
+<li>Próxima aula: Analisadores sintáticos LR(1).</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgd1c4cf5">
+<h2 id="orgd1c4cf5">Exercícios</h2>
+<div class="outline-text-2" id="text-orgd1c4cf5">
+</div>
+</section>
+<section id="slide-org6364f6b">
+<h3 id="org6364f6b">Exercícios</h3>
+<ul>
+<li>Determine se a seguinte gramática possui conflitos,
+utilizando o algoritmo de construção de tabelas SLR.</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+E & \to & T \textbf{+} E\,|\,T\\
+T & \to & \textbf{x}\\
+\end{array}
+
+</div>
+</section>
+</section>
+</div>
+</div>
+<script src="file:///home/rodrigo/reveal.js/dist/reveal.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/markdown/markdown.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/notes/notes.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/search/search.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/zoom/zoom.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+overview: true,
+
+transition: 'convex',
+transitionSpeed: 'default',
+
+// Plugins with reveal.js 4.x
+plugins: [ RevealMarkdown, RevealNotes, RevealSearch, RevealZoom ],
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+]
+
+});
+</script>
+</body>
+</html>

@@ -398,6 +398,7 @@ filePipeline dirMode inpFile outFile
 
 ** Exercícios
 
-- Modifique o parser de argumentos de linha de comando para permitir a especificação do template de slides a ser usado como argumento de linha de comando.
+- Modifique o parser de argumentos de linha de comando para permitir a especificação do
+  template de slides a ser usado como argumento de linha de comando.
    - [[https://latex-beamer.com/tutorials/beamer-themes/][Lista de templates disponíveis]].
 - Entrega via Github classroom.

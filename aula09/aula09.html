@@ -21,13 +21,13 @@
 
 
 <section>
-<section id="slide-org31bd69b">
-<h2 id="org31bd69b">Objetivos</h2>
-<div class="outline-text-2" id="text-org31bd69b">
+<section id="slide-org4c8ec85">
+<h2 id="org4c8ec85">Objetivos</h2>
+<div class="outline-text-2" id="text-org4c8ec85">
 </div>
 </section>
-<section id="slide-orgd28fda8">
-<h3 id="orgd28fda8">Objetivos</h3>
+<section id="slide-org746e33f">
+<h3 id="org746e33f">Objetivos</h3>
 <ul>
 <li>Apresentar os conjuntos first e follow e seu uso para definir gramáticas LL(1)</li>
 
@@ -38,13 +38,13 @@
 </section>
 </section>
 <section>
-<section id="slide-org558e05a">
-<h2 id="org558e05a">Gramáticas LL(1)</h2>
-<div class="outline-text-2" id="text-org558e05a">
+<section id="slide-orgf189bae">
+<h2 id="orgf189bae">Gramáticas LL(1)</h2>
+<div class="outline-text-2" id="text-orgf189bae">
 </div>
 </section>
-<section id="slide-orgb6cd431">
-<h3 id="orgb6cd431">Gramáticas LL(1)</h3>
+<section id="slide-org4ac1216">
+<h3 id="org4ac1216">Gramáticas LL(1)</h3>
 <ul>
 <li>Classe de gramáticas que admitem analisadores sem backtracking</li>
 
@@ -59,8 +59,8 @@
 </ul>
 
 </section>
-<section id="slide-orgebd4290">
-<h3 id="orgebd4290">Gramáticas LL(1)</h3>
+<section id="slide-org5e4e8e7">
+<h3 id="org5e4e8e7">Gramáticas LL(1)</h3>
 <ul>
 <li>Como determinar se uma gramática é LL(1)?
 <ul>
@@ -73,13 +73,13 @@
 </section>
 </section>
 <section>
-<section id="slide-org9da0b62">
-<h2 id="org9da0b62">First e Follow</h2>
-<div class="outline-text-2" id="text-org9da0b62">
+<section id="slide-org9398ff5">
+<h2 id="org9398ff5">First e Follow</h2>
+<div class="outline-text-2" id="text-org9398ff5">
 </div>
 </section>
-<section id="slide-org37590bb">
-<h3 id="org37590bb">First e Follow</h3>
+<section id="slide-orgdb359f8">
+<h3 id="orgdb359f8">First e Follow</h3>
 <ul>
 <li>\(first(\alpha)\): conjunto de terminais que iniciam sentenças derivadas a partir de \(\alpha\).</li>
 
@@ -88,8 +88,8 @@
 </ul>
 
 </section>
-<section id="slide-orgf24e356">
-<h3 id="orgf24e356">First e Follow</h3>
+<section id="slide-org4f66022">
+<h3 id="org4f66022">First e Follow</h3>
 <ul>
 <li>\(follow(A)\): conjunto de terminais que aparecem logo a direita de \(A\) em alguma derivação.</li>
 
@@ -98,8 +98,8 @@
 </ul>
 
 </section>
-<section id="slide-orge4900f2">
-<h3 id="orge4900f2">First e Follow</h3>
+<section id="slide-org19106a4">
+<h3 id="org19106a4">First e Follow</h3>
 <ul>
 <li>\(first(a) = \{a\}\), se \(a \in \Sigma\).</li>
 <li>\(\lambda\in first(A)\) se \(A\to\lambda \in R\).</li>
@@ -107,8 +107,8 @@
 </ul>
 
 </section>
-<section id="slide-org9a9e175">
-<h3 id="org9a9e175">First e Follow</h3>
+<section id="slide-org9e27e23">
+<h3 id="org9e27e23">First e Follow</h3>
 <ul>
 <li>Se \(A \in V\) e</li>
 <li>\(A \to Y_1\,Y_2\,...\,Y_k \in R\) e</li>
@@ -118,16 +118,16 @@
 </ul>
 
 </section>
-<section id="slide-org085c042">
-<h3 id="org085c042">First e Follow</h3>
+<section id="slide-orgece3eb3">
+<h3 id="orgece3eb3">First e Follow</h3>
 <ul>
 <li>Aplique estas regras enquanto for possível.</li>
 
 </ul>
 
 </section>
-<section id="slide-orgc73cd13">
-<h3 id="orgc73cd13">First e Follow</h3>
+<section id="slide-org7bc485a">
+<h3 id="org7bc485a">First e Follow</h3>
 <ul>
 <li>Calcular os conjuntos \(first\) para:</li>
 
@@ -145,8 +145,8 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 </div>
 
 </section>
-<section id="slide-org5956888">
-<h3 id="org5956888">First e Follow</h3>
+<section id="slide-org814856f">
+<h3 id="org814856f">First e Follow</h3>
 <ul>
 <li>\(first(E) = first(T) = first(F)\)</li>
 
@@ -155,8 +155,8 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 </ul>
 
 </section>
-<section id="slide-orgaa8f8c2">
-<h3 id="orgaa8f8c2">First e Follow</h3>
+<section id="slide-org93eff87">
+<h3 id="org93eff87">First e Follow</h3>
 <ul>
 <li>\(first(E') = \{\textbf{+},\lambda\}\)</li>
 
@@ -165,8 +165,8 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 </ul>
 
 </section>
-<section id="slide-orge487711">
-<h3 id="orge487711">First e Follow</h3>
+<section id="slide-org606a2cb">
+<h3 id="org606a2cb">First e Follow</h3>
 <ul>
 <li>$ \(\in follow(P)\)</li>
 
@@ -182,8 +182,8 @@ first(\beta) - \{\lambda\} \subseteq follow(B)
 </div>
 
 </section>
-<section id="slide-orgf7d1d77">
-<h3 id="orgf7d1d77">First e Follow</h3>
+<section id="slide-orgd70bbb3">
+<h3 id="orgd70bbb3">First e Follow</h3>
 <ul>
 <li>Se \(A \to \alpha B\) ou \(A \to \alpha B \beta\), em que \(\lambda \in first(\beta)\) então:</li>
 
@@ -197,16 +197,16 @@ follow(A) \subseteq follow(B)
 </div>
 
 </section>
-<section id="slide-org92b7f48">
-<h3 id="org92b7f48">First e Follow</h3>
+<section id="slide-org3526d2d">
+<h3 id="org3526d2d">First e Follow</h3>
 <ul>
 <li>Aplique estas regras enquanto possível.</li>
 
 </ul>
 
 </section>
-<section id="slide-org84b58be">
-<h3 id="org84b58be">First e Follow</h3>
+<section id="slide-orgea20b4b">
+<h3 id="orgea20b4b">First e Follow</h3>
 <ul>
 <li>Calcular os conjuntos \(follow\) para:</li>
 
@@ -225,8 +225,8 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 
 
 </section>
-<section id="slide-org5835b61">
-<h3 id="org5835b61">First e Follow</h3>
+<section id="slide-org089d590">
+<h3 id="org089d590">First e Follow</h3>
 <ul>
 <li>$ \(\in follow(E)\):
 <ul>
@@ -237,8 +237,8 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 </ul>
 
 </section>
-<section id="slide-org24b3aa9">
-<h3 id="org24b3aa9">First e Follow</h3>
+<section id="slide-org263b799">
+<h3 id="org263b799">First e Follow</h3>
 <ul>
 <li>\textbf{)} \(\in follow(E)\):
 <ul>
@@ -254,8 +254,8 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 </ul>
 
 </section>
-<section id="slide-org148e680">
-<h3 id="org148e680">First e Follow</h3>
+<section id="slide-org76454bf">
+<h3 id="org76454bf">First e Follow</h3>
 <ul>
 <li>Logo, temos que $follow(E) = \{\textbf{)},\\(\}\).</li>
 
@@ -264,13 +264,13 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 </section>
 </section>
 <section>
-<section id="slide-org4a683f8">
-<h2 id="org4a683f8">Implementação em Haskell</h2>
-<div class="outline-text-2" id="text-org4a683f8">
+<section id="slide-org3b27a1f">
+<h2 id="org3b27a1f">Implementação em Haskell</h2>
+<div class="outline-text-2" id="text-org3b27a1f">
 </div>
 </section>
-<section id="slide-orge8ed8c7">
-<h3 id="orge8ed8c7">Implementação em Haskell</h3>
+<section id="slide-org65f5666">
+<h3 id="org65f5666">Implementação em Haskell</h3>
 <ul>
 <li>Representando terminais</li>
 
@@ -278,16 +278,16 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #3a81c3; font-weight: bold;">data</span> <span style="color: #ba2f59; font-weight: bold;">Terminal</span>
-  <span style="color: #715ab1;">=</span> <span style="color: #ba2f59; font-weight: bold;">T</span> <span style="color: #ba2f59; font-weight: bold;">String</span>
-  <span style="color: #715ab1;">|</span> <span style="color: #ba2f59; font-weight: bold;">Dollar</span>
-  <span style="color: #715ab1;">|</span> <span style="color: #ba2f59; font-weight: bold;">Lambda</span>
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">data</span> <span style="color: #ce537a; font-weight: bold;">Terminal</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #ce537a; font-weight: bold;">String</span>
+  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">Dollar</span>
+  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">Lambda</span>
 </pre>
 </div>
 
 </section>
-<section id="slide-org98e5f48">
-<h3 id="org98e5f48">Implementação em Haskell</h3>
+<section id="slide-org806f9b8">
+<h3 id="org806f9b8">Implementação em Haskell</h3>
 <ul>
 <li>Representando não terminais</li>
 
@@ -295,14 +295,14 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #3a81c3; font-weight: bold;">data</span> <span style="color: #ba2f59; font-weight: bold;">Nonterminal</span>
-  <span style="color: #715ab1;">=</span> <span style="color: #ba2f59; font-weight: bold;">NT</span> <span style="color: #ba2f59; font-weight: bold;">String</span>
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">data</span> <span style="color: #ce537a; font-weight: bold;">Nonterminal</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">NT</span> <span style="color: #ce537a; font-weight: bold;">String</span>
 </pre>
 </div>
 
 </section>
-<section id="slide-org5d33cf5">
-<h3 id="org5d33cf5">Implementação em Haskell</h3>
+<section id="slide-org3792c0a">
+<h3 id="org3792c0a">Implementação em Haskell</h3>
 <ul>
 <li>Representando símbolos</li>
 
@@ -310,15 +310,15 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #3a81c3; font-weight: bold;">data</span> <span style="color: #ba2f59; font-weight: bold;">Symbol</span>
-  <span style="color: #715ab1;">=</span> <span style="color: #ba2f59; font-weight: bold;">Var</span> <span style="color: #ba2f59; font-weight: bold;">Nonterminal</span>
-  <span style="color: #715ab1;">|</span> <span style="color: #ba2f59; font-weight: bold;">Symb</span> <span style="color: #ba2f59; font-weight: bold;">Terminal</span>
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">data</span> <span style="color: #ce537a; font-weight: bold;">Symbol</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Var</span> <span style="color: #ce537a; font-weight: bold;">Nonterminal</span>
+  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">Symb</span> <span style="color: #ce537a; font-weight: bold;">Terminal</span>
 </pre>
 </div>
 
 </section>
-<section id="slide-org084b533">
-<h3 id="org084b533">Implementação em Haskell</h3>
+<section id="slide-org457154b">
+<h3 id="org457154b">Implementação em Haskell</h3>
 <ul>
 <li>Representando produções</li>
 
@@ -326,17 +326,17 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #3a81c3; font-weight: bold;">data</span> <span style="color: #ba2f59; font-weight: bold;">Production</span>
-  <span style="color: #715ab1;">=</span> <span style="color: #ba2f59; font-weight: bold;">Prod</span> <span style="color: #3a81c3;">{</span>
-      leftHand <span style="color: #715ab1;">::</span> <span style="color: #ba2f59; font-weight: bold;">Nonterminal</span>
-    , rightHand <span style="color: #715ab1;">::</span> <span style="color: #6c3163;">[</span><span style="color: #ba2f59; font-weight: bold;">Symbol</span><span style="color: #6c3163;">]</span>
-    <span style="color: #3a81c3;">}</span> 
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">data</span> <span style="color: #ce537a; font-weight: bold;">Production</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Prod</span> <span style="color: #4f97d7;">{</span>
+      leftHand <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Nonterminal</span>
+    , rightHand <span style="color: #7590db;">::</span> <span style="color: #bc6ec5;">[</span><span style="color: #ce537a; font-weight: bold;">Symbol</span><span style="color: #bc6ec5;">]</span>
+    <span style="color: #4f97d7;">}</span> 
 </pre>
 </div>
 
 </section>
-<section id="slide-orgba16ab3">
-<h3 id="orgba16ab3">Implementação em Haskell</h3>
+<section id="slide-org2d1fc64">
+<h3 id="org2d1fc64">Implementação em Haskell</h3>
 <ul>
 <li>Representando gramáticas</li>
 
@@ -344,17 +344,17 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #3a81c3; font-weight: bold;">data</span> <span style="color: #ba2f59; font-weight: bold;">Grammar</span>
-  <span style="color: #715ab1;">=</span> <span style="color: #ba2f59; font-weight: bold;">Grammar</span> <span style="color: #3a81c3;">{</span>
-      productions <span style="color: #715ab1;">::</span> <span style="color: #6c3163;">[</span><span style="color: #ba2f59; font-weight: bold;">Production</span><span style="color: #6c3163;">]</span>
-    , start       <span style="color: #715ab1;">::</span> <span style="color: #ba2f59; font-weight: bold;">Nonterminal</span>
-    <span style="color: #3a81c3;">}</span>
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">data</span> <span style="color: #ce537a; font-weight: bold;">Grammar</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Grammar</span> <span style="color: #4f97d7;">{</span>
+      productions <span style="color: #7590db;">::</span> <span style="color: #bc6ec5;">[</span><span style="color: #ce537a; font-weight: bold;">Production</span><span style="color: #bc6ec5;">]</span>
+    , start       <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Nonterminal</span>
+    <span style="color: #4f97d7;">}</span>
 </pre>
 </div>
 
 </section>
-<section id="slide-orgb292613">
-<h3 id="orgb292613">Implementação em Haskell</h3>
+<section id="slide-orgf838cba">
+<h3 id="orgf838cba">Implementação em Haskell</h3>
 <ul>
 <li>Representação de ponto fixo.</li>
 
@@ -362,16 +362,16 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #6c3163; font-weight: bold;">fixpoint</span> <span style="color: #715ab1;">::</span> <span style="color: #ba2f59; font-weight: bold;">Eq</span> a <span style="color: #715ab1;">=&gt;</span> <span style="color: #3a81c3;">(</span>a <span style="color: #715ab1;">-&gt;</span> a<span style="color: #3a81c3;">)</span> <span style="color: #715ab1;">-&gt;</span> a <span style="color: #715ab1;">-&gt;</span> a
-<span style="color: #6c3163; font-weight: bold;">fixpoint</span> f x <span style="color: #715ab1;">=</span> <span style="color: #3a81c3; font-weight: bold;">let</span> x' <span style="color: #715ab1;">=</span> f x
-               <span style="color: #3a81c3; font-weight: bold;">in</span> <span style="color: #3a81c3; font-weight: bold;">if</span> x <span style="color: #715ab1;">==</span> x' <span style="color: #3a81c3; font-weight: bold;">then</span> x
-                  <span style="color: #3a81c3; font-weight: bold;">else</span> fixpoint f x'
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">fixpoint</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Eq</span> a <span style="color: #7590db;">=&gt;</span> <span style="color: #4f97d7;">(</span>a <span style="color: #7590db;">-&gt;</span> a<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">-&gt;</span> a <span style="color: #7590db;">-&gt;</span> a
+<span style="color: #bc6ec5; font-weight: bold;">fixpoint</span> f x <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">let</span> x' <span style="color: #7590db;">=</span> f x
+               <span style="color: #4f97d7; font-weight: bold;">in</span> <span style="color: #4f97d7; font-weight: bold;">if</span> x <span style="color: #7590db;">==</span> x' <span style="color: #4f97d7; font-weight: bold;">then</span> x
+                  <span style="color: #4f97d7; font-weight: bold;">else</span> fixpoint f x'
 </pre>
 </div>
 
 </section>
-<section id="slide-org11a56f4">
-<h3 id="org11a56f4">Implementação em Haskell</h3>
+<section id="slide-orgca21eae">
+<h3 id="orgca21eae">Implementação em Haskell</h3>
 <ul>
 <li>Definição de tabela de first.</li>
 
@@ -379,22 +379,22 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #3a81c3; font-weight: bold;">type</span> <span style="color: #ba2f59; font-weight: bold;">First</span> <span style="color: #715ab1;">=</span> <span style="color: #ba2f59; font-weight: bold;">Map</span> <span style="color: #ba2f59; font-weight: bold;">Nonterminal</span> <span style="color: #3a81c3;">[</span><span style="color: #ba2f59; font-weight: bold;">Terminal</span><span style="color: #3a81c3;">]</span>
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">type</span> <span style="color: #ce537a; font-weight: bold;">First</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Map</span> <span style="color: #ce537a; font-weight: bold;">Nonterminal</span> <span style="color: #4f97d7;">[</span><span style="color: #ce537a; font-weight: bold;">Terminal</span><span style="color: #4f97d7;">]</span>
 
-<span style="color: #6c3163; font-weight: bold;">merge</span> <span style="color: #715ab1;">::</span> <span style="color: #ba2f59; font-weight: bold;">First</span> <span style="color: #715ab1;">-&gt;</span> <span style="color: #ba2f59; font-weight: bold;">Nonterminal</span> <span style="color: #715ab1;">-&gt;</span> <span style="color: #3a81c3;">[</span><span style="color: #ba2f59; font-weight: bold;">Terminal</span><span style="color: #3a81c3;">]</span> <span style="color: #715ab1;">-&gt;</span> <span style="color: #ba2f59; font-weight: bold;">First</span>
-<span style="color: #6c3163; font-weight: bold;">merge</span> m nt ts <span style="color: #715ab1;">=</span> Map.insertWith union nt ts m
+<span style="color: #bc6ec5; font-weight: bold;">merge</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">First</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Nonterminal</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #4f97d7;">[</span><span style="color: #ce537a; font-weight: bold;">Terminal</span><span style="color: #4f97d7;">]</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">First</span>
+<span style="color: #bc6ec5; font-weight: bold;">merge</span> m nt ts <span style="color: #7590db;">=</span> Map.insertWith union nt ts m
 
-<span style="color: #6c3163; font-weight: bold;">firstSetFor</span> <span style="color: #715ab1;">::</span> <span style="color: #ba2f59; font-weight: bold;">Nonterminal</span> <span style="color: #715ab1;">-&gt;</span> <span style="color: #ba2f59; font-weight: bold;">First</span> <span style="color: #715ab1;">-&gt;</span> <span style="color: #3a81c3;">[</span><span style="color: #ba2f59; font-weight: bold;">Terminal</span><span style="color: #3a81c3;">]</span>
-<span style="color: #6c3163; font-weight: bold;">firstSetFor</span> nt m
-  <span style="color: #715ab1;">=</span> <span style="color: #3a81c3; font-weight: bold;">case</span> Map.lookup nt m <span style="color: #3a81c3; font-weight: bold;">of</span>
-      <span style="color: #ba2f59; font-weight: bold;">Nothing</span> <span style="color: #715ab1;">-&gt;</span> <span style="color: #3a81c3; font-weight: bold;">[]</span>
-      <span style="color: #ba2f59; font-weight: bold;">Just</span> ts <span style="color: #715ab1;">-&gt;</span> ts
+<span style="color: #bc6ec5; font-weight: bold;">firstSetFor</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Nonterminal</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">First</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #4f97d7;">[</span><span style="color: #ce537a; font-weight: bold;">Terminal</span><span style="color: #4f97d7;">]</span>
+<span style="color: #bc6ec5; font-weight: bold;">firstSetFor</span> nt m
+  <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">case</span> Map.lookup nt m <span style="color: #4f97d7; font-weight: bold;">of</span>
+      <span style="color: #ce537a; font-weight: bold;">Nothing</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #4f97d7; font-weight: bold;">[]</span>
+      <span style="color: #ce537a; font-weight: bold;">Just</span> ts <span style="color: #7590db;">-&gt;</span> ts
 </pre>
 </div>
 
 </section>
-<section id="slide-org1063064">
-<h3 id="org1063064">Implementação em Haskell</h3>
+<section id="slide-org810a712">
+<h3 id="org810a712">Implementação em Haskell</h3>
 <ul>
 <li>Cálculo de first</li>
 
@@ -402,16 +402,16 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #6c3163; font-weight: bold;">first</span> <span style="color: #715ab1;">::</span> <span style="color: #ba2f59; font-weight: bold;">Grammar</span> <span style="color: #715ab1;">-&gt;</span> <span style="color: #3a81c3;">[</span><span style="color: #6c3163;">(</span><span style="color: #ba2f59; font-weight: bold;">Nonterminal</span>, <span style="color: #2d9574;">[</span><span style="color: #ba2f59; font-weight: bold;">Terminal</span><span style="color: #2d9574;">]</span><span style="color: #6c3163;">)</span><span style="color: #3a81c3;">]</span>
-<span style="color: #6c3163; font-weight: bold;">first</span> g <span style="color: #715ab1;">=</span> Map.toList m
-  <span style="color: #3a81c3; font-weight: bold;">where</span>
-     m <span style="color: #715ab1;">=</span> fixpoint <span style="color: #3a81c3;">(</span>stepFirst g<span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">(</span>first0 g<span style="color: #3a81c3;">)</span>
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">first</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Grammar</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #4f97d7;">[</span><span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">Nonterminal</span>, <span style="color: #2d9574;">[</span><span style="color: #ce537a; font-weight: bold;">Terminal</span><span style="color: #2d9574;">]</span><span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">]</span>
+<span style="color: #bc6ec5; font-weight: bold;">first</span> g <span style="color: #7590db;">=</span> Map.toList m
+  <span style="color: #4f97d7; font-weight: bold;">where</span>
+     m <span style="color: #7590db;">=</span> fixpoint <span style="color: #4f97d7;">(</span>stepFirst g<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span>first0 g<span style="color: #4f97d7;">)</span>
 </pre>
 </div>
 
 </section>
-<section id="slide-orgfa43c02">
-<h3 id="orgfa43c02">Implementação em Haskell</h3>
+<section id="slide-orge957a55">
+<h3 id="orge957a55">Implementação em Haskell</h3>
 <ul>
 <li>Cálculo de first0</li>
 
@@ -419,16 +419,16 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #6c3163; font-weight: bold;">first0</span> <span style="color: #715ab1;">::</span> <span style="color: #ba2f59; font-weight: bold;">Grammar</span> <span style="color: #715ab1;">-&gt;</span> <span style="color: #ba2f59; font-weight: bold;">First</span>
-<span style="color: #6c3163; font-weight: bold;">first0</span> g <span style="color: #715ab1;">=</span> Map.fromList <span style="color: #715ab1;">$</span> map f <span style="color: #3a81c3;">(</span>nonterminals g<span style="color: #3a81c3;">)</span>
-  <span style="color: #3a81c3; font-weight: bold;">where</span>
-    f nt <span style="color: #715ab1;">=</span> <span style="color: #3a81c3;">(</span>nt , <span style="color: #6c3163; font-weight: bold;">[]</span><span style="color: #3a81c3;">)</span>
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">first0</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Grammar</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">First</span>
+<span style="color: #bc6ec5; font-weight: bold;">first0</span> g <span style="color: #7590db;">=</span> Map.fromList <span style="color: #7590db;">$</span> map f <span style="color: #4f97d7;">(</span>nonterminals g<span style="color: #4f97d7;">)</span>
+  <span style="color: #4f97d7; font-weight: bold;">where</span>
+    f nt <span style="color: #7590db;">=</span> <span style="color: #4f97d7;">(</span>nt , <span style="color: #bc6ec5; font-weight: bold;">[]</span><span style="color: #4f97d7;">)</span>
 </pre>
 </div>
 
 </section>
-<section id="slide-orgaf67093">
-<h3 id="orgaf67093">Implementação em Haskell</h3>
+<section id="slide-orgfaf7c5e">
+<h3 id="orgfaf7c5e">Implementação em Haskell</h3>
 <ul>
 <li>Iteração do conjunto first</li>
 
@@ -436,21 +436,21 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #6c3163; font-weight: bold;">stepFirst</span> <span style="color: #715ab1;">::</span> <span style="color: #ba2f59; font-weight: bold;">Grammar</span> <span style="color: #715ab1;">-&gt;</span> <span style="color: #ba2f59; font-weight: bold;">First</span> <span style="color: #715ab1;">-&gt;</span> <span style="color: #ba2f59; font-weight: bold;">First</span>
-<span style="color: #6c3163; font-weight: bold;">stepFirst</span> g current
-  <span style="color: #715ab1;">=</span> step' <span style="color: #3a81c3;">(</span>productions g<span style="color: #3a81c3;">)</span> current
-  <span style="color: #3a81c3; font-weight: bold;">where</span>
-    step' <span style="color: #3a81c3; font-weight: bold;">[]</span> curr <span style="color: #715ab1;">=</span> curr
-    step' <span style="color: #3a81c3;">(</span>p<span style="color: #ba2f59; font-weight: bold;">:</span>ps<span style="color: #3a81c3;">)</span> curr
-      <span style="color: #715ab1;">=</span> merge <span style="color: #3a81c3;">(</span>step' ps curr<span style="color: #3a81c3;">)</span>
-              <span style="color: #3a81c3;">(</span>leftHand p<span style="color: #3a81c3;">)</span>
-              <span style="color: #3a81c3;">(</span>terminalsForRHS p<span style="color: #3a81c3;">)</span>
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">stepFirst</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Grammar</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">First</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">First</span>
+<span style="color: #bc6ec5; font-weight: bold;">stepFirst</span> g current
+  <span style="color: #7590db;">=</span> step' <span style="color: #4f97d7;">(</span>productions g<span style="color: #4f97d7;">)</span> current
+  <span style="color: #4f97d7; font-weight: bold;">where</span>
+    step' <span style="color: #4f97d7; font-weight: bold;">[]</span> curr <span style="color: #7590db;">=</span> curr
+    step' <span style="color: #4f97d7;">(</span>p<span style="color: #ce537a; font-weight: bold;">:</span>ps<span style="color: #4f97d7;">)</span> curr
+      <span style="color: #7590db;">=</span> merge <span style="color: #4f97d7;">(</span>step' ps curr<span style="color: #4f97d7;">)</span>
+              <span style="color: #4f97d7;">(</span>leftHand p<span style="color: #4f97d7;">)</span>
+              <span style="color: #4f97d7;">(</span>terminalsForRHS p<span style="color: #4f97d7;">)</span>
 </pre>
 </div>
 
 </section>
-<section id="slide-org01eeeb2">
-<h3 id="org01eeeb2">Implementação em Haskell</h3>
+<section id="slide-orgfcf8491">
+<h3 id="orgfcf8491">Implementação em Haskell</h3>
 <ul>
 <li>Definição de <code>terminalsForRHS</code></li>
 
@@ -458,26 +458,26 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #6c3163; font-weight: bold;">terminalsForRHS</span> <span style="color: #715ab1;">::</span> <span style="color: #ba2f59; font-weight: bold;">Production</span> <span style="color: #715ab1;">-&gt;</span> <span style="color: #3a81c3;">[</span><span style="color: #ba2f59; font-weight: bold;">Terminal</span><span style="color: #3a81c3;">]</span>
-<span style="color: #6c3163; font-weight: bold;">terminalsForRHS</span> <span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">Prod</span> <span style="color: #3a81c3; font-weight: bold;">_</span> <span style="color: #6c3163; font-weight: bold;">[]</span><span style="color: #3a81c3;">)</span> <span style="color: #715ab1;">=</span> <span style="color: #3a81c3;">[</span><span style="color: #ba2f59; font-weight: bold;">Lambda</span><span style="color: #3a81c3;">]</span>
-<span style="color: #6c3163; font-weight: bold;">terminalsForRHS</span> <span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">Prod</span> <span style="color: #3a81c3; font-weight: bold;">_</span> <span style="color: #6c3163;">[</span><span style="color: #ba2f59; font-weight: bold;">Symb</span> <span style="color: #ba2f59; font-weight: bold;">Lambda</span><span style="color: #6c3163;">]</span><span style="color: #3a81c3;">)</span> <span style="color: #715ab1;">=</span> <span style="color: #3a81c3;">[</span><span style="color: #ba2f59; font-weight: bold;">Lambda</span><span style="color: #3a81c3;">]</span>
-<span style="color: #6c3163; font-weight: bold;">terminalsForRHS</span> <span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">Prod</span> x <span style="color: #6c3163;">(</span>yj <span style="color: #ba2f59; font-weight: bold;">:</span> ys<span style="color: #6c3163;">)</span><span style="color: #3a81c3;">)</span>
-  <span style="color: #715ab1;">=</span> <span style="color: #3a81c3; font-weight: bold;">case</span>  yj <span style="color: #3a81c3; font-weight: bold;">of</span>
-      <span style="color: #ba2f59; font-weight: bold;">Symb</span> terminal <span style="color: #715ab1;">-&gt;</span> <span style="color: #3a81c3;">[</span>terminal<span style="color: #3a81c3;">]</span>
-      <span style="color: #ba2f59; font-weight: bold;">Var</span> nonterminal <span style="color: #715ab1;">-&gt;</span>
-         <span style="color: #3a81c3; font-weight: bold;">if</span> <span style="color: #ba2f59; font-weight: bold;">Lambda</span> <span style="color: #715ab1;">`elem`</span> first_iminus1 <span style="color: #3a81c3; font-weight: bold;">then</span>
-            terminalsForYj <span style="color: #715ab1;">`union`</span> terminalsForRHS <span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">Prod</span> x ys<span style="color: #3a81c3;">)</span>
-         <span style="color: #3a81c3; font-weight: bold;">else</span>
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">terminalsForRHS</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Production</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #4f97d7;">[</span><span style="color: #ce537a; font-weight: bold;">Terminal</span><span style="color: #4f97d7;">]</span>
+<span style="color: #bc6ec5; font-weight: bold;">terminalsForRHS</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Prod</span> <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #bc6ec5; font-weight: bold;">[]</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> <span style="color: #4f97d7;">[</span><span style="color: #ce537a; font-weight: bold;">Lambda</span><span style="color: #4f97d7;">]</span>
+<span style="color: #bc6ec5; font-weight: bold;">terminalsForRHS</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Prod</span> <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #bc6ec5;">[</span><span style="color: #ce537a; font-weight: bold;">Symb</span> <span style="color: #ce537a; font-weight: bold;">Lambda</span><span style="color: #bc6ec5;">]</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> <span style="color: #4f97d7;">[</span><span style="color: #ce537a; font-weight: bold;">Lambda</span><span style="color: #4f97d7;">]</span>
+<span style="color: #bc6ec5; font-weight: bold;">terminalsForRHS</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Prod</span> x <span style="color: #bc6ec5;">(</span>yj <span style="color: #ce537a; font-weight: bold;">:</span> ys<span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span>
+  <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">case</span>  yj <span style="color: #4f97d7; font-weight: bold;">of</span>
+      <span style="color: #ce537a; font-weight: bold;">Symb</span> terminal <span style="color: #7590db;">-&gt;</span> <span style="color: #4f97d7;">[</span>terminal<span style="color: #4f97d7;">]</span>
+      <span style="color: #ce537a; font-weight: bold;">Var</span> nonterminal <span style="color: #7590db;">-&gt;</span>
+         <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #ce537a; font-weight: bold;">Lambda</span> <span style="color: #7590db;">`elem`</span> first_iminus1 <span style="color: #4f97d7; font-weight: bold;">then</span>
+            terminalsForYj <span style="color: #7590db;">`union`</span> terminalsForRHS <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Prod</span> x ys<span style="color: #4f97d7;">)</span>
+         <span style="color: #4f97d7; font-weight: bold;">else</span>
             terminalsForYj
-      <span style="color: #3a81c3; font-weight: bold;">where</span>
-         first_iminus1 <span style="color: #715ab1;">=</span> firstSetFor nonterminal current
-         terminalsForYj <span style="color: #715ab1;">=</span> filter <span style="color: #3a81c3;">(</span><span style="color: #715ab1;">/=</span> <span style="color: #ba2f59; font-weight: bold;">Lambda</span><span style="color: #3a81c3;">)</span> first_iminus1
+      <span style="color: #4f97d7; font-weight: bold;">where</span>
+         first_iminus1 <span style="color: #7590db;">=</span> firstSetFor nonterminal current
+         terminalsForYj <span style="color: #7590db;">=</span> filter <span style="color: #4f97d7;">(</span><span style="color: #7590db;">/=</span> <span style="color: #ce537a; font-weight: bold;">Lambda</span><span style="color: #4f97d7;">)</span> first_iminus1
 </pre>
 </div>
 
 </section>
-<section id="slide-org215a64e">
-<h3 id="org215a64e">Implementação em Haskell</h3>
+<section id="slide-org9dd0fce">
+<h3 id="org9dd0fce">Implementação em Haskell</h3>
 <ul>
 <li>Extensão de first para palavras</li>
 
@@ -485,21 +485,21 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #6c3163; font-weight: bold;">firstForWord</span> <span style="color: #715ab1;">::</span> <span style="color: #3a81c3;">[</span><span style="color: #ba2f59; font-weight: bold;">Symbol</span><span style="color: #3a81c3;">]</span> <span style="color: #715ab1;">-&gt;</span> <span style="color: #ba2f59; font-weight: bold;">First</span> <span style="color: #715ab1;">-&gt;</span> <span style="color: #3a81c3;">[</span><span style="color: #ba2f59; font-weight: bold;">Terminal</span><span style="color: #3a81c3;">]</span>
-<span style="color: #6c3163; font-weight: bold;">firstForWord</span> <span style="color: #3a81c3;">[</span><span style="color: #6c3163;">(</span><span style="color: #ba2f59; font-weight: bold;">Var</span> nt<span style="color: #6c3163;">)</span><span style="color: #3a81c3;">]</span> ft <span style="color: #715ab1;">=</span> firstSetFor nt ft
-<span style="color: #6c3163; font-weight: bold;">firstForWord</span> <span style="color: #3a81c3;">[</span><span style="color: #6c3163;">(</span><span style="color: #ba2f59; font-weight: bold;">Symb</span> t<span style="color: #6c3163;">)</span><span style="color: #3a81c3;">]</span> <span style="color: #3a81c3; font-weight: bold;">_</span> <span style="color: #715ab1;">=</span> <span style="color: #3a81c3;">[</span>t<span style="color: #3a81c3;">]</span>
-<span style="color: #6c3163; font-weight: bold;">firstForWord</span> <span style="color: #3a81c3;">(</span><span style="color: #6c3163;">(</span><span style="color: #ba2f59; font-weight: bold;">Var</span> nt<span style="color: #6c3163;">)</span> <span style="color: #ba2f59; font-weight: bold;">:</span> ss<span style="color: #3a81c3;">)</span> ft <span style="color: #715ab1;">=</span>
-  <span style="color: #3a81c3; font-weight: bold;">if</span> <span style="color: #ba2f59; font-weight: bold;">Lambda</span> <span style="color: #715ab1;">`elem`</span> firstSetFor nt ft <span style="color: #3a81c3; font-weight: bold;">then</span> 
-        firstMinusLambda <span style="color: #715ab1;">`union`</span> firstForWord ss ft
-  <span style="color: #3a81c3; font-weight: bold;">else</span> firstMinusLambda
-       <span style="color: #3a81c3; font-weight: bold;">where</span> firstMinusLambda <span style="color: #715ab1;">=</span> <span style="color: #3a81c3;">[</span>x <span style="color: #715ab1;">|</span> x <span style="color: #715ab1;">&lt;-</span> firstSetFor nt ft, x <span style="color: #715ab1;">/=</span> <span style="color: #ba2f59; font-weight: bold;">Lambda</span><span style="color: #3a81c3;">]</span>
-<span style="color: #6c3163; font-weight: bold;">firstForWord</span> <span style="color: #3a81c3; font-weight: bold;">_</span> <span style="color: #3a81c3; font-weight: bold;">_</span> <span style="color: #715ab1;">=</span> <span style="color: #3a81c3; font-weight: bold;">[]</span>
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">firstForWord</span> <span style="color: #7590db;">::</span> <span style="color: #4f97d7;">[</span><span style="color: #ce537a; font-weight: bold;">Symbol</span><span style="color: #4f97d7;">]</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">First</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #4f97d7;">[</span><span style="color: #ce537a; font-weight: bold;">Terminal</span><span style="color: #4f97d7;">]</span>
+<span style="color: #bc6ec5; font-weight: bold;">firstForWord</span> <span style="color: #4f97d7;">[</span><span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">Var</span> nt<span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">]</span> ft <span style="color: #7590db;">=</span> firstSetFor nt ft
+<span style="color: #bc6ec5; font-weight: bold;">firstForWord</span> <span style="color: #4f97d7;">[</span><span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">Symb</span> t<span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">]</span> <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #7590db;">=</span> <span style="color: #4f97d7;">[</span>t<span style="color: #4f97d7;">]</span>
+<span style="color: #bc6ec5; font-weight: bold;">firstForWord</span> <span style="color: #4f97d7;">(</span><span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">Var</span> nt<span style="color: #bc6ec5;">)</span> <span style="color: #ce537a; font-weight: bold;">:</span> ss<span style="color: #4f97d7;">)</span> ft <span style="color: #7590db;">=</span>
+  <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #ce537a; font-weight: bold;">Lambda</span> <span style="color: #7590db;">`elem`</span> firstSetFor nt ft <span style="color: #4f97d7; font-weight: bold;">then</span> 
+        firstMinusLambda <span style="color: #7590db;">`union`</span> firstForWord ss ft
+  <span style="color: #4f97d7; font-weight: bold;">else</span> firstMinusLambda
+       <span style="color: #4f97d7; font-weight: bold;">where</span> firstMinusLambda <span style="color: #7590db;">=</span> <span style="color: #4f97d7;">[</span>x <span style="color: #7590db;">|</span> x <span style="color: #7590db;">&lt;-</span> firstSetFor nt ft, x <span style="color: #7590db;">/=</span> <span style="color: #ce537a; font-weight: bold;">Lambda</span><span style="color: #4f97d7;">]</span>
+<span style="color: #bc6ec5; font-weight: bold;">firstForWord</span> <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">[]</span>
 </pre>
 </div>
 
 </section>
-<section id="slide-org41dfb97">
-<h3 id="org41dfb97">Implementação em Haskell</h3>
+<section id="slide-orge1048e7">
+<h3 id="orge1048e7">Implementação em Haskell</h3>
 <ul>
 <li>Implementação de follow</li>
 
@@ -507,17 +507,17 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #6c3163; font-weight: bold;">follow</span> <span style="color: #715ab1;">::</span> <span style="color: #ba2f59; font-weight: bold;">Grammar</span> <span style="color: #715ab1;">-&gt;</span> <span style="color: #3a81c3;">[</span><span style="color: #6c3163;">(</span><span style="color: #ba2f59; font-weight: bold;">Nonterminal</span>, <span style="color: #2d9574;">[</span><span style="color: #ba2f59; font-weight: bold;">Terminal</span><span style="color: #2d9574;">]</span><span style="color: #6c3163;">)</span><span style="color: #3a81c3;">]</span>
-<span style="color: #6c3163; font-weight: bold;">follow</span> g
-  <span style="color: #715ab1;">=</span> Map.toList <span style="color: #715ab1;">$</span> fixpoint <span style="color: #3a81c3;">(</span>stepFollow g m<span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">(</span>follow0 g<span style="color: #3a81c3;">)</span>
-  <span style="color: #3a81c3; font-weight: bold;">where</span>
-    m <span style="color: #715ab1;">=</span> Map.fromList <span style="color: #715ab1;">$</span> first g
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">follow</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Grammar</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #4f97d7;">[</span><span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">Nonterminal</span>, <span style="color: #2d9574;">[</span><span style="color: #ce537a; font-weight: bold;">Terminal</span><span style="color: #2d9574;">]</span><span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">]</span>
+<span style="color: #bc6ec5; font-weight: bold;">follow</span> g
+  <span style="color: #7590db;">=</span> Map.toList <span style="color: #7590db;">$</span> fixpoint <span style="color: #4f97d7;">(</span>stepFollow g m<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span>follow0 g<span style="color: #4f97d7;">)</span>
+  <span style="color: #4f97d7; font-weight: bold;">where</span>
+    m <span style="color: #7590db;">=</span> Map.fromList <span style="color: #7590db;">$</span> first g
 </pre>
 </div>
 
 </section>
-<section id="slide-org0f4f74d">
-<h3 id="org0f4f74d">Implementação em Haskell</h3>
+<section id="slide-org87138c1">
+<h3 id="org87138c1">Implementação em Haskell</h3>
 <ul>
 <li>Inicialização de follow</li>
 
@@ -525,16 +525,16 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #6c3163; font-weight: bold;">follow0</span> <span style="color: #715ab1;">::</span> <span style="color: #ba2f59; font-weight: bold;">Grammar</span> <span style="color: #715ab1;">-&gt;</span> <span style="color: #ba2f59; font-weight: bold;">Follow</span>
-<span style="color: #6c3163; font-weight: bold;">follow0</span> g <span style="color: #715ab1;">=</span> Map.fromList <span style="color: #715ab1;">$</span> map f <span style="color: #3a81c3;">(</span>nonterminals g<span style="color: #3a81c3;">)</span>
-  <span style="color: #3a81c3; font-weight: bold;">where</span>
-    f nt <span style="color: #715ab1;">=</span> <span style="color: #3a81c3; font-weight: bold;">if</span> nt <span style="color: #715ab1;">==</span> start g <span style="color: #3a81c3; font-weight: bold;">then</span> <span style="color: #3a81c3;">(</span>nt, <span style="color: #6c3163;">[</span><span style="color: #ba2f59; font-weight: bold;">Dollar</span><span style="color: #6c3163;">]</span><span style="color: #3a81c3;">)</span> <span style="color: #3a81c3; font-weight: bold;">else</span> <span style="color: #3a81c3;">(</span>nt, <span style="color: #6c3163; font-weight: bold;">[]</span><span style="color: #3a81c3;">)</span>
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">follow0</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Grammar</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Follow</span>
+<span style="color: #bc6ec5; font-weight: bold;">follow0</span> g <span style="color: #7590db;">=</span> Map.fromList <span style="color: #7590db;">$</span> map f <span style="color: #4f97d7;">(</span>nonterminals g<span style="color: #4f97d7;">)</span>
+  <span style="color: #4f97d7; font-weight: bold;">where</span>
+    f nt <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">if</span> nt <span style="color: #7590db;">==</span> start g <span style="color: #4f97d7; font-weight: bold;">then</span> <span style="color: #4f97d7;">(</span>nt, <span style="color: #bc6ec5;">[</span><span style="color: #ce537a; font-weight: bold;">Dollar</span><span style="color: #bc6ec5;">]</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7; font-weight: bold;">else</span> <span style="color: #4f97d7;">(</span>nt, <span style="color: #bc6ec5; font-weight: bold;">[]</span><span style="color: #4f97d7;">)</span>
 </pre>
 </div>
 
 </section>
-<section id="slide-org228729b">
-<h3 id="org228729b">Implementação em Haskell</h3>
+<section id="slide-orgbd10dcf">
+<h3 id="orgbd10dcf">Implementação em Haskell</h3>
 <ul>
 <li>Iteração do conjunto follow</li>
 
@@ -542,21 +542,21 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #6c3163; font-weight: bold;">stepFollow</span> <span style="color: #715ab1;">::</span> <span style="color: #ba2f59; font-weight: bold;">Grammar</span> <span style="color: #715ab1;">-&gt;</span> <span style="color: #ba2f59; font-weight: bold;">First</span> <span style="color: #715ab1;">-&gt;</span> <span style="color: #ba2f59; font-weight: bold;">Follow</span> <span style="color: #715ab1;">-&gt;</span> <span style="color: #ba2f59; font-weight: bold;">Follow</span>
-<span style="color: #6c3163; font-weight: bold;">stepFollow</span> g firstG current
-  <span style="color: #715ab1;">=</span> step' <span style="color: #3a81c3;">(</span>productions g<span style="color: #3a81c3;">)</span> firstG current
-    <span style="color: #3a81c3; font-weight: bold;">where</span>
-      step' <span style="color: #3a81c3; font-weight: bold;">[]</span> <span style="color: #3a81c3; font-weight: bold;">_</span> curr <span style="color: #715ab1;">=</span> curr
-      step' <span style="color: #3a81c3;">(</span>p <span style="color: #ba2f59; font-weight: bold;">:</span> ps<span style="color: #3a81c3;">)</span> fG curr
-        <span style="color: #715ab1;">=</span> mergeTerminals p <span style="color: #3a81c3;">(</span>step' ps fG curr<span style="color: #3a81c3;">)</span>
-       <span style="color: #3a81c3; font-weight: bold;">where</span>
-         <span style="color: #715ab1;">...</span>
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">stepFollow</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Grammar</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">First</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Follow</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Follow</span>
+<span style="color: #bc6ec5; font-weight: bold;">stepFollow</span> g firstG current
+  <span style="color: #7590db;">=</span> step' <span style="color: #4f97d7;">(</span>productions g<span style="color: #4f97d7;">)</span> firstG current
+    <span style="color: #4f97d7; font-weight: bold;">where</span>
+      step' <span style="color: #4f97d7; font-weight: bold;">[]</span> <span style="color: #4f97d7; font-weight: bold;">_</span> curr <span style="color: #7590db;">=</span> curr
+      step' <span style="color: #4f97d7;">(</span>p <span style="color: #ce537a; font-weight: bold;">:</span> ps<span style="color: #4f97d7;">)</span> fG curr
+        <span style="color: #7590db;">=</span> mergeTerminals p <span style="color: #4f97d7;">(</span>step' ps fG curr<span style="color: #4f97d7;">)</span>
+       <span style="color: #4f97d7; font-weight: bold;">where</span>
+         <span style="color: #7590db;">...</span>
 </pre>
 </div>
 
 </section>
-<section id="slide-orgd91b91e">
-<h3 id="orgd91b91e">Implementação em Haskell</h3>
+<section id="slide-org8209429">
+<h3 id="org8209429">Implementação em Haskell</h3>
 <ul>
 <li>Iteração do conjunto follow</li>
 
@@ -564,14 +564,14 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #6c3163; font-weight: bold;">mergeTerminals</span> <span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">Prod</span> <span style="color: #3a81c3; font-weight: bold;">_</span> <span style="color: #6c3163; font-weight: bold;">[]</span><span style="color: #3a81c3;">)</span> <span style="color: #715ab1;">=</span> undefined
-<span style="color: #6c3163; font-weight: bold;">mergeTerminals</span> <span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">Prod</span> l <span style="color: #6c3163;">(</span>s <span style="color: #ba2f59; font-weight: bold;">:</span> ss<span style="color: #6c3163;">)</span><span style="color: #3a81c3;">)</span> <span style="color: #715ab1;">=</span> merge' l <span style="color: #3a81c3; font-weight: bold;">[]</span> s ss
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">mergeTerminals</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Prod</span> <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #bc6ec5; font-weight: bold;">[]</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> undefined
+<span style="color: #bc6ec5; font-weight: bold;">mergeTerminals</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Prod</span> l <span style="color: #bc6ec5;">(</span>s <span style="color: #ce537a; font-weight: bold;">:</span> ss<span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> merge' l <span style="color: #4f97d7; font-weight: bold;">[]</span> s ss
 </pre>
 </div>
 
 </section>
-<section id="slide-orgdd519c9">
-<h3 id="orgdd519c9">Implementação em Haskell</h3>
+<section id="slide-org9ac4e61">
+<h3 id="org9ac4e61">Implementação em Haskell</h3>
 <ul>
 <li>Iteração do conjunto follow</li>
 
@@ -579,31 +579,31 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #6c3163; font-weight: bold;">merge'</span> a <span style="color: #3a81c3; font-weight: bold;">_</span> <span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">Var</span> b<span style="color: #3a81c3;">)</span> <span style="color: #3a81c3; font-weight: bold;">[]</span> fMinus1
-  <span style="color: #715ab1;">=</span> merge fMinus1 b <span style="color: #3a81c3;">(</span>followSetFor a fMinus1<span style="color: #3a81c3;">)</span>
-<span style="color: #6c3163; font-weight: bold;">merge'</span> <span style="color: #3a81c3; font-weight: bold;">_</span> <span style="color: #3a81c3; font-weight: bold;">_</span>  <span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">Symb</span> <span style="color: #3a81c3; font-weight: bold;">_</span><span style="color: #3a81c3;">)</span> <span style="color: #3a81c3; font-weight: bold;">[]</span> fMinus1 <span style="color: #715ab1;">=</span> fMinus1
-<span style="color: #6c3163; font-weight: bold;">merge'</span> a w1 <span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">Symb</span> t<span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">(</span>w2 <span style="color: #ba2f59; font-weight: bold;">:</span> w2s<span style="color: #3a81c3;">)</span> fMinus1
- <span style="color: #715ab1;">=</span> merge' a <span style="color: #3a81c3;">(</span>w1 <span style="color: #715ab1;">++</span> <span style="color: #6c3163;">[</span><span style="color: #ba2f59; font-weight: bold;">Symb</span> t<span style="color: #6c3163;">]</span><span style="color: #3a81c3;">)</span> w2 w2s fMinus1
-<span style="color: #6c3163; font-weight: bold;">merge'</span> a w1 nt<span style="color: #715ab1;">@</span><span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">Var</span> b<span style="color: #3a81c3;">)</span> w2<span style="color: #715ab1;">@</span><span style="color: #3a81c3;">(</span>w21 <span style="color: #ba2f59; font-weight: bold;">:</span> w2s<span style="color: #3a81c3;">)</span> fMinus1
-  <span style="color: #715ab1;">=</span> merge <span style="color: #3a81c3;">(</span>merge' a <span style="color: #6c3163;">(</span>w1 <span style="color: #715ab1;">++</span> <span style="color: #2d9574;">[</span>nt<span style="color: #2d9574;">]</span><span style="color: #6c3163;">)</span> w21 w2s fMinus1<span style="color: #3a81c3;">)</span> b new
-    <span style="color: #3a81c3; font-weight: bold;">where</span>
-       firstW2 <span style="color: #715ab1;">=</span> <span style="color: #3a81c3;">[</span>x <span style="color: #715ab1;">|</span> x <span style="color: #715ab1;">&lt;-</span> firstForWord w2 fG, x <span style="color: #715ab1;">/=</span> <span style="color: #ba2f59; font-weight: bold;">Lambda</span><span style="color: #3a81c3;">]</span>
-       new <span style="color: #715ab1;">=</span> <span style="color: #3a81c3; font-weight: bold;">if</span> <span style="color: #ba2f59; font-weight: bold;">Lambda</span> <span style="color: #715ab1;">`elem`</span> firstForWord w2 fG <span style="color: #3a81c3; font-weight: bold;">then</span>
-                followSetFor a fMinus1 <span style="color: #715ab1;">`union`</span> firstW2
-              <span style="color: #3a81c3; font-weight: bold;">else</span> firstForWord w2 fG
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">merge'</span> a <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Var</span> b<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7; font-weight: bold;">[]</span> fMinus1
+  <span style="color: #7590db;">=</span> merge fMinus1 b <span style="color: #4f97d7;">(</span>followSetFor a fMinus1<span style="color: #4f97d7;">)</span>
+<span style="color: #bc6ec5; font-weight: bold;">merge'</span> <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #4f97d7; font-weight: bold;">_</span>  <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Symb</span> <span style="color: #4f97d7; font-weight: bold;">_</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7; font-weight: bold;">[]</span> fMinus1 <span style="color: #7590db;">=</span> fMinus1
+<span style="color: #bc6ec5; font-weight: bold;">merge'</span> a w1 <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Symb</span> t<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span>w2 <span style="color: #ce537a; font-weight: bold;">:</span> w2s<span style="color: #4f97d7;">)</span> fMinus1
+ <span style="color: #7590db;">=</span> merge' a <span style="color: #4f97d7;">(</span>w1 <span style="color: #7590db;">++</span> <span style="color: #bc6ec5;">[</span><span style="color: #ce537a; font-weight: bold;">Symb</span> t<span style="color: #bc6ec5;">]</span><span style="color: #4f97d7;">)</span> w2 w2s fMinus1
+<span style="color: #bc6ec5; font-weight: bold;">merge'</span> a w1 nt<span style="color: #7590db;">@</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Var</span> b<span style="color: #4f97d7;">)</span> w2<span style="color: #7590db;">@</span><span style="color: #4f97d7;">(</span>w21 <span style="color: #ce537a; font-weight: bold;">:</span> w2s<span style="color: #4f97d7;">)</span> fMinus1
+  <span style="color: #7590db;">=</span> merge <span style="color: #4f97d7;">(</span>merge' a <span style="color: #bc6ec5;">(</span>w1 <span style="color: #7590db;">++</span> <span style="color: #2d9574;">[</span>nt<span style="color: #2d9574;">]</span><span style="color: #bc6ec5;">)</span> w21 w2s fMinus1<span style="color: #4f97d7;">)</span> b new
+    <span style="color: #4f97d7; font-weight: bold;">where</span>
+       firstW2 <span style="color: #7590db;">=</span> <span style="color: #4f97d7;">[</span>x <span style="color: #7590db;">|</span> x <span style="color: #7590db;">&lt;-</span> firstForWord w2 fG, x <span style="color: #7590db;">/=</span> <span style="color: #ce537a; font-weight: bold;">Lambda</span><span style="color: #4f97d7;">]</span>
+       new <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #ce537a; font-weight: bold;">Lambda</span> <span style="color: #7590db;">`elem`</span> firstForWord w2 fG <span style="color: #4f97d7; font-weight: bold;">then</span>
+                followSetFor a fMinus1 <span style="color: #7590db;">`union`</span> firstW2
+              <span style="color: #4f97d7; font-weight: bold;">else</span> firstForWord w2 fG
 </pre>
 </div>
 
 </section>
 </section>
 <section>
-<section id="slide-org148df5d">
-<h2 id="org148df5d">Concluindo</h2>
-<div class="outline-text-2" id="text-org148df5d">
+<section id="slide-orgd19a0c9">
+<h2 id="orgd19a0c9">Concluindo</h2>
+<div class="outline-text-2" id="text-orgd19a0c9">
 </div>
 </section>
-<section id="slide-org1560fb8">
-<h3 id="org1560fb8">Concluindo</h3>
+<section id="slide-orgb27eeae">
+<h3 id="orgb27eeae">Concluindo</h3>
 <ul>
 <li>Nesta aula, apresentamos os conjuntos first e follow.</li>
 
@@ -612,24 +612,23 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 </ul>
 
 </section>
-<section id="slide-orgf079cbd">
-<h3 id="orgf079cbd">Concluindo</h3>
+<section id="slide-org00eaa31">
+<h3 id="org00eaa31">Concluindo</h3>
 <ul>
 <li>Próxima aula: Análise sintática LL(1)</li>
 
 </ul>
 
-
 </section>
 </section>
 <section>
-<section id="slide-org67459bc">
-<h2 id="org67459bc">Exercícios</h2>
-<div class="outline-text-2" id="text-org67459bc">
+<section id="slide-orgbf2f0a8">
+<h2 id="orgbf2f0a8">Exercícios</h2>
+<div class="outline-text-2" id="text-orgbf2f0a8">
 </div>
 </section>
-<section id="slide-org49db267">
-<h3 id="org49db267">Exercícios</h3>
+<section id="slide-org37e0b68">
+<h3 id="org37e0b68">Exercícios</h3>
 <ul>
 <li>Utilizando a representação de gramáticas utilizada para obter os conjuntos first e follow,
 implemente uma função para obter o conjunto de não terminais anuláveis de uma gramática.

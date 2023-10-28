@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Análise LL(1)</title>
+<meta name="author" content="Construção de compiladores I"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/reveal.css"/>
+
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/theme/white.css" id="theme"/>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1 class="title">Análise LL(1)</h1><h2 class="author">Construção de compiladores I</h2>
+</section>
+
+
+<section>
+<section id="slide-org77adad8">
+<h2 id="org77adad8">Objetivos</h2>
+<div class="outline-text-2" id="text-org77adad8">
+</div>
+</section>
+<section id="slide-org8280132">
+<h3 id="org8280132">Objetivos</h3>
+<ul>
+<li>Apresentar o algoritmo para construção de tabelas LL(1).</li>
+
+<li>Apresentar o algoritmo de análise sintática preditiva.</li>
+
+</ul>
+
+</section>
+<section id="slide-org2d76412">
+<h3 id="org2d76412">Objetivos</h3>
+<ul>
+<li>Apresentar uma implementação Haskell do algoritmo.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orga8167ec">
+<h2 id="orga8167ec">Gramáticas LL(1)</h2>
+<div class="outline-text-2" id="text-orga8167ec">
+</div>
+</section>
+<section id="slide-org93b183a">
+<h3 id="org93b183a">Gramáticas LL(1)</h3>
+<ul>
+<li>Na última aula, definimos os conjuntos first e follow.</li>
+
+<li>Usaremos esses conjuntos para definir gramáticas LL(1).</li>
+
+</ul>
+
+</section>
+<section id="slide-org4e9f6cd">
+<h3 id="org4e9f6cd">Gramáticas LL(1)</h3>
+<ul>
+<li>Para isso, vamos definir o conceito de \(first^{+}\):</li>
+
+</ul>
+
+<div>
+\begin{array}{l}
+first^{+}(A\to\alpha) = first(\alpha)\:\:\:\lambda\not\in first(\alpha)\\
+first^{+}(A\to\alpha) = first(\alpha)\cup follow(A)\:\:\:\lambda\in first(\alpha)\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgb839533">
+<h3 id="orgb839533">Gramáticas LL(1)</h3>
+<ul>
+<li>Dizemos que uma gramática é LL(1) se:</li>
+
+</ul>
+
+<div>
+\begin{array}{l}
+\forall 1 \leq i, j \leq n, i \neq j \to \\ first^{+}(A\to\alpha_i)\cap first^{+}(A\to\alpha_j) = \emptyset\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgde622f1">
+<h3 id="orgde622f1">Gramáticas LL(1)</h3>
+<ul>
+<li>Gramáticas LL(1) admitem analisadores sem retrocesso.</li>
+
+<li>Veremos como tal analisador pode ser contruído.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgffba588">
+<h2 id="orgffba588">Análise preditiva</h2>
+<div class="outline-text-2" id="text-orgffba588">
+</div>
+</section>
+<section id="slide-org042006d">
+<h3 id="org042006d">Análise preditiva</h3>
+<ul>
+<li>Determina a produção da gramática a ser usada com base no próximo
+token da entrada.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgc6308d2">
+<h3 id="orgc6308d2">Análise preditiva</h3>
+<ul>
+<li>Analisadores preditivos utilizam uma tabela para decidir qual
+regra será utilizada.</li>
+
+<li>Tabela construída utilizando os conjuntos first e follow.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgc58dc77">
+<h3 id="orgc58dc77">Análise preditiva</h3>
+<ul>
+<li>Tabela indexada por \(V\) e símbolos de \(\Sigma\) mais o marcador de final de entrada.</li>
+
+<li>O símbolo $ marca o final da entrada.</li>
+
+</ul>
+
+</section>
+<section id="slide-org622d159">
+<h3 id="org622d159">Análise preditiva</h3>
+<ul>
+<li>Tabela armazena produções da gramática.</li>
+
+<li>Entrada \(M[A,a]\) armazena a regra a ser utilizada se \(a\in first(\alpha)\).</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgbb12e1d">
+<h2 id="orgbb12e1d">Construção da tabela</h2>
+<div class="outline-text-2" id="text-orgbb12e1d">
+</div>
+</section>
+<section id="slide-orgd41f1ab">
+<h3 id="orgd41f1ab">Construção da tabela</h3>
+<ul>
+<li>Dada uma gramática \(G\), calcule os conjuntos first e follow de cada não terminal de \(G\).</li>
+
+<li>Para cada regra \(A \to \alpha\) da gramática, faça os seguintes passos:</li>
+
+</ul>
+
+</section>
+<section id="slide-org0f25c23">
+<h3 id="org0f25c23">Construção da tabela</h3>
+<ul>
+<li>Para cada \(a\in first(A)\), inclua \(A \to \alpha\) em \(M[A,a]\).</li>
+
+<li>Se \(\lambda\in first(\alpha)\), inclua \(A\to \alpha\) em \(M[A,b]\) para cada \(b\in follow(A)\).</li>
+
+</ul>
+
+</section>
+<section id="slide-org037940f">
+<h3 id="org037940f">Construção da tabela</h3>
+<ul>
+<li>Se \(\lambda\in first(\alpha)\) e $ \(\in follow(A)\), coloque \(A \to \alpha \in\) M[A,$].</li>
+
+</ul>
+
+</section>
+<section id="slide-org9d744ec">
+<h3 id="org9d744ec">Construção da tabela</h3>
+<ul>
+<li>Gramática de exemplo</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+E  & \to & TE'\\
+E' & \to & \textbf{+} TE'\,|\, \lambda\\
+T  & \to & FT'\\
+T' & \to & \textbf{*}FT'\,|\,\lambda\\
+F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-org01f5b3f">
+<h3 id="org01f5b3f">Construção da tabela</h3>
+<ul>
+<li>first(F) = first (T) = first(E) = \(\{(, id\}\).</li>
+
+<li>first(E') = \(\{+,\lambda\}\).</li>
+
+<li>first(T') = \(\{*,\lambda\}\).</li>
+
+</ul>
+
+</section>
+<section id="slide-org2e97248">
+<h3 id="org2e97248">Construção da tabela</h3>
+<ul>
+<li>follow(E) = follow(E') = {),$}.</li>
+
+<li>follow(T) = follow(T') = {+,),$}.</li>
+
+<li>follow(F) = {+, *, ), $}.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgc32195a">
+<h3 id="orgc32195a">Construção da tabela</h3>
+<ul>
+<li>Produção \(E \to TE'\).
+<ul>
+<li>first(TE') = first(T) = {(,id}.</li>
+<li>\(M[E,id] = M[E,(] = E \to TE'\).</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org8d5b332">
+<h3 id="org8d5b332">Construção da tabela</h3>
+<ul>
+<li>Produção \(E' \to +TE'\).
+<ul>
+<li>\(first(+TE') = {+}\).</li>
+<li>\(M[E',+] = E' \to +TE'\).</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org5151c9c">
+<h3 id="org5151c9c">Construção da tabela</h3>
+<ul>
+<li>Produção \(E' \to \lambda\).
+<ul>
+<li>\(first(\lambda) = \lambda\).</li>
+<li>follow(E') = {),$}.</li>
+<li>M[E',)] = M[E',$] = \(E'\to\lambda\)</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org2f67f81">
+<h3 id="org2f67f81">Construção da tabela</h3>
+<ul>
+<li>Produção \(T \to FT'\)
+<ul>
+<li>\(first(T) = first(FT') = \{(,id\}\).</li>
+<li>\(M[T,(] = M[T,id] = T \to FT'\).</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgb54e36c">
+<h3 id="orgb54e36c">Construção da tabela</h3>
+<ul>
+<li>Produção \(T' \to *FT'\)
+<ul>
+<li>\(first(*FT') =\{*\}\).</li>
+<li>\(M[T',*] = T' \to FT'\).</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org9b9c721">
+<h3 id="org9b9c721">Construção da tabela</h3>
+<ul>
+<li>Produção \(T' \to \lambda\)
+<ul>
+<li>\(first(\lambda) = \lambda\)</li>
+<li>follow(T') = {+,),$}.</li>
+<li>M[T',+] = M[T',)] = M[T',$] = \(T'\to \lambda\).</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgdd0998a">
+<h3 id="orgdd0998a">Construção da tabela</h3>
+<ul>
+<li>Produção \(F \to id\)
+<ul>
+<li>first(id) = {id}</li>
+<li>M[F,id] = id</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orga36a44d">
+<h3 id="orga36a44d">Construção da tabela</h3>
+<ul>
+<li>Produção \(F \to (E)\)
+<ul>
+<li>first((E)) = {(}</li>
+<li>\(M[F,(] = F \to (E)\)</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org7fe1c14">
+<h2 id="org7fe1c14">Implementação em Haskell</h2>
+<div class="outline-text-2" id="text-org7fe1c14">
+</div>
+</section>
+<section id="slide-org5f3cef9">
+<h3 id="org5f3cef9">Implementação em Haskell</h3>
+<ul>
+<li>Definição da tabela</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">type</span> <span style="color: #ce537a; font-weight: bold;">Table</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Map</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Nonterminal</span>, <span style="color: #ce537a; font-weight: bold;">Terminal</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">[</span><span style="color: #ce537a; font-weight: bold;">Production</span><span style="color: #4f97d7;">]</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org478cb6d">
+<h3 id="org478cb6d">Implementação em Haskell</h3>
+<ul>
+<li>Construção da tabela</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">buildTable</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Grammar</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Table</span>
+<span style="color: #bc6ec5; font-weight: bold;">buildTable</span> g <span style="color: #7590db;">=</span> foldr step Map.empty <span style="color: #4f97d7;">(</span>productions g<span style="color: #4f97d7;">)</span>
+  <span style="color: #4f97d7; font-weight: bold;">where</span>
+    firstG <span style="color: #7590db;">=</span> first g
+    followG <span style="color: #7590db;">=</span> follow g
+    insertTable p s tbl
+       <span style="color: #7590db;">=</span> Map.insertWith union <span style="color: #4f97d7;">(</span>leftHand p, s<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">[</span>p<span style="color: #4f97d7;">]</span> tbl 
+</pre>
+</div>
+
+</section>
+<section id="slide-orgc4995b7">
+<h3 id="orgc4995b7">Implementação em Haskell</h3>
+<ul>
+<li>Construção da tabela</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">step</span> p tbl
+   <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">let</span> 
+       firstM <span style="color: #7590db;">=</span> Map.fromList firstG
+       lhs <span style="color: #7590db;">=</span> leftHand p
+       rhs <span style="color: #7590db;">=</span> rightHand p
+       firstP <span style="color: #7590db;">=</span> firstForWord rhs firstM
+       followP <span style="color: #7590db;">=</span> maybe <span style="color: #4f97d7; font-weight: bold;">[]</span> id <span style="color: #4f97d7;">(</span>lookup lhs followG<span style="color: #4f97d7;">)</span>
+       tbl1 <span style="color: #7590db;">=</span> foldr <span style="color: #4f97d7;">(</span>insertTable p<span style="color: #4f97d7;">)</span> tbl <span style="color: #4f97d7;">[</span>x <span style="color: #7590db;">|</span> x <span style="color: #7590db;">&lt;-</span> firstP, x <span style="color: #7590db;">/=</span> <span style="color: #ce537a; font-weight: bold;">Lambda</span><span style="color: #4f97d7;">]</span>
+       tbl2 <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #ce537a; font-weight: bold;">Lambda</span> <span style="color: #7590db;">`elem`</span> firstP
+              <span style="color: #4f97d7; font-weight: bold;">then</span> foldr <span style="color: #4f97d7;">(</span>insertTable p<span style="color: #4f97d7;">)</span> tbl1 followP
+              <span style="color: #4f97d7; font-weight: bold;">else</span> tbl1
+     <span style="color: #4f97d7; font-weight: bold;">in</span> <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #ce537a; font-weight: bold;">Lambda</span> <span style="color: #7590db;">`elem`</span> firstP <span style="color: #7590db;">&amp;&amp;</span>
+           <span style="color: #ce537a; font-weight: bold;">Dollar</span> <span style="color: #7590db;">`elem`</span> followP
+        <span style="color: #4f97d7; font-weight: bold;">then</span> insertTable p <span style="color: #ce537a; font-weight: bold;">Dollar</span> tbl2
+        <span style="color: #4f97d7; font-weight: bold;">else</span> tbl2
+</pre>
+</div>
+
+
+</section>
+</section>
+<section>
+<section id="slide-orgefbfea6">
+<h2 id="orgefbfea6">Análise preditiva</h2>
+<div class="outline-text-2" id="text-orgefbfea6">
+</div>
+</section>
+<section id="slide-org58ef106">
+<h3 id="org58ef106">Análise preditiva</h3>
+<ul>
+<li>O algoritmo utiliza:
+<ul>
+<li>Tabela</li>
+<li>Pilha</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org1142817">
+<h3 id="org1142817">Análise preditiva</h3>
+<ul>
+<li>Estrutura do analisador</li>
+
+</ul>
+
+
+<div id="orga99f6bc" class="figure">
+<p><img src="./imgs/predictive.png" alt="predictive.png" />
+</p>
+</div>
+
+
+</section>
+<section id="slide-orge3aa64e">
+<h3 id="orge3aa64e">Análise preditiva</h3>
+<ul>
+<li>Inicialização
+<ul>
+<li>Entrada w$</li>
+<li>Pilha: Símbolo de partida no topo, $ no fundo.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org1a3ad40">
+<h3 id="org1a3ad40">Análise preditiva</h3>
+<ul>
+<li>Seja \(X\) o símbolo de topo da pilha.</li>
+<li>Seja \(a\) o primeiro token da entrada.</li>
+<li>Se \(X = a\), desempilhe \(X\) e obtenha próximo token.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgddadd2b">
+<h3 id="orgddadd2b">Análise preditiva</h3>
+<ul>
+<li>Se \(X\) é um não terminal, seja \(r = M[X,a]\).</li>
+
+<li>Se \(r\) é erro, pare.</li>
+
+<li>Se \(r = X \to Y_1 ... Y_k\)
+<ul>
+<li>Desempilhe \(X\).</li>
+<li>Empilhe \(Y_k ... Y_1\).</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgd10ce32">
+<h3 id="orgd10ce32">Análise preditiva</h3>
+<ul>
+<li>Vamos considerar a gramática</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+E  & \to & TE'\\
+E' & \to & \textbf{+} TE'\,|\, \lambda\\
+T  & \to & FT'\\
+T' & \to & \textbf{*}FT'\,|\,\lambda\\
+F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}\\
+\end{array}
+
+</div>
+
+</section>
+<section id="slide-orgfc37101">
+<h3 id="orgfc37101">Análise preditiva</h3>
+<ul>
+<li>Vamos considerar a string id + id.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgf83e845">
+<h3 id="orgf83e845">Análise preditiva</h3>
+<ul>
+<li>Inicialização
+<ul>
+<li>Entrada: id + id$</li>
+<li>Pilha: E$</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org995596b">
+<h3 id="org995596b">Análise preditiva</h3>
+<ul>
+<li>Temos que:
+<ul>
+<li>\(X = E\)</li>
+<li>\(a = id\)</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgfe2df0e">
+<h3 id="orgfe2df0e">Análise preditiva</h3>
+<ul>
+<li>Temos que \(M[E,id]= E \to TE'\)
+<ul>
+<li>Entrada: id+id$</li>
+<li>Pilha: TE'$</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org24ed73f">
+<h3 id="org24ed73f">Análise preditiva</h3>
+<ul>
+<li>Temos que:
+<ul>
+<li>\(X = T\)</li>
+<li>\(a = id\)</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgb6c165e">
+<h3 id="orgb6c165e">Análise preditiva</h3>
+<ul>
+<li>Temos que \(M[T,id] = T\to FT'\)
+<ul>
+<li>Entrada: id+id$</li>
+<li>Pilha: FT'E'$.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org4f04291">
+<h3 id="org4f04291">Análise preditiva</h3>
+<ul>
+<li>Temos que:
+<ul>
+<li>\(X = F\)</li>
+<li>\(a = id\)</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgeb88a9b">
+<h3 id="orgeb88a9b">Análise preditiva</h3>
+<ul>
+<li>Temos que \(M[F,id] = F \to id\)
+<ul>
+<li>Entrada: id + id$</li>
+<li>Pilha: idT'E'$.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgb06ebb6">
+<h3 id="orgb06ebb6">Análise preditiva</h3>
+<ul>
+<li>Temos que:
+<ul>
+<li>\(X=id\).</li>
+<li>\(a = id\).</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org3ba2edd">
+<h3 id="org3ba2edd">Análise preditiva</h3>
+<ul>
+<li>Como \(X = a\), desempilhamos \(X\) e obtemos próximo token.
+<ul>
+<li>Entrada: +id$</li>
+<li>Pilha: T'E'$.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org51d06a0">
+<h3 id="org51d06a0">Análise preditiva</h3>
+<ul>
+<li>Temos que:
+<ul>
+<li>\(X = T'\).</li>
+<li>\(a = +\).</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orge4b315a">
+<h3 id="orge4b315a">Análise preditiva</h3>
+<ul>
+<li>Temos que \(M[T',+] = T'\to\lambda\).
+<ul>
+<li>Entrada: +idE</li>
+<li>Pilha: E'$.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org10a6244">
+<h3 id="org10a6244">Análise preditiva</h3>
+<ul>
+<li>Temos que:
+<ul>
+<li>\(X = E'\).</li>
+<li>\(a = +\).</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgeaa9123">
+<h3 id="orgeaa9123">Análise preditiva</h3>
+<ul>
+<li>Temos que \(M[E',+] = E'\to + TE'\).
+<ul>
+<li>Entrada: +id$</li>
+<li>Pilha: +TE'$</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org6f73cd0">
+<h3 id="org6f73cd0">Análise preditiva</h3>
+<ul>
+<li>Temos que
+<ul>
+<li>\(X = +\)</li>
+<li>\(a = +\)</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgf2b2d64">
+<h3 id="orgf2b2d64">Análise preditiva</h3>
+<ul>
+<li>Como \(X = a\), desempilhamos \(X\) e obtemos o próximo token.
+<ul>
+<li>Entrada: id$.</li>
+<li>Pilha: TE'$.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org64e000b">
+<h3 id="org64e000b">Análise preditiva</h3>
+<ul>
+<li>Temos que
+<ul>
+<li>\(X = T\)</li>
+<li>\(a = id\)</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgac25ee9">
+<h3 id="orgac25ee9">Análise preditiva</h3>
+<ul>
+<li>Temos que \(M[T,id] = T\to FT'\)
+<ul>
+<li>Entrada: id$</li>
+<li>Pilha: FT'E'$</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org456a018">
+<h3 id="org456a018">Análise preditiva</h3>
+<ul>
+<li>Temos que
+<ul>
+<li>\(X = F\)</li>
+<li>\(a = id\)</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org0426ce4">
+<h3 id="org0426ce4">Análise preditiva</h3>
+<ul>
+<li>Temos que \(M[F,id] = F \to id\)
+<ul>
+<li>Entrada: id$</li>
+<li>Pilha: idT'E'$.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org7267d99">
+<h3 id="org7267d99">Análise preditiva</h3>
+<ul>
+<li>Temos que
+<ul>
+<li>\(X = id\).</li>
+<li>\(a = id\).</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org7a63906">
+<h3 id="org7a63906">Análise preditiva</h3>
+<ul>
+<li>Como \(X = a\), desempilhamos \(X\) e obtemos o próximo token.
+<ul>
+<li>Entrada: $</li>
+<li>Pilha: T'E'$.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org6f36c80">
+<h3 id="org6f36c80">Análise preditiva</h3>
+<ul>
+<li>Temos que:
+<ul>
+<li>\(X = T'\).</li>
+<li>a = $.</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org1e154bd">
+<h3 id="org1e154bd">Análise preditiva</h3>
+<ul>
+<li>Temos que M[T',$] = \(T'\to\lambda\):
+<ul>
+<li>Entrada: $</li>
+<li>Pilha: E'$</li>
+
+</ul></li>
+
+</ul>
+
+
+</section>
+<section id="slide-orgf5955e5">
+<h3 id="orgf5955e5">Análise preditiva</h3>
+<ul>
+<li>Temos que:
+<ul>
+<li>\(X = E'\).</li>
+<li>a = $.</li>
+
+</ul></li>
+
+</ul>
+
+
+</section>
+<section id="slide-org7e73950">
+<h3 id="org7e73950">Análise preditiva</h3>
+<ul>
+<li>Temos que M[E',$] = \(E'\to\lambda\):
+<ul>
+<li>Entrada: $</li>
+<li>Pilha: $</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org6c09b1b">
+<h3 id="org6c09b1b">Análise preditiva</h3>
+<ul>
+<li>Temos que:
+<ul>
+<li>X = $</li>
+<li>a = $</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org70f32e0">
+<h3 id="org70f32e0">Análise preditiva</h3>
+<ul>
+<li>como \(X = a\), desempilhamos \(X\) e como não há próximo token o algoritmo encerra com sucesso.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org269abcd">
+<h2 id="org269abcd">Implementação em Haskell</h2>
+<div class="outline-text-2" id="text-org269abcd">
+</div>
+</section>
+<section id="slide-org4ba7594">
+<h3 id="org4ba7594">Implementação em Haskell</h3>
+<ul>
+<li>Definição do estado do algoritmo</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">data</span> <span style="color: #ce537a; font-weight: bold;">Pred</span>
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Pred</span> <span style="color: #4f97d7;">{</span>
+      stack <span style="color: #7590db;">::</span> <span style="color: #bc6ec5;">[</span><span style="color: #ce537a; font-weight: bold;">Symbol</span><span style="color: #bc6ec5;">]</span>
+    , input <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">String</span>
+    , table <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Table</span>
+    <span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org7e1951b">
+<h3 id="org7e1951b">Implementação em Haskell</h3>
+<ul>
+<li>Inicialização</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">initial</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Grammar</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Pred</span>
+<span style="color: #bc6ec5; font-weight: bold;">initial</span> g s
+  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Pred</span> stk <span style="color: #4f97d7;">(</span>s <span style="color: #7590db;">++</span> <span style="color: #2d9574;">"$"</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span>buildTable g<span style="color: #4f97d7;">)</span>
+    <span style="color: #4f97d7; font-weight: bold;">where</span>
+      stk <span style="color: #7590db;">=</span> <span style="color: #4f97d7;">[</span><span style="color: #ce537a; font-weight: bold;">Var</span> <span style="color: #bc6ec5;">(</span>start g<span style="color: #bc6ec5;">)</span>, <span style="color: #ce537a; font-weight: bold;">Symb</span> <span style="color: #ce537a; font-weight: bold;">Dollar</span><span style="color: #4f97d7;">]</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org7675803">
+<h3 id="org7675803">Implementação em Haskell</h3>
+<ul>
+<li>Implementação da análise preditiva</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">predictiveM</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Lexer</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">PredictiveM</span> <span style="color: #4f97d7; font-weight: bold;">()</span>
+<span style="color: #bc6ec5; font-weight: bold;">predictiveM</span> plex
+  <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">do</span>
+      v <span style="color: #7590db;">&lt;-</span> emptyStack
+      <span style="color: #4f97d7; font-weight: bold;">if</span> v <span style="color: #4f97d7; font-weight: bold;">then</span> return <span style="color: #4f97d7; font-weight: bold;">()</span>
+      <span style="color: #4f97d7; font-weight: bold;">else</span> <span style="color: #4f97d7; font-weight: bold;">do</span>
+          r <span style="color: #7590db;">&lt;-</span> nextToken plex
+          a <span style="color: #7590db;">&lt;-</span> top
+          when <span style="color: #4f97d7;">(</span>isTerminal a <span style="color: #7590db;">&amp;&amp;</span> a <span style="color: #7590db;">/=</span> <span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">Symb</span> r<span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span>throwError <span style="color: #7590db;">$</span> expecting a r<span style="color: #4f97d7;">)</span>
+          when <span style="color: #4f97d7;">(</span>isTerminal a <span style="color: #7590db;">&amp;&amp;</span> a <span style="color: #7590db;">==</span> <span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">Symb</span> r<span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span>pop <span style="color: #7590db;">&gt;&gt;</span> consumeToken plex<span style="color: #4f97d7;">)</span>
+          when <span style="color: #4f97d7;">(</span>isNonterminal a<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">$</span> <span style="color: #4f97d7; font-weight: bold;">do</span>
+            <span style="color: #4f97d7; font-weight: bold;">let</span> nt' <span style="color: #7590db;">=</span> nonTerminal a
+            v <span style="color: #7590db;">&lt;-</span> pop
+            p <span style="color: #7590db;">&lt;-</span> lookupTable nt' r
+            when <span style="color: #4f97d7;">(</span>isNothing p<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span>throwError <span style="color: #2d9574;">"Parsing table error!"</span><span style="color: #4f97d7;">)</span>
+            <span style="color: #4f97d7; font-weight: bold;">let</span> p' <span style="color: #7590db;">=</span> fromJust p
+            push <span style="color: #4f97d7;">(</span>rightHand p'<span style="color: #4f97d7;">)</span>
+          predictiveM plex
+</pre>
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-orge04defc">
+<h2 id="orge04defc">Concluindo</h2>
+<div class="outline-text-2" id="text-orge04defc">
+</div>
+</section>
+<section id="slide-org88fe220">
+<h3 id="org88fe220">Concluindo</h3>
+<ul>
+<li>Nesta aula apresentamos o algoritmo de análise sintática preditiva.</li>
+
+<li>Apresentamos uma implementação deste algoritmo em Haskell</li>
+
+</ul>
+
+</section>
+<section id="slide-orgd23c8f5">
+<h3 id="orgd23c8f5">Concluindo</h3>
+<ul>
+<li>Próxima aula: análise sintática ascendente.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgc19f227">
+<h2 id="orgc19f227">Exercícios</h2>
+<div class="outline-text-2" id="text-orgc19f227">
+</div>
+</section>
+<section id="slide-org32f1234">
+<h3 id="org32f1234">Exercícios</h3>
+<ul>
+<li>Estenda o algoritmo de análise preditiva para que este verifique se a
+gramática fornecida é ou não LL(1).</li>
+
+</ul>
+</section>
+</section>
+</div>
+</div>
+<script src="file:///home/rodrigo/reveal.js/dist/reveal.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/markdown/markdown.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/notes/notes.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/search/search.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/zoom/zoom.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+overview: true,
+
+transition: 'convex',
+transitionSpeed: 'default',
+
+// Plugins with reveal.js 4.x
+plugins: [ RevealMarkdown, RevealNotes, RevealSearch, RevealZoom ],
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+]
+
+});
+</script>
+</body>
+</html>

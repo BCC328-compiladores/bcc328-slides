@@ -466,6 +466,6 @@ alex Lexer.x
 
 ** Exercícios
 
-- Construa um analisador léxico, utilizando derivadas,  para a linguagem de expressões
-  aritméticas. Seu analisador deve ler um arquivo, fornecido como argumento de linha
+- Construa um analisador léxico, utilizando o gerador Alex,  para a linguagem IMP.
+  Seu analisador deve ler um arquivo, fornecido como argumento de linha
   de comando, e imprimir todos os tokens encontrados.

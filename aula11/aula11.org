@@ -1,0 +1,381 @@
+#+OPTIONS: num:nil toc:nil
+#+OPTIONS: date:nil reveal_mathjax:t
+#+OPTIONS: tex t
+#+OPTIONS: timestamp:nil
+#+OPTIONS: org-confirm-babel-evaluate nil
+#+REVEAL_THEME: white
+#+REVEAL_HLEVEL: 1
+#+REVEAL_ROOT: file:///home/rodrigo/reveal.js
+
+#+Title: Análise Ascendente
+#+Author: Construção de compiladores I
+
+
+* Objetivos
+
+** Objetivos
+
+- Apresentar uma motivação para o uso de analisadores ascendentes.
+
+- Introduzir os as funções de fechamento e goto em analisadores LR(0).
+
+* Introdução
+
+** Introdução
+
+- Até o presente, vimos técnicas de análise sintática top-down.
+
+- Intuitivamente, essas técnicas produzem uma derivação iniciando no
+  símbolo de partida da gramática.
+
+** Introdução
+
+- Analisadores descendentes recursivos
+  - Simples implementação manual.
+  - Restrições sobre a forma da gramática.
+
+
+** Introdução
+
+- Analisador LL(1)
+  - Constrói uma derivação mais a esquerda.
+  - Utiliza uma tabela construída utilizando os conjuntos first e follow.
+
+** Introdução
+
+- Problemas com gramáticas LL(1):
+  - Parser deve tomar decisão sobre qual produção usar com base nos
+    primeiro token da entrada.
+
+** Introdução
+
+- Mas, existe outra alternativa?
+
+** Introdução
+
+- Outra possibilidade: Análise ascendente.
+  - Construir uma derivação mais a direita ao *inverso*.
+
+** Introdução
+
+- Derivação mais à direita
+  - Expandir o não terminal mais a direita em cada passo.
+
+** Introdução
+
+- Gramática de exemplo
+
+\begin{array}{lcl}
+  E & \to & E \textbf{+} E \,|\,E \textbf{*} E\,|\,id 
+\end{array}
+
+
+** Introdução
+
+- Derivação mais a direita para id * id:
+
+\begin{array}{lc}
+E      & \Rightarrow^R \\
+\end{array}
+
+
+** Introdução
+
+- Derivação mais a direita para id * id:
+
+\begin{array}{lc}
+E      & \Rightarrow^R \\
+E * E  & \Rightarrow^R \\
+\end{array}
+
+
+** Introdução
+
+- Derivação mais a direita para id * id:
+
+\begin{array}{lc}
+E      & \Rightarrow^R \\
+E * E  & \Rightarrow^R \\
+E * id & \Rightarrow^R \\
+\end{array}
+
+
+** Introdução
+
+- Derivação mais a direita para id * id:
+
+\begin{array}{lc}
+E      & \Rightarrow^R \\
+E * E  & \Rightarrow^R \\
+E * id & \Rightarrow^R \\
+id * id \\
+\end{array}
+
+** Introdução
+
+- Mas, como um analisador ascendente functiona?
+
+** Introdução
+
+- O analisador utiliza:
+  - Sequência de tokens de entrada.
+  - Pilha.
+
+** Introdução
+
+- O analisador pode utilizar 4 tipos de ação:
+  - shift: mover itens da entrada para a pilha
+  - reduce: escolher regra $A \to \beta$
+    - remover $\beta$ do topo da pilha
+    - empilhar $A$.
+  - aceitar e falhar.
+
+** Introdução
+
+- Idealmente, o analisador deve reduzir uma palavra de entrada até o símbolo de partida da gramática.
+
+- Vamos mostrar o funcionamento, usando um exemplo.
+
+** Introdução
+
+- Exemplo:
+  - entrada: id * id$
+  - pilha: $
+
+** Introdução
+
+- Ação: shift id para a pilha.
+
+- Exemplo:
+  - entrada: * id$
+  - pilha: $ id
+
+** Introdução
+
+- Ação: reduzir id usando $E \to id$.
+
+- Exemplo:
+  - entrada: * id$
+  - pilha: $ E
+
+
+** Introdução
+
+- Ação: shift * para a pilha.
+
+- Exemplo:
+  - entrada: id$
+  - pilha: $ E *
+
+
+** Introdução
+
+- Ação: shift id para a pilha.
+
+- Exemplo:
+  - entrada: $
+  - pilha: $ E * id
+
+
+** Introdução
+
+- Ação: reduce id usando $E\to id$.
+
+- Exemplo:
+  - entrada: $
+  - pilha: $ E * E
+
+
+** Introdução
+
+- Ação: reduce E * E usando $E\to E * E$.
+
+- Exemplo:
+  - entrada: $
+  - pilha: $ E
+
+** Introdução
+
+- Tendo a entrada sido consumida e a pilha é formada apenas pelo símbolo de partida e o marcador de final de pilha,
+  temos que a palavra é aceita.
+
+** Introdução
+
+- Observe que o analisador produz uma derivação mais a direita *invertida*
+
+** Introdução
+
+- Porém, como determinar qual ação deve ser executada?
+
+** Introdução
+
+- Analisadores ascendentes usam um AFD sobre a pilha para
+  determinar qual ação executar.
+
+- AFD representado por uma tabela que armazena quais ações
+ devem ser executadas pelo analisador.
+
+** Introdução
+
+- Diferentes técnicas de análise ascendente usam diferentes
+  estratégias para construção das tabelas.
+
+- Nesta aula, veremos o analisador LR(0)
+
+* Analisador LR(0)
+
+** Analisador LR(0)
+
+- Analisador sintático ascendente que usa apenas a pilha para decidir ações.
+
+- Não aplicável em gramáticas de linguagens de programação.
+  - Útil para compreensão do mecanismo de construção de tabelas.
+
+** Analisador LR(0)
+
+- A construção de tabelas LR(0) utiliza o conceito de *item*
+  - Item: regra de uma gramática contendo uma marcação em seu lado direito.
+  - Marcação representada por um "."
+
+** Analisador LR(0)
+
+- A ideia do algoritmo é construir um AFD sobre coleções de itens.
+
+- Cada estado do AFD representa um conjunto de itens.
+
+** Analisador LR(0)
+
+- Como obter o conjunto de itens?
+
+- Primeiro, precisamos modificar a gramática de entrada e calculamos o fechamento e
+  transição entre conjuntos de itens.
+
+** Analisador LR(0)
+
+- Ilustraremos essas etapas considerando a seguinte gramática.
+
+\begin{array}{lcl}
+  S & \to & \textbf{(}L\textbf{)}\,|\, \textbf{x}\\
+  L & \to & L\,\textbf{,}\,S\,|\,S\\
+\end{array}
+
+** Analisador LR(0)
+
+- Primeiro passo, modificamos a gramática para criar uma nova variável de partida.
+
+\begin{array}{lcl}
+  S' & \to & S\textbf{.}\\
+  S  & \to & \textbf{(}L\textbf{)}\,|\, \textbf{x}\\
+  L  & \to & L\,\textbf{,}\,S\,|\,S\\
+\end{array}
+
+** Analisador LR(0)
+
+- Por que modificar a gramática?
+  - Facilitar a identificação de aceitação.
+  - Aceitação determinada por reduzir usando
+    - S' \to S.
+
+** Analisador LR(0)
+
+- Fechamento do conjunto de itens $I$.
+  - $I\subseteq closure(I)$.
+  - Se $A \to \alpha \textbf{.}B\beta \in I$, incluir toda regra $B \to \gamma$ em I.
+  - Repetir passo anterior enquanto possível.
+
+** Analisador LR(0)
+
+- Vamos considerar o conjunto inicial de itens da gramática de exemplo:
+
+\begin{array}{l}
+\{S \to \textbf{.}S\}
+\end{array}
+
+** Analisador LR(0)
+
+- Como a regra $S \to \textbf{.} S$ está no conjunto, vamos incluir regras $S$.
+
+** Analisador LR(0)
+
+- Incluindo todas as regras $S$ no conjunto.
+
+\begin{array}{rll}
+\{ & S \to \textbf{.}S &, \\
+   & S \to \textbf{.(}L\textbf{)} & , \\
+   & S \to \textbf{.x} & \}\\
+\end{array}
+
+** Analisador LR(0)
+
+- Outro ponto da construção do autômato LR(0) é o cálculo da função de transição.
+
+- $goto(I,a)$
+  - $I$: conjunto de itens.
+  - $a \in \Sigma$.
+
+** Analisador LR(0)
+
+- Definimos $goto(I,X)$:
+  - $J \leftarrow \emptyset$
+  - Para cada item $A \to \alpha .X\beta \in I$
+    - Adicione $A \to \alpha X.\beta$ a $J$.
+  - retorne $closure(J)$.
+
+** Analisador LR(0)
+
+- Exemplo:
+  - Calcular $goto(I,()$, em que $I$ é:
+
+\begin{array}{rll}
+\{ & S \to \textbf{.}S &, \\
+   & S \to \textbf{.(}L\textbf{)} & , \\
+   & S \to \textbf{.x} & \}\\
+\end{array}
+
+** Analisador LR(0)
+
+- Produção base:
+
+\begin{array}{lcl}
+S \to \textbf{(.}L\textbf{)}\\
+\end{array}
+
+
+** Analisador LR(0)
+
+- Aplicando o fechamento:
+  - Incluindo regras $L$
+
+\begin{array}{lcl}
+S & \to & \textbf{(.}L\textbf{)}\\
+L & \to & \textbf{.}L\textbf{,}S\\
+L & \to & .S
+\end{array}
+
+
+** Analisador LR(0)
+
+- Aplicando o fechamento:
+  - Incluindo regras $S$
+
+\begin{array}{lcl}
+S & \to & \textbf{(.}L\textbf{)}\\
+L & \to & \textbf{.}L\textbf{,}S\\
+L & \to & \textbf{.}S\\
+S & \to & \textbf{.(}L\textbf{)}\\
+S & \to & \textbf{.x}\\
+\end{array}
+
+*
+
+* Exercícios
+
+** Exercícios
+
+- Apresente o conjunto de itens obtidos para a versão estendida da seguinte gramática:
+  - Considere como conjunto inicial o formado pela nova variável de partida.
+
+\begin{array}{lcl}
+E & \to & T \textbf{+} E\,|\,T\\
+T & \to & \textbf{x}\\
+\end{array}
