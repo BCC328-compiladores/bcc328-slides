@@ -1,0 +1,23 @@
+#    -*- mode: org -*-
+
+
+Archived entries from file /home/rodrigo/Documents/aulas/materiais/compiladores/slides/aula11/aula11.org
+
+
+* Parsing Expression Grammars
+:PROPERTIES:
+:ARCHIVE_TIME: 2023-11-16 qui 19:29
+:ARCHIVE_FILE: ~/Documents/aulas/materiais/compiladores/slides/aula11/aula11.org
+:ARCHIVE_OLPATH: Parsing Expression Grammars
+:ARCHIVE_CATEGORY: aula11
+:END:
+
+- Exemplo
+
+\begin{array}{lcl}
+A & \leftarrow & a A b \,/\, ab\\
+\end{array}
+
+- Expressão inicial: $A /\:!\, (a\, /\, b)\: /\: \lambda$
+
+- Exemplos da semântica: aabb, a, \lambda

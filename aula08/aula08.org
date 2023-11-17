@@ -303,8 +303,8 @@ A & \to & Ay_1\,|\,...\,|\,Ay_n\,|\,w_1\,|\,...\,|\,w_k\\
 - Pode ser transformada em
 
 \begin{array}{lcl}
-A & \to & y_1Z\,|\,...\,|\,y_nZ\,|\,y_1\,...\,|\,y_n\\
-Z & \to & w_1Z\,|\,...\,|\,w_kZ\,|\,w_1\,...\,|\,w_k\\
+A & \to & w_1Z\,|\,...\,|\,w_kZ\,|\,w_1\,...\,|\,w_k\\
+Z & \to & y_1Z\,|\,...\,|\,y_nZ\,|\,y_1\,...\,|\,y_n\\
 \end{array}
 
 ** Transformações de gramáticas
@@ -377,7 +377,7 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 ** Análise descendente
 
 - Analisador para $A \to X_1 ... X_n$:
-  - Para $i = 1$ até $k$
+  - Para $i = 1$ até $n$
     - Se $X_i$ for uma variável, chame a função correspondente a $X_i$.
     - Se $X_i$ for um terminal, verifique se ele é igual ao primeiro token da entrada.
 

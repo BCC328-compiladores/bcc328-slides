@@ -42,12 +42,6 @@
 - $first(\alpha)$: conjunto de terminais que iniciam sentenças derivadas a partir de $\alpha$.
 
 - $\alpha \in (V\cup \Sigma)^*$.
-  
-** First e Follow
-
-- $follow(A)$: conjunto de terminais que aparecem logo a direita de $A$ em alguma derivação.
-
-- $A \in V$.
 
 ** First e Follow
 
@@ -88,6 +82,12 @@ F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
 - $first(E') = \{\textbf{+},\lambda\}$
 
 - $first(T') = \{\textbf{*},\lambda\}$
+
+** First e Follow
+
+- $follow(A)$: conjunto de terminais que aparecem logo a direita de $A$ em alguma derivação.
+
+- $A \in V$.
 
 ** First e Follow
 

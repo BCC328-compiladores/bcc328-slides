@@ -7,7 +7,7 @@
 #+REVEAL_HLEVEL: 1
 #+REVEAL_ROOT: file:///home/rodrigo/reveal.js
 
-#+Title: Análise LR(0)
+#+Title: Análise Ascendente
 #+Author: Construção de compiladores I
 
 
@@ -15,81 +15,294 @@
 
 ** Objetivos
 
-- Continuar o estudo do analisador LR(0).
+- Apresentar uma motivação para o uso de analisadores ascendentes.
 
-- Introduzir o conceito de conflitos em analisadores LR.
+- Introduzir os as funções de fechamento e goto em analisadores LR(0).
 
 * Introdução
 
 ** Introdução
 
-- Na aula anterior, vimos o as funções de fechamento e goto, utilizadas para a
-  construção de itens LR(0)
+- Até o presente, vimos técnicas de análise sintática top-down.
+
+- Intuitivamente, essas técnicas produzem uma derivação iniciando no
+  símbolo de partida da gramática.
 
 ** Introdução
 
-- Nesta aula, vamos ver como construir o autômato LR(0) e como obter a tabela de parsing LR(0).
+- Analisadores descendentes recursivos
+  - Simples implementação manual.
+  - Restrições sobre a forma da gramática.
 
-- Aprender o algoritmo de análise sintática LR(0).
+** Introdução
 
-* Construção do AFD LR(0)
+- Parsing expression grammars
+  - Não suportam recursão à esquerda.
+  - Semântica não intuitiva.
 
-** Construção do AFD LR(0)
+** Introdução
 
-- Para construir a tabela LR(0), utilizaremos as funções de fechamento e goto.
+- Analisador LL(1)
+  - Constrói uma derivação mais a esquerda.
+  - Utiliza uma tabela construída utilizando os conjuntos first e follow.
 
-** Construção do AFD LR(0)
+** Introdução
+
+- Problemas com gramáticas LL(1):
+  - Parser deve tomar decisão sobre qual produção usar com base nos
+    primeiro token da entrada.
+
+** Introdução
+
+- Mas, existe outra alternativa?
+
+** Introdução
+
+- Outra possibilidade: Análise ascendente.
+  - Construir uma derivação mais a direita ao *inverso*.
+
+** Introdução
+
+- Derivação mais à direita
+  - Expandir o não terminal mais a direita em cada passo.
+
+** Introdução
+
+- Gramática de exemplo
+
+\begin{array}{lcl}
+  E & \to & E \textbf{+} E \,|\,E \textbf{*} E\,|\,id 
+\end{array}
+
+
+** Introdução
+
+- Derivação mais a direita para id * id:
+
+\begin{array}{lc}
+E      & \Rightarrow^R \\
+\end{array}
+
+
+** Introdução
+
+- Derivação mais a direita para id * id:
+
+\begin{array}{lc}
+E      & \Rightarrow^R \\
+E * E  & \Rightarrow^R \\
+\end{array}
+
+
+** Introdução
+
+- Derivação mais a direita para id * id:
+
+\begin{array}{lc}
+E      & \Rightarrow^R \\
+E * E  & \Rightarrow^R \\
+E * id & \Rightarrow^R \\
+\end{array}
+
+
+** Introdução
+
+- Derivação mais a direita para id * id:
+
+\begin{array}{lc}
+E      & \Rightarrow^R \\
+E * E  & \Rightarrow^R \\
+E * id & \Rightarrow^R \\
+id * id \\
+\end{array}
+
+** Introdução
+
+- Mas, como um analisador ascendente functiona?
+
+** Introdução
+
+- O analisador utiliza:
+  - Sequência de tokens de entrada.
+  - Pilha.
+
+** Introdução
+
+- O analisador pode utilizar 4 tipos de ação:
+  - shift: mover itens da entrada para a pilha
+  - reduce: escolher regra $A \to \beta$
+    - remover $\beta$ do topo da pilha
+    - empilhar $A$.
+  - aceitar e falhar.
+
+** Introdução
+
+- Idealmente, o analisador deve reduzir uma palavra de entrada até o símbolo de partida da gramática.
+
+- Vamos mostrar o funcionamento, usando um exemplo.
+
+** Introdução
+
+- Exemplo:
+  - entrada: id * id$
+  - pilha: $
+
+** Introdução
+
+- Ação: shift id para a pilha.
+
+- Exemplo:
+  - entrada: * id$
+  - pilha: $ id
+
+** Introdução
+
+- Ação: reduzir id usando $E \to id$.
+
+- Exemplo:
+  - entrada: * id$
+  - pilha: $ E
+
+
+** Introdução
+
+- Ação: shift * para a pilha.
+
+- Exemplo:
+  - entrada: id$
+  - pilha: $ E *
+
+
+** Introdução
+
+- Ação: shift id para a pilha.
+
+- Exemplo:
+  - entrada: $
+  - pilha: $ E * id
+
+
+** Introdução
+
+- Ação: reduce id usando $E\to id$.
+
+- Exemplo:
+  - entrada: $
+  - pilha: $ E * E
+
+
+** Introdução
+
+- Ação: reduce E * E usando $E\to E * E$.
+
+- Exemplo:
+  - entrada: $
+  - pilha: $ E
+
+** Introdução
+
+- Tendo a entrada sido consumida e a pilha é formada apenas pelo símbolo de partida e o marcador de final de pilha,
+  temos que a palavra é aceita.
+
+** Introdução
+
+- Observe que o analisador produz uma derivação mais a direita *invertida*
+
+** Introdução
+
+- Porém, como determinar qual ação deve ser executada?
+
+** Introdução
+
+- Analisadores ascendentes usam um AFD sobre a pilha para
+  determinar qual ação executar.
+
+- AFD representado por uma tabela que armazena quais ações
+ devem ser executadas pelo analisador.
+
+** Introdução
+
+- Diferentes técnicas de análise ascendente usam diferentes
+  estratégias para construção das tabelas.
+
+- Nesta aula, veremos o analisador LR(0)
+
+* Analisador LR(0)
+
+** Analisador LR(0)
+
+- Analisador sintático ascendente que usa apenas a pilha para decidir ações.
+
+- Não aplicável em gramáticas de linguagens de programação.
+  - Útil para compreensão do mecanismo de construção de tabelas.
+
+** Analisador LR(0)
+
+- A construção de tabelas LR(0) utiliza o conceito de *item*
+  - Item: regra de uma gramática contendo uma marcação em seu lado direito.
+  - Marcação representada por um "."
+
+** Analisador LR(0)
+
+- A ideia do algoritmo é construir um AFD sobre coleções de itens.
+
+- Cada estado do AFD representa um conjunto de itens.
+
+** Analisador LR(0)
+
+- Como obter o conjunto de itens?
+
+- Primeiro, precisamos modificar a gramática de entrada e calculamos o fechamento e
+  transição entre conjuntos de itens.
+
+** Analisador LR(0)
+
+- Ilustraremos essas etapas considerando a seguinte gramática.
+
+\begin{array}{lcl}
+  S & \to & \textbf{(}L\textbf{)}\,|\, \textbf{x}\\
+  L & \to & L\,\textbf{,}\,S\,|\,S\\
+\end{array}
+
+** Analisador LR(0)
+
+- Primeiro passo, modificamos a gramática para criar uma nova variável de partida.
+
+\begin{array}{lcl}
+  S' & \to & S\\
+  S  & \to & \textbf{(}L\textbf{)}\,|\, \textbf{x}\\
+  L  & \to & L\,\textbf{,}\,S\,|\,S\\
+\end{array}
+
+** Analisador LR(0)
+
+- Por que modificar a gramática?
+  - Facilitar a identificação de aceitação.
+  - Aceitação determinada por reduzir usando
+    - S' \to S.
+
+** Analisador LR(0)
 
 - Fechamento do conjunto de itens $I$.
   - $I\subseteq closure(I)$.
   - Se $A \to \alpha \textbf{.}B\beta \in I$, incluir toda regra $B \to \gamma$ em I.
   - Repetir passo anterior enquanto possível.
 
-** Construção do AFD LR(0) 
+** Analisador LR(0)
 
-- Definimos $goto(I,X)$:
-  - $J \leftarrow \emptyset$
-  - Para cada item $A \to \alpha .X\beta \in I$
-    - Adicione $A \to \alpha X.\beta$ a $J$.
-  - retorne $closure(J)$.
+- Vamos considerar o conjunto inicial de itens da gramática de exemplo:
 
-** Construção do AFD LR(0)
-
-- Construção de todos os conjuntos de itens:
-  - Inicie $T$ com $closure(\{S' \to \textbf{.}S\})$.
-  - Inicie $E$ com $\emptyset$.
-
-** Construção do AFD LR(0)
-
-- Para cada conjunto $I \in T$:
-  - Para cada $A \to \alpha .X \beta \in I$.
-    - Seja $J = goto(I,a)$.
-    - $T \leftarrow T \cup \{J\}$ e $E \leftarrow E \cup\{I \to^{X} J\}$.
-- Repetir enquanto $T$ ou $E$ forem modificados.
-
-** Construção do AFD LR(0)
-
-- Vamos considerar novamente a gramática de exemplo:
-
-\begin{array}{lcl}
-  S  & \to & \textbf{(}L\textbf{)}\,|\, \textbf{x}\\
-  L  & \to & L\,\textbf{,}\,S\,|\,S\\
+\begin{array}{l}
+\{S \to \textbf{.}S\}
 \end{array}
 
-** Construção do AFD LR(0)
+** Analisador LR(0)
 
-- Inicialmente, vamos criar uma nova variável inicial.
+- Como a regra $S \to \textbf{.} S$ está no conjunto, vamos incluir regras $S$.
 
-\begin{array}{lcl}
-  S' & \to & S\textbf{.}\\
-  S  & \to & \textbf{(}L\textbf{)}\,|\, \textbf{x}\\
-  L  & \to & L\,\textbf{,}\,S\,|\,S\\
-\end{array}
+** Analisador LR(0)
 
-** Construção do AFD LR(0)
-
-- Inicializando $T \leftarrow closure(\{S'\to \textbf{.}S\})$.
-  - Chamaremos esse conjunto de $I_1$
+- Incluindo todas as regras $S$ no conjunto.
 
 \begin{array}{rll}
 \{ & S \to \textbf{.}S &, \\
@@ -97,27 +310,58 @@
    & S \to \textbf{.x} & \}\\
 \end{array}
 
-** Construção do AFD LR(0)
+** Analisador LR(0)
 
-- Processando $goto(I_1,x)$:
-  - Criando um estado $I_2$
+- Outro ponto da construção do autômato LR(0) é o cálculo da função de transição.
+
+- $goto(I,a)$
+  - $I$: conjunto de itens.
+  - $a \in \Sigma$.
+
+** Analisador LR(0)
+
+- Definimos $goto(I,X)$:
+  - $J \leftarrow \emptyset$
+  - Para cada item $A \to \alpha .X\beta \in I$
+    - Adicione $A \to \alpha X.\beta$ a $J$.
+  - retorne $closure(J)$.
+
+** Analisador LR(0)
+
+- Exemplo:
+  - Calcular $goto(I,()$, em que $I$ é:
+
+\begin{array}{rll}
+\{ & S \to \textbf{.}S &, \\
+   & S \to \textbf{.(}L\textbf{)} & , \\
+   & S \to \textbf{.x} & \}\\
+\end{array}
+
+** Analisador LR(0)
+
+- Produção base:
 
 \begin{array}{lcl}
-S & \to & \textbf{x.}\\
+S \to \textbf{(.}L\textbf{)}\\
 \end{array}
 
-** Construção do AFD LR(0)
 
-- Atualizando arestas:
+** Analisador LR(0)
 
-\begin{array}{l}
-E = \{(I_1,x,I_2)\}
+- Aplicando o fechamento:
+  - Incluindo regras $L$
+
+\begin{array}{lcl}
+S & \to & \textbf{(.}L\textbf{)}\\
+L & \to & \textbf{.}L\textbf{,}S\\
+L & \to & .S
 \end{array}
 
-** Construção do AFD LR(0)
 
-- Processando $goto(I_1,()$:
-  - Criando um estado $I_3$
+** Analisador LR(0)
+
+- Aplicando o fechamento:
+  - Incluindo regras $S$
 
 \begin{array}{lcl}
 S & \to & \textbf{(.}L\textbf{)}\\
@@ -127,497 +371,14 @@ S & \to & \textbf{.(}L\textbf{)}\\
 S & \to & \textbf{.x}\\
 \end{array}
 
-
-** Construção do AFD LR(0)
-
-- Atualizando arestas:
-
-\begin{array}{l}
-E = \{(I_1,x,I_2),(I_1,(,I_3)\}
-\end{array}
-
-
-** Construção do AFD LR(0)
-
-- Processando $goto(I_1,S)$:
-  - Criando um estado $I_4$
-
-\begin{array}{lcl}
-S' & \to & S.
-\end{array}
-
-** Construção do AFD LR(0)
-
-- Atualizando arestas:
-
-\begin{array}{l}
-E = \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4)\}
-\end{array}
-
-** Construção do AFD LR(0)
-
-- Com isso, concluímos as transições sobre $I_1$.
-
-** Construção do AFD LR(0)
-
-- Agora, vamos considerar o conjunto $I_2$:
-
-\begin{array}{lcl}
-S & \to & \textbf{x.}\\
-\end{array}
-
-** Construção do AFD LR(0)
-
-- Nenhuma transição pode ser construída a partir de
-
-\begin{array}{lcl}
-S & \to & \textbf{x.}\\
-\end{array}
-
-** Construção do AFD LR(0)
-
-- Agora, vamos considerar o conjunto $I_3$:
-
-\begin{array}{lcl}
-S & \to & \textbf{(.}L\textbf{)}\\
-L & \to & \textbf{.}L\textbf{,}S\\
-L & \to & \textbf{.}S\\
-S & \to & \textbf{.(}L\textbf{)}\\
-S & \to & \textbf{.x}\\
-\end{array}
-
-** Construção do AFD LR(0)
-
-- Calculando $goto(I_3,x)$
-
-- Única produção a ser considerada:
-
-\begin{array}{lcl}
-S & \to & \textbf{.x}\\
-\end{array}
-
-
-** Construção do AFD LR(0)
-
-- Atualizando arestas:
-
-\begin{array}{lcl}
-E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
-  &   &   (I_3,x,I_2) \}\\
-\end{array}
-
-
-** Construção do AFD LR(0)
-
-- Logo, obtemos o estado $I_2$:
-
-\begin{array}{lcl}
-S & \to & \textbf{x.}\\
-\end{array}
-
-** Construção do AFD LR(0)
-
-- Calculando $goto(I_3,()$.
-- Produção base
-
-\begin{array}{lcl}
-S & \to & .(L)
-\end{array}
-
-** Construção do AFD LR(0)
-
-- Calculando o $closure(\{S \to (.L)\}$.
-  - Incluindo produções $L$
-
-\begin{array}{lcl}
-S & \to & (.L)\\
-L & \to & \textbf{.}L\textbf{,}S\\
-L & \to & \textbf{.}S\\
-\end{array}
-
-
-** Construção do AFD LR(0)
-
-- Calculando o $closure(\{S \to (.L)\}$.
-  - Incluindo produções $S$
-  - Estado $I_3$
-
-\begin{array}{lcl}
-S & \to & (.L)\\
-S & \to & .x\\
-L & \to & \textbf{.}L\textbf{,}S\\
-L & \to & \textbf{.}S\\
-S & \to & \textbf{.(}L\textbf{)}\\
-\end{array}
-
-
-** Construção do AFD LR(0)
-
-- Atualizando arestas:
-
-\begin{array}{lcl}
-E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
-  &   &   (I_3,x,I_2),(I_3,(,I_3) \}\\
-\end{array}
-
-** Construção do AFD LR(0)
-
-- Calculando $goto(I_3,L)$
-  - Vamos chamar esse estado de $I_5$
-
-\begin{array}{lcl}
-S & \to & (L.)\\
-S & \to & L.,S\\
-\end{array}
-
-
-** Construção do AFD LR(0)
-
-- Atualizando arestas:
-
-\begin{array}{lcl}
-E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
-  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5)\} \\
-\end{array}
-
-** Construção do AFD LR(0)
-
-- Calculando $goto(I_3,S)$:
-  - Chamaremos esse estado de $I_6$
-
-\begin{array}{lcl}
-L & \to & S.\\
-\end{array}
-
-
-** Construção do AFD LR(0)
-
-- Atualizando arestas:
-
-\begin{array}{lcl}
-E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
-  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
-  &   &   (I_3,S,I_6)\}
-\end{array}
-
-** Construção do AFD LR(0)
-
-- Agora, vamos considerar o estado $I_4$
-  - Não há transições possíveis.
-
-\begin{array}{lcl}
-S' & \to & S.
-\end{array}
-
-** Construção do AFD LR(0)
-
-- Agora, vamos considerar o estado $I_5$
-
-\begin{array}{lcl}
-S & \to & (L.)\\
-S & \to & L.,S\\
-\end{array}
-
-** Construção do AFD LR(0)
-
-- Calculando $goto(I_5,))$
-  - Chamaremos esse estado de $I_7$.
-
-\begin{array}{lcl}
-S & \to & (L).\\
-\end{array}
-
-** Construção do AFD LR(0)
-
-- Atualizando arestas:
-
-\begin{array}{lcl}
-E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
-  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
-  &   &   (I_3,S,I_6),(I_5,),I_7)\}
-\end{array}
-
-** Construção do AFD LR(0)
-
-- Calculando $goto(I_5, ,)$
-  - Chamaremos esse estado de $I_8$
-
-- Produção base
-
-\begin{array}{lcl}
-S & \to & L,.S\\
-\end{array}
-
-** Construção do AFD LR(0)
-
-- Calculando $closure(\{S\to L,.S\})$:
-  - Chamaremos esse estado de $I_8$
-
-\begin{array}{lcl}
-S & \to & L,.S\\
-S & \to & .(L)\\
-S & \to & .x\\
-\end{array}
-
-
-** Construção do AFD LR(0)
-
-- Atualizando arestas:
-
-\begin{array}{lcl}
-E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
-  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
-  &   &   (I_3,S,I_6),(I_5,),I_7), (I_5,,,I_8)\}
-\end{array}
-
-
-** Construção do AFD LR(0)
-
-- Agora, vamos considerar o estado $I_6$:
-  - Não há transições possíveis.
-
-\begin{array}{lcl}
-L & \to & S.\\
-\end{array}
-
-** Construção do AFD LR(0)
-
-- Agora vamos considerar o estado $I_7$:
-  - Não há transições possíveis.
-
-\begin{array}{lcl}
-S & \to & (L).\\
-\end{array}
-
-** Construção do AFD LR(0)
-
-- Agora vamos consderar o estado $I_8$:
-
-\begin{array}{lcl}
-S & \to & L,.S\\
-S & \to & .(L)\\
-S & \to & .x\\
-\end{array}
-
-** Construção do AFD LR(0)
-
-- Calculando $goto(I_8,x)$
-
-- Produção base: $S \to .x$
-
-- Resultado: estado $I_2$
-
-
-** Construção do AFD LR(0)
-
-- Atualizando arestas:
-
-\begin{array}{lcl}
-E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
-  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
-  &   &   (I_3,S,I_6),(I_5,),I_7), (I_5,,,I_8), \\
-  &   &   (I_8,x,I_2)\}
-\end{array}
-
-** Construção do AFD LR(0)
-
-- Calculando $goto(I_8,()$
-
-- Produção base: $S \to (.S)$
-
-- Resultado: estado $I_3$.
-
-
-** Construção do AFD LR(0)
-
-- Atualizando arestas:
-
-\begin{array}{lcl}
-E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
-  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
-  &   &   (I_3,S,I_6),(I_5,),I_7), (I_5,,,I_8), \\
-  &   &   (I_8,x,I_2),(I_8,(,I_3))\}
-\end{array}
-
-** Construção do AFD LR(0)
-
-- Calculando $goto(I_8,S)$
-  - Vamos chamar esse estado de $I_9$.
-
-- Produção base: S \to L,S.
-
-\begin{array}{lcl}
-S & \to & L,S.
-\end{array}
-
-
-** Construção do AFD LR(0)
-
-- Atualizando arestas:
-
-\begin{array}{lcl}
-E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
-  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
-  &   &   (I_3,S,I_6),(I_5,),I_7), (I_5,,,I_8), \\
-  &   &   (I_8,x,I_2),(I_8,(,I_3)), (I_8,S,I_9)\}
-\end{array}
-
-** Construção do AFD LR(0)
-
-- Agora vamos considerar o estado $I_9$
-  - Não há transições possíveis.
-
-\begin{array}{lcl}
-S & \to & L,S.
-\end{array}
-
-** Construção do AFD LR(0)
-
-- Como não há modificações, o algoritmo termina
-
-- Agora, temos o AFD LR(0) para a gramática.
-
-** Construção do AFD LR(0)
-
-- Desenho do AFD LR(0) para a gramática na lousa.
-
-* Construção da tabela
-
-** Construção da tabela
-
-- Usando o AFD, podemos construir a tabela de parsing para a gramática.
-
-** Construção da tabela
-
-- Tabela de parsing formada por dois componentes
-  - Ações de shift / reduce
-  - Ações para goto
-
-** Construção da tabela
-
-- Para cada aresta $(I,X,J)$
-  - Se $X$ é terminal, $A[I,X] = shift\:J$
-  - Se $X$ é não terminal, $G[I,X] = goto\:J$
-  - Para cada estado $I$ contendo S' \to S., $A[I,.] = accept$
-  - Para cada estado $I$ contendo A \to \gamma., $A[I,x] = reduce\:A$, para todo token $x$.
-  - Demais entradas da tabela são marcadas como $reject$.
-
-** Construção da tabela
-
-- Construção da tabela na lousa.
-
-* Algoritmo de análise
-
-** Algoritmo de análise
-
-- Inicialize o algoritmo com a entrada $w$\$ e a pilha contendo o estado inicial do AFD LR(0).
-
-- Seja $s$ o estado no topo da pilha.
-
-- Seja $a$ o primeiro símbolo da entrada.
-
-** Algoritmo de análise
-
-- Repita enquanto possível
-  - Se $A[s,a] = shift\:t$
-    - Empilhe $t$ e $a$ é o próximo símbolo de entrada
-  - Se $A[s,a] = reduce\:A\to\beta$
-    - Desempilhe $|\beta|$.
-    - Seja $t$ o topo da pilha.
-    - Empilhe $G[t,A]$.
-
-** Algoritmo de análise
-
-- Repita enquanto possível (cont.)
-  - Se $A[s,a] = accept$, pare com sucesso.
-  - Se $A[s,a] = reject$, pare com erro.
-
-** Algoritmo de análise
-
-- Exemplo na lousa: Uso da tabela para análise sintática de (x,x).
-
-* Conflitos
-
-** Conflitos
-
-- Seria possível realizar o parsing de toda GLC usando analisadores ascendentes?
-
-** Conflitos
-
-- A resposta é *não*.
-
-** Conflitos
-
-- Existem gramáticas que podem fazer o analisador não ser capaz de decidir,
-  com base na pilha e entrada, se ele deve:
-  - Realizar um shift ou reduce.
-  - Decidir sobre qual produção reduzir.
-
-** Conflitos
-
-- O primeiro tipo de conflito é conhecido como conflito de shift/reduce.
-- O segundo tipo de conflito é conhecido como conflito de reduce/reduce.
-
-** Conflitos
-
-- Exemplo: gramática com conflito shift/reduce
-
-\begin{array}{lcl}
-  S & \to  & \textbf{if } E \textbf{ then } S \textbf{ else }S\\
-    & \mid & \textbf{if } E \textbf{ then } S \,|\,\textbf{other}\\
-  E & \to  & \textbf{id}
-\end{array}
-
-** Conflitos
-
-- Suponha:
-  - Pilha contendo: \textbf{if other then other}
-  - Entrada: \textbf{else} ... \$
-
-- Pode-se realizar shift ou reduzir por $S$.
-
-** Conflitos
-
-- Exemplo: gramática com conflito reduce/reduce
-
-\begin{array}{lcl}
-  S & \to  & \textbf{id(}L\textbf{)}\,|\,E\:\textbf{=}\,E\\
-  L & \to  & L\textbf{,}P\,|\,P\\
-  P & \to  & \textbf{id}\\
-  E & \to  & \textbf{id}\,|\,\textbf{id(}F\textbf{)}\\
-  F & \to  & F \textbf{,} E\,|\,E
-\end{array}
-
-** Conflitos
-
-- Suponha
-  - Pilha contendo: \textbf{id( id}
-  - Entrada: \textbf{, id)}...
-- Pode reduzir \textbf{id} por $E$ ou $P$.
-
-** Conflitos
-
-- Conflitos aparecem durante a construção de tabelas.
-  - Mais de uma ação por entrada da tabela.
-
-* Concluindo
-
-** Concluindo
-
-- Nesta aula apresentamos a construção de tabelas LR(0)
-
-- Apresentamos o conceito de conflitos em analisadores LR.
-
-** Concluindo
-
-- Próxima aula: Analisadores sintáticos SLR.
+*
 
 * Exercícios
 
 ** Exercícios
 
-- Determine se a seguinte gramática possui conflitos,
-  utilizando o algoritmo de construção de tabelas LR(0).
+- Apresente o conjunto de itens obtidos para a versão estendida da seguinte gramática:
+  - Considere como conjunto inicial o formado pela nova variável de partida.
 
 \begin{array}{lcl}
 E & \to & T \textbf{+} E\,|\,T\\

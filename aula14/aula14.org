@@ -7,7 +7,7 @@
 #+REVEAL_HLEVEL: 1
 #+REVEAL_ROOT: file:///home/rodrigo/reveal.js
 
-#+Title: Análise LR(1)
+#+Title: Análise SLR
 #+Author: Construção de compiladores I
 
 
@@ -15,7 +15,7 @@
 
 ** Objetivos
 
-- Apresentar o algoritmo de análise sintática LR(1).
+- Apresentar o algoritmo de análise sintática SLR.
 
 * Introdução
 
@@ -23,54 +23,58 @@
 
 - Nas aulas anteriores, vimos o as funções de fechamento e goto,
   utilizadas para a construção de itens LR(0), do autômato LR(0)
-  e do algoritmo de análise sintática LR(0) e SLR.
+  e do algoritmo de análise sintática LR(0).
 
 ** Introdução
 
 - Nesta aula, vamos conhecer outro algoritmo de análise
-  ascendente: LR(1)
+  ascendente: SLR
 
-- O algoritmo LR(1) será um algoritmo que usará o conceito de *lookahead*.
+- O algoritmo SLR consiste de uma pequena modificação na construção
+  de tabela usada pelo algoritmo LR(0).
 
-** Introdução
+* Construção da tabela SLR
 
-- *Lookahead*: primeiro símbolo da entrada, ainda não processado pelo algoritmo.
+** Construção da tabela SLR
 
-** Introdução
+- Seja $G$ a gramática original. Estenda $G$ com uma nova variável inicial.
+  Chamaremos essa nova gramática de $G'$.
 
-- Um item LR(1) é formado por uma produção, contendo um marcador, e um símbolo de lookahead.
+- Calcule follow($A$) para cada não terminal $A$ de $G'$.
 
-- Se $A \to \alpha$ é uma regra, então $[A \to .\alpha, a]$ é um item e $a$ é o lookahead.
+** Construção da tabela SLR
 
-* Construção dos itens LR(1)
+- Construção do AFD LR(0).
 
-** Construção dos itens LR(1)
+- Construção da tabela SLR.
 
-- Fechamento de conjunto de itens $I$.
-  - $I\subseteq closure(I)$.
-  - Para cada item $[A\to \alpha \textbf{.}B\beta,a]$ em $I$
-    - Para cada regra $B \to \gamma$ em $G'$
-      - Para cada $b\in first(\beta a)$
-        - Adicione $[B \to .\gamma,b]$ em $I$
-- Repita enquanto houver alterações em $I$.
+** Construção da tabela SLR
 
-** Construção dos itens LR(1)
+- Construa o conjunto $C=\{I_1,...,I_n\}$ de itens canônicos para a
+  gramática $G'$.
 
-- Função de $goto(I,X)$
-  - Inicialize $J$ como $\emptyset$.
-  - Para cada item $[A\to \alpha .X \beta,a]$ em $I$
-    - Adicione o item $[A \to \alpha X. \beta, a]$ ao conjunto $J$.
-  - retorne $closure(J)$
+- Cada item $I_i$ produz o estado $i$. As ações da tabela são
+  determinadas como se segue.
 
-** Construção dos itens LR(1)
+** Construção da tabela SLR 
 
-- Função de construção de itens $G'$
-  - inicializa $C$ como closure({[S \to .S, $]})
-    - Para cada conjunto $I \in C$
-      - Para cada símbolo $X$ de $G'$
-        - se $goto(I,X) \neq \emptyset \land goto(I,X) \not\in C$
-          - Adicione $goto(I,X)$ em $C$
-  - repetir enquanto houver alterações em $C$.
+- Se $A \to \alpha .a\beta \in I_i$ e $goto(I_i,a) = I_j$, marque a
+  entrada A[i,a] = shift j.
+
+** Construção da tabela SLR
+
+- Se $A \to \alpha. \in I_i$, marque A[i,a] = reduce $A \to \alpha$,
+  para todo $a\in follow(A) - \{S'\}$.
+
+** Construção da tabela SLR
+
+- Se $S' \to S. \in I_i$, marque A[i,$] = accept.
+
+** Construção da tabela SLR
+
+- Se $goto(I_i,a) = I_j$, marque G[i,a] = goto j.
+
+- Qualquer entrada não marcada, são consideradas como rejeitar.
 
 * Exemplo
 
@@ -95,39 +99,26 @@
 
 ** Exemplo
 
-- Vamos construir o conjunto de itens LR(1)
+- Vamos construir o AFD LR(0).
 
 ** Exemplo
 
-- Inicializando $C$ com closure({[S \to .S, $]}).
+- Inicializando $C \leftarrow closure(\{S'\to \textbf{.}S\})$.
   - Chamaremos esse conjunto de $I_1$
 
-\begin{array}{lcl|l}
-   S & \to & \textbf{.}S & \$\\
+\begin{array}{rll}
+\{ & S \to \textbf{.}S &, \\
+   & S \to \textbf{.(}L\textbf{)} & , \\
+   & S \to \textbf{.x} & \}\\
 \end{array}
-
 
 ** Exemplo
 
-- Inicializando $C$ com closure({[S \to .S, $]}).
-  - Chamaremos esse conjunto de $I_1$
-  - Incluindo produções $S$
-
-\begin{array}{lcl|l}
-   S & \to & \textbf{.}S & \$\\
-   S & \to & \textbf{.(}L\textbf{)} & \$\\
-   S & \to & \textbf{.x} & \$\\
-\end{array}
-
-
-** Exemplo
-
-- Processando $goto(I_1,S)$:
+- Processando $goto(I_1,x)$:
   - Criando um estado $I_2$
-  - Não há mais produções a incluir.
 
-\begin{array}{lcl|l}
-S' & \to & S. & \$\\
+\begin{array}{lcl}
+S & \to & \textbf{x.}\\
 \end{array}
 
 ** Exemplo
@@ -135,7 +126,7 @@ S' & \to & S. & \$\\
 - Atualizando arestas:
 
 \begin{array}{l}
-E = \{(I_1,S,I_2)\}
+E = \{(I_1,x,I_2)\}
 \end{array}
 
 ** Exemplo
@@ -143,71 +134,21 @@ E = \{(I_1,S,I_2)\}
 - Processando $goto(I_1,()$:
   - Criando um estado $I_3$
 
-\begin{array}{lcl|l}
-  S & \to & (.L) & \$\\
-\end{array}
-
-
-* PAREI AQUI
-
-** Exemplo
-
-- Processando $goto(I_1,()$:
-  - Criando um estado $I_3$.
-  - Incluindo produções $L$.
-
-\begin{array}{lcl|l}
-  S & \to & (.L)   & \$\\
-  L & \to & .L , S & ) \\
-  L & \to & .S     & ) \\
-\end{array}
-
-
-** Exemplo
-
-- Processando $goto(I_1,()$:
-  - Criando um estado $I_3$.
-  - Incluindo produções $S$.
-
 \begin{array}{lcl}
-  S & \to & (.L)\\
-  L & \to & .L , S \\
-  L & \to & .S \\
-  S & \to & .(L)\\
-  S & \to & .x\\
+S & \to & \textbf{(.}L\textbf{)}\\
+L & \to & \textbf{.}L\textbf{,}S\\
+L & \to & \textbf{.}S\\
+S & \to & \textbf{.(}L\textbf{)}\\
+S & \to & \textbf{.x}\\
 \end{array}
 
-
-** Exemplo
-
-- Processando $goto(I_1,()$:
-  - Criando um estado $I_3$.
-  - Não há mais produções a incluir.
-
-\begin{array}{lcl}
-  S & \to & (.L)\\
-  L & \to & .L , S \\
-  L & \to & .S \\
-  S & \to & .(L)\\
-  S & \to & .x\\
-\end{array}
-
-** Exemplo
-
-- Processando $goto(I_1,x)$:
-  - Criando um estado $I_4$.
-  - Não há mais produções a incluir.
-
-\begin{array}{lcl}
-  S & \to & x.,$
-\end{array}
 
 ** Exemplo
 
 - Atualizando arestas:
 
 \begin{array}{l}
-E = \{(I_1,S,I_2),(I_1,(,I_3)\}
+E = \{(I_1,x,I_2),(I_1,(,I_3)\}
 \end{array}
 
 
@@ -653,49 +594,6 @@ S & \to & L,S.
 - Desenho da tabela na lousa.
 
 - Uso da tabela para análise sintática de (x,x).
-
-* Construção da tabela SLR
-
-** Construção da tabela SLR
-
-- Seja $G$ a gramática original. Estenda $G$ com uma nova variável inicial.
-  Chamaremos essa nova gramática de $G'$.
-
-- Calcule follow($A$) para cada não terminal $A$ de $G'$.
-
-** Construção da tabela SLR
-
-- Construção do AFD LR(0).
-
-- Construção da tabela SLR.
-
-** Construção da tabela SLR
-
-- Construa o conjunto $C=\{I_1,...,I_n\}$ de itens canônicos para a
-  gramática $G'$.
-
-- Cada item $I_i$ produz o estado $i$. As ações da tabela são
-  determinadas como se segue.
-
-** Construção da tabela SLR
-
-- Se $A \to \alpha .a\beta \in I_i$ e $goto(I_i,a) = I_j$, marque a
-  entrada A[i,a] = shift j.
-
-** Construção da tabela SLR
-
-- Se $A \to \alpha. \in I_i$, marque A[i,a] = reduce $A \to \alpha$,
-  para todo $a\in follow(A) - \{S'\}$.
-
-** Construção da tabela SLR
-
-- Se $S' \to S. \in I_i$, marque A[i,$] = accept.
-
-** Construção da tabela SLR
-
-- Se $goto(I_i,a) = I_j$, marque G[i,a] = goto j.
-
-- Qualquer entrada não marcada, são consideradas como rejeitar.
 
 * Concluindo
 

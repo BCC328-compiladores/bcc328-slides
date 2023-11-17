@@ -1,0 +1,126 @@
+#+OPTIONS: num:nil toc:nil
+#+OPTIONS: date:nil reveal_mathjax:t
+#+OPTIONS: tex t
+#+OPTIONS: timestamp:nil
+#+OPTIONS: org-confirm-babel-evaluate nil
+#+REVEAL_THEME: white
+#+REVEAL_HLEVEL: 1
+#+REVEAL_ROOT: file:///home/rodrigo/reveal.js
+
+#+Title: Análise LR(1)
+#+Author: Construção de compiladores I
+
+
+* Objetivos
+
+** Objetivos
+
+- Apresentar o algoritmo de análise sintática LR(1).
+
+* Introdução
+
+** Introdução
+
+- Nas aulas anteriores, vimos o as funções de fechamento e goto,
+  utilizadas para a construção de itens LR(0), do autômato LR(0)
+  e do algoritmo de análise sintática LR(0) e SLR.
+
+** Introdução
+
+- Nesta aula, vamos conhecer outro algoritmo de análise
+  ascendente: LR(1)
+
+- O algoritmo LR(1) será um algoritmo que usará o conceito de *lookahead*.
+
+** Introdução
+
+- *Lookahead*: primeiro símbolo da entrada, ainda não processado pelo algoritmo.
+
+** Introdução
+
+- Um item LR(1) é formado por uma produção, contendo um marcador, e um símbolo de lookahead.
+
+- Se $A \to \alpha$ é uma regra, então $[A \to .\alpha, a]$ é um item e $a$ é o lookahead.
+
+* Construção dos itens LR(1)
+
+** Construção dos itens LR(1)
+
+- Fechamento de conjunto de itens $I$.
+  - $I\subseteq closure(I)$.
+  - Para cada item $[A\to \alpha \textbf{.}B\beta,a]$ em $I$
+    - Para cada regra $B \to \gamma$ em $G'$
+      - Para cada $b\in first(\beta a)$
+        - Adicione $[B \to .\gamma,b]$ em $I$
+- Repita enquanto houver alterações em $I$.
+
+** Construção dos itens LR(1)
+
+- Função de $goto(I,X)$
+  - Inicialize $J$ como $\emptyset$.
+  - Para cada item $[A\to \alpha .X \beta,a]$ em $I$
+    - Adicione o item $[A \to \alpha X. \beta, a]$ ao conjunto $J$.
+  - retorne $closure(J)$
+
+** Construção dos itens LR(1)
+
+- Função de construção de itens $G'$
+  - inicializa $C$ como closure({[S \to .S, $]})
+    - Para cada conjunto $I \in C$
+      - Para cada símbolo $X$ de $G'$
+        - se $goto(I,X) \neq \emptyset \land goto(I,X) \not\in C$
+          - Adicione $goto(I,X)$ em $C$
+  - repetir enquanto houver alterações em $C$.
+
+* Construção da tabela LR(1)
+
+** Construção da tabela LR(1)
+
+- Se $[A \to \alpha .a\beta,b] \in I_i$ e $goto(I_i,a) = I_j$,
+  - A[i,a] = shift j.
+
+** Construção da tabela LR(1)
+
+- Se $[A \to \alpha . , a] \in I_i$ e $A \neq S'$
+  - A[i,a] = reduce A \to \alpha
+
+** Construção da tabela LR(1)
+
+- Se [S' \to S., $] \in I_i
+  - A[i,$] = accept
+
+** Construção da tabela LR(1)
+
+- Se goto(I_i,A) = I_j então G[i,A] = j
+
+
+* Exemplo
+
+** Exemplo
+
+- Construção da tabela para a gramática
+
+\begin{array}{lcl}
+   S & \to & ( L ) \,|\, x\\
+   L & \to & L , S \,|\, S\\
+\end{array}
+
+* Concluindo
+
+** Concluindo
+
+- Nesta aula apresentamos a construção de tabelas LR(1).
+
+- Próxima aula: Analisadores sintáticos LALR.
+
+* Exercícios
+
+** Exercícios
+
+- Determine se a seguinte gramática possui conflitos,
+  utilizando o algoritmo de construção de tabelas LR(1).
+
+\begin{array}{lcl}
+E & \to & T \textbf{+} E\,|\,T\\
+T & \to & \textbf{x}\\
+\end{array}

@@ -18,57 +18,52 @@
 <section id="sec-title-slide">
 <h1 class="title">Análise sintática</h1><h2 class="author">Construção de compiladores I</h2>
 </section>
-
 <section>
-<section id="slide-org52486f4">
-<h2 id="org52486f4">Objetivos</h2>
-<div class="outline-text-2" id="text-org52486f4">
+<section id="slide-orgea8970b">
+<h2 id="orgea8970b">Objetivos</h2>
+<div class="outline-text-2" id="text-orgea8970b">
 </div>
 </section>
-<section id="slide-org8613f7f">
-<h3 id="org8613f7f">Objetivos</h3>
+<section id="slide-orga2d44d0">
+<h3 id="orga2d44d0">Objetivos</h3>
 <ul>
 <li>Introduzir a segunda etapa do front-end: a análise sintática.</li>
 
 <li>Introduzir o conceito de analisadores top-down e bottom-up.</li>
 
 </ul>
-
 </section>
-<section id="slide-org109f851">
-<h3 id="org109f851">Objetivos</h3>
+<section id="slide-org2e6a75c">
+<h3 id="org2e6a75c">Objetivos</h3>
 <ul>
 <li>Apresentar a técnica de análise sintática descendente recursiva.</li>
 
 </ul>
-
 </section>
 </section>
 <section>
-<section id="slide-orga220a94">
-<h2 id="orga220a94">Análise sintática</h2>
-<div class="outline-text-2" id="text-orga220a94">
+<section id="slide-org7a867d3">
+<h2 id="org7a867d3">Análise sintática</h2>
+<div class="outline-text-2" id="text-org7a867d3">
 </div>
 </section>
-<section id="slide-org978d4ba">
-<h3 id="org978d4ba">Análise sintática</h3>
+<section id="slide-org4213a99">
+<h3 id="org4213a99">Análise sintática</h3>
 <ul>
 <li>Responsável por determinar se o programa atende as restrições sintáticas
 da linguagem.</li>
 
 </ul>
-
 </section>
-<section id="slide-org48aa8f5">
-<h3 id="org48aa8f5">Análise sintática</h3>
+<section id="slide-org05d8634">
+<h3 id="org05d8634">Análise sintática</h3>
 <ul>
 <li>Regras sintáticas de uma linguagem são expressas utilizando gramáticas livres de contexto.</li>
 
 </ul>
-
 </section>
-<section id="slide-org510cec2">
-<h3 id="org510cec2">Análise sintática</h3>
+<section id="slide-orgfb9d374">
+<h3 id="orgfb9d374">Análise sintática</h3>
 <ul>
 <li>Porque utilizar GLCs e não ERs?
 <ul>
@@ -77,19 +72,17 @@ da linguagem.</li>
 </ul></li>
 
 </ul>
-
 </section>
-<section id="slide-org42bac22">
-<h3 id="org42bac22">Análise sintática</h3>
+<section id="slide-org8bb57a0">
+<h3 id="org8bb57a0">Análise sintática</h3>
 <ul>
 <li>Vamos considerar um fragmento de expressões formado por variáveis, constantes inteiras
 adição, multiplicação.</li>
 
 </ul>
-
 </section>
-<section id="slide-orga7fee4a">
-<h3 id="orga7fee4a">Análise sintática</h3>
+<section id="slide-orga603189">
+<h3 id="orga603189">Análise sintática</h3>
 <ul>
 <li>A seguinte ER representa essa linguagem:</li>
 
@@ -102,20 +95,18 @@ base((+|*)base)^*
 \end{array}
 
 </div>
-
 </section>
-<section id="slide-org9bc7dc5">
-<h3 id="org9bc7dc5">Análise sintática</h3>
+<section id="slide-orge0bea02">
+<h3 id="orge0bea02">Análise sintática</h3>
 <ul>
 <li>A ER anterior aceita palavras como \(a * b + c\).</li>
 
 <li>Porém, como determinar a precedência entre operadores?</li>
 
 </ul>
-
 </section>
-<section id="slide-orgfbdfe53">
-<h3 id="orgfbdfe53">Análise sintática</h3>
+<section id="slide-org7acd904">
+<h3 id="org7acd904">Análise sintática</h3>
 <ul>
 <li>Podemos usar a precedência usual da aritmética.</li>
 
@@ -126,10 +117,9 @@ base((+|*)base)^*
 </ul></li>
 
 </ul>
-
 </section>
-<section id="slide-org42177ef">
-<h3 id="org42177ef">Análise sintática</h3>
+<section id="slide-org29ae7de">
+<h3 id="org29ae7de">Análise sintática</h3>
 <ul>
 <li>Ao incluir parêntesis, temos um problema:
 <ul>
@@ -138,10 +128,9 @@ base((+|*)base)^*
 </ul></li>
 
 </ul>
-
 </section>
-<section id="slide-org103b7de">
-<h3 id="org103b7de">Análise sintática</h3>
+<section id="slide-org478eeee">
+<h3 id="org478eeee">Análise sintática</h3>
 <ul>
 <li>Pode-se provar que a linguagem de parêntesis balanceados não é regular.
 <ul>
@@ -151,35 +140,32 @@ base((+|*)base)^*
 </ul></li>
 
 </ul>
-
 </section>
-<section id="slide-org92cae88">
-<h3 id="org92cae88">Análise sintática</h3>
+<section id="slide-org6176cc1">
+<h3 id="org6176cc1">Análise sintática</h3>
 <ul>
 <li>Dessa forma, precisamos utilizar GLCs para representar a estrutura sintática
 de linguagens.</li>
 
 </ul>
-
 </section>
-<section id="slide-org136c88f">
-<h3 id="org136c88f">Análise sintática</h3>
+<section id="slide-org53fc865">
+<h3 id="org53fc865">Análise sintática</h3>
 <ul>
 <li>Antes de apresentar técnicas de análise sintática, vamos revisar alguns
 conceitos sobre GLCs.</li>
 
 </ul>
-
 </section>
 </section>
 <section>
-<section id="slide-org97e36f2">
-<h2 id="org97e36f2">Gramáticas Livres de Contexto</h2>
-<div class="outline-text-2" id="text-org97e36f2">
+<section id="slide-orgd2772c1">
+<h2 id="orgd2772c1">Gramáticas Livres de Contexto</h2>
+<div class="outline-text-2" id="text-orgd2772c1">
 </div>
 </section>
-<section id="slide-orgbffbe89">
-<h3 id="orgbffbe89">Gramáticas livres de contexto</h3>
+<section id="slide-orgd98f494">
+<h3 id="orgd98f494">Gramáticas livres de contexto</h3>
 <ul>
 <li>Uma GLC é \(G=(V,\Sigma,R,P)\), em que
 <ul>
@@ -191,10 +177,9 @@ conceitos sobre GLCs.</li>
 </ul></li>
 
 </ul>
-
 </section>
-<section id="slide-orgb4257d6">
-<h3 id="orgb4257d6">Gramáticas livres de contexto</h3>
+<section id="slide-orgb49d04b">
+<h3 id="orgb49d04b">Gramáticas livres de contexto</h3>
 <ul>
 <li>Gramática de expressões</li>
 
@@ -206,29 +191,26 @@ E & \to & (E) \,|\, E + E \,|\, E * E\,|\, num\,|\,var\\
 \end{array}
 
 </div>
-
 </section>
-<section id="slide-orgebc3466">
-<h3 id="orgebc3466">Gramáticas livres de contexto</h3>
+<section id="slide-org45e6b84">
+<h3 id="org45e6b84">Gramáticas livres de contexto</h3>
 <ul>
 <li>\(V = \{E\}\)</li>
 <li>\(\Sigma = \{num, var, (, ), *, +\}\)</li>
 <li>\(R\): conjunto de regras da gramática.</li>
 
 </ul>
-
 </section>
-<section id="slide-org06a2f78">
-<h3 id="org06a2f78">Gramáticas livres de contexto</h3>
+<section id="slide-org70d8da6">
+<h3 id="org70d8da6">Gramáticas livres de contexto</h3>
 <ul>
 <li>Determinamos se uma palavra pertence ou não à linguagem
 de uma gramática construindo uma <b>derivação</b></li>
 
 </ul>
-
 </section>
-<section id="slide-org5adecae">
-<h3 id="org5adecae">Gramáticas livres de contexto</h3>
+<section id="slide-orgdedd3f7">
+<h3 id="orgdedd3f7">Gramáticas livres de contexto</h3>
 <ul>
 <li>Exemplo: Derivação de \(num + num * num\).</li>
 
@@ -240,11 +222,9 @@ E       & \Rightarrow &
 \end{array}
 
 </div>
-
-
 </section>
-<section id="slide-org3a8541d">
-<h3 id="org3a8541d">Gramáticas livres de contexto</h3>
+<section id="slide-org6fd4463">
+<h3 id="org6fd4463">Gramáticas livres de contexto</h3>
 <ul>
 <li>Exemplo: Derivação de \(num + num * num\).</li>
 
@@ -257,12 +237,9 @@ E + E   \\
 \end{array}
 
 </div>
-
-
-
 </section>
-<section id="slide-org80b1db4">
-<h3 id="org80b1db4">Gramáticas livres de contexto</h3>
+<section id="slide-org94a45f7">
+<h3 id="org94a45f7">Gramáticas livres de contexto</h3>
 <ul>
 <li>Exemplo: Derivação de \(num + num * num\).</li>
 
@@ -275,11 +252,9 @@ E + E   & \Rightarrow & \textbf{regra } E \to num\\
 \end{array}
 
 </div>
-
-
 </section>
-<section id="slide-orga5304db">
-<h3 id="orga5304db">Gramáticas livres de contexto</h3>
+<section id="slide-org5f3b98d">
+<h3 id="org5f3b98d">Gramáticas livres de contexto</h3>
 <ul>
 <li>Exemplo: Derivação de \(num + num * num\).</li>
 
@@ -293,11 +268,9 @@ num + E \\
 \end{array}
 
 </div>
-
-
 </section>
-<section id="slide-org9a53e1c">
-<h3 id="org9a53e1c">Gramáticas livres de contexto</h3>
+<section id="slide-org9198bce">
+<h3 id="org9198bce">Gramáticas livres de contexto</h3>
 <ul>
 <li>Exemplo: Derivação de \(num + num * num\).</li>
 
@@ -312,11 +285,9 @@ num + E * E\\
 \end{array}
 
 </div>
-
-
 </section>
-<section id="slide-org6577f99">
-<h3 id="org6577f99">Gramáticas livres de contexto</h3>
+<section id="slide-orga29b67b">
+<h3 id="orga29b67b">Gramáticas livres de contexto</h3>
 <ul>
 <li>Exemplo: Derivação de \(num + num * num\).</li>
 
@@ -331,11 +302,9 @@ num + E * E & \Rightarrow & \textbf{regra } E \to num\\
 \end{array}
 
 </div>
-
-
 </section>
-<section id="slide-orgcdb27f6">
-<h3 id="orgcdb27f6">Gramáticas livres de contexto</h3>
+<section id="slide-org01c0397">
+<h3 id="org01c0397">Gramáticas livres de contexto</h3>
 <ul>
 <li>Exemplo: Derivação de \(num + num * num\).</li>
 
@@ -351,11 +320,9 @@ num + num * E \\
 \end{array}
 
 </div>
-
-
 </section>
-<section id="slide-orga8c78fa">
-<h3 id="orga8c78fa">Gramáticas livres de contexto</h3>
+<section id="slide-org445d0bf">
+<h3 id="org445d0bf">Gramáticas livres de contexto</h3>
 <ul>
 <li>Exemplo: Derivação de \(num + num * num\).</li>
 
@@ -372,10 +339,9 @@ num + num * num
 \end{array}
 
 </div>
-
 </section>
-<section id="slide-orgbb82d77">
-<h3 id="orgbb82d77">Gramáticas livres de contexto</h3>
+<section id="slide-org098fb0e">
+<h3 id="org098fb0e">Gramáticas livres de contexto</h3>
 <ul>
 <li>O exemplo anterior foi de uma <b>derivação mais à esquerda</b>
 <ul>
@@ -384,10 +350,9 @@ num + num * num
 </ul></li>
 
 </ul>
-
 </section>
-<section id="slide-org8ce2092">
-<h3 id="org8ce2092">Gramáticas livres de contexto</h3>
+<section id="slide-org2a16351">
+<h3 id="org2a16351">Gramáticas livres de contexto</h3>
 <ul>
 <li>Note que essa gramática de expressões permite:</li>
 
@@ -400,59 +365,54 @@ E * E   \\
 \end{array}
 
 </div>
-
 </section>
-<section id="slide-org4ec4663">
-<h3 id="org4ec4663">Gramáticas livres de contexto</h3>
+<section id="slide-org8b59067">
+<h3 id="org8b59067">Gramáticas livres de contexto</h3>
 <ul>
 <li>Com isso temos <b>duas</b> derivações distintas para a mesma palavra.</li>
 
 <li>Isso torna a gramática de exemplo <b>ambígua</b>.</li>
 
 </ul>
-
 </section>
-<section id="slide-org4e11eca">
-<h3 id="org4e11eca">Gramáticas livres de contexto</h3>
+<section id="slide-org8c62040">
+<h3 id="org8c62040">Gramáticas livres de contexto</h3>
 <ul>
 <li>Árvores de derivação: representação hierárquica da derivação.</li>
 
 </ul>
 
 
-<div id="orgf2d09b9" class="figure">
+<div id="org1c4073a" class="figure">
 <p><img src="./imgs/image1.png" alt="image1.png" />
 </p>
 </div>
-
 </section>
-<section id="slide-org9e08966">
-<h3 id="org9e08966">Gramáticas livres de contexto</h3>
+<section id="slide-org37d468e">
+<h3 id="org37d468e">Gramáticas livres de contexto</h3>
 <ul>
 <li>Em algumas situações é necessário modificar regras de uma gramática para usar certas técnicas de análise sintática.</li>
 
 <li>Veremos algumas dessas técnicas.</li>
 
 </ul>
-
 </section>
 </section>
 <section>
-<section id="slide-org678814d">
-<h2 id="org678814d">Transformações de gramáticas</h2>
-<div class="outline-text-2" id="text-org678814d">
+<section id="slide-org9869cb0">
+<h2 id="org9869cb0">Transformações de gramáticas</h2>
+<div class="outline-text-2" id="text-org9869cb0">
 </div>
 </section>
-<section id="slide-org9d2a221">
-<h3 id="org9d2a221">Transformações de gramáticas</h3>
+<section id="slide-orgcc0e762">
+<h3 id="orgcc0e762">Transformações de gramáticas</h3>
 <ul>
 <li>Fatoração à esquerda: Evitar mais de uma regra com o mesmo prefixo</li>
 
 </ul>
-
 </section>
-<section id="slide-org27e3b63">
-<h3 id="org27e3b63">Transformações de gramáticas</h3>
+<section id="slide-org73da56b">
+<h3 id="org73da56b">Transformações de gramáticas</h3>
 <ul>
 <li>Exemplo:</li>
 
@@ -477,10 +437,9 @@ E * E   \\
 \end{array}
 
 </div>
-
 </section>
-<section id="slide-org0acab79">
-<h3 id="org0acab79">Transformações de gramáticas</h3>
+<section id="slide-org4780602">
+<h3 id="org4780602">Transformações de gramáticas</h3>
 <ul>
 <li>Introdução de prioridades.
 <ul>
@@ -490,10 +449,9 @@ E * E   \\
 </ul></li>
 
 </ul>
-
 </section>
-<section id="slide-orgfa9a63a">
-<h3 id="orgfa9a63a">Transformações de gramáticas</h3>
+<section id="slide-org3a0f344">
+<h3 id="org3a0f344">Transformações de gramáticas</h3>
 <ul>
 <li>Forma geral para introduzir prioridades:
 <ul>
@@ -510,10 +468,9 @@ E_i & \to & E_{i + 1} \,|\, E_i Op_i E_{i + 1}
 \end{array}
 
 </div>
-
 </section>
-<section id="slide-orgc47ee47">
-<h3 id="orgc47ee47">Transformações de gramáticas</h3>
+<section id="slide-orga317b8c">
+<h3 id="orga317b8c">Transformações de gramáticas</h3>
 <ul>
 <li>Eliminar recursão à esquerda
 <ul>
@@ -529,10 +486,9 @@ A & \to & Ay_1\,|\,...\,|\,Ay_n\,|\,w_1\,|\,...\,|\,w_k\\
 \end{array}
 
 </div>
-
 </section>
-<section id="slide-org23ddf7e">
-<h3 id="org23ddf7e">Transformações de gramáticas</h3>
+<section id="slide-org44e3f15">
+<h3 id="org44e3f15">Transformações de gramáticas</h3>
 <ul>
 <li>Pode ser transformada em</li>
 
@@ -540,15 +496,14 @@ A & \to & Ay_1\,|\,...\,|\,Ay_n\,|\,w_1\,|\,...\,|\,w_k\\
 
 <div>
 \begin{array}{lcl}
-A & \to & y_1Z\,|\,...\,|\,y_nZ\,|\,y_1\,...\,|\,y_n\\
-Z & \to & w_1Z\,|\,...\,|\,w_kZ\,|\,w_1\,...\,|\,w_k\\
+A & \to & w_1Z\,|\,...\,|\,w_kZ\,|\,w_1\,...\,|\,w_k\\
+Z & \to & y_1Z\,|\,...\,|\,y_nZ\,|\,y_1\,...\,|\,y_n\\
 \end{array}
 
 </div>
-
 </section>
-<section id="slide-org2a4d4a0">
-<h3 id="org2a4d4a0">Transformações de gramáticas</h3>
+<section id="slide-org40451fd">
+<h3 id="org40451fd">Transformações de gramáticas</h3>
 <ul>
 <li>Exemplo:
 <ul>
@@ -564,11 +519,9 @@ E & \to & num \,|\,var\,|\,(E)\,|\,E+E\,|\,E * E\\
 \end{array}
 
 </div>
-
-
 </section>
-<section id="slide-org4d77624">
-<h3 id="org4d77624">Transformações de gramáticas</h3>
+<section id="slide-org9c826e8">
+<h3 id="org9c826e8">Transformações de gramáticas</h3>
 <ul>
 <li>Exemplo:
 <ul>
@@ -586,10 +539,9 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 \end{array}
 
 </div>
-
 </section>
-<section id="slide-orga83f74d">
-<h3 id="orga83f74d">Transformação de gramáticas</h3>
+<section id="slide-org0b3d000">
+<h3 id="org0b3d000">Transformação de gramáticas</h3>
 <ul>
 <li>Eliminar recursão a esquerda.
 <ul>
@@ -606,17 +558,16 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 \end{array}
 
 </div>
-
 </section>
 </section>
 <section>
-<section id="slide-org64a4a46">
-<h2 id="org64a4a46">Análise sintática</h2>
-<div class="outline-text-2" id="text-org64a4a46">
+<section id="slide-orgf56b535">
+<h2 id="orgf56b535">Análise sintática</h2>
+<div class="outline-text-2" id="text-orgf56b535">
 </div>
 </section>
-<section id="slide-org010073b">
-<h3 id="org010073b">Análise sintática</h3>
+<section id="slide-orge9a31d7">
+<h3 id="orge9a31d7">Análise sintática</h3>
 <ul>
 <li>Dois tipos de algoritmos:
 <ul>
@@ -626,10 +577,9 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </ul></li>
 
 </ul>
-
 </section>
-<section id="slide-org420e74c">
-<h3 id="org420e74c">Análise sintática</h3>
+<section id="slide-org7843430">
+<h3 id="org7843430">Análise sintática</h3>
 <ul>
 <li>Analisador sintático top-down
 <ul>
@@ -644,10 +594,9 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </ul></li>
 
 </ul>
-
 </section>
-<section id="slide-org7a9aa89">
-<h3 id="org7a9aa89">Análise sintática</h3>
+<section id="slide-org25c0aa6">
+<h3 id="org25c0aa6">Análise sintática</h3>
 <ul>
 <li>Analisador sintático bottom-up
 <ul>
@@ -657,10 +606,9 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </ul></li>
 
 </ul>
-
 </section>
-<section id="slide-orgda47c6f">
-<h3 id="orgda47c6f">Análise sintática</h3>
+<section id="slide-org0dbc2fc">
+<h3 id="org0dbc2fc">Análise sintática</h3>
 <ul>
 <li>Nesta aula, vamos focar em uma técnica top-down.
 <ul>
@@ -669,17 +617,16 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </ul></li>
 
 </ul>
-
 </section>
 </section>
 <section>
-<section id="slide-org6c18cc3">
-<h2 id="org6c18cc3">Análise descendente</h2>
-<div class="outline-text-2" id="text-org6c18cc3">
+<section id="slide-org77250c1">
+<h2 id="org77250c1">Análise descendente</h2>
+<div class="outline-text-2" id="text-org77250c1">
 </div>
 </section>
-<section id="slide-org202f2fb">
-<h3 id="org202f2fb">Análise descendente</h3>
+<section id="slide-org3a82c3f">
+<h3 id="org3a82c3f">Análise descendente</h3>
 <ul>
 <li>Técnica simples para codificação manual de analisadores sintáticos.</li>
 
@@ -690,14 +637,13 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </ul></li>
 
 </ul>
-
 </section>
-<section id="slide-orgef4f625">
-<h3 id="orgef4f625">Análise descendente</h3>
+<section id="slide-org77ad323">
+<h3 id="org77ad323">Análise descendente</h3>
 <ul>
 <li>Analisador para \(A \to X_1 ... X_n\):
 <ul>
-<li>Para \(i = 1\) até \(k\)
+<li>Para \(i = 1\) até \(n\)
 <ul>
 <li>Se \(X_i\) for uma variável, chame a função correspondente a \(X_i\).</li>
 <li>Se \(X_i\) for um terminal, verifique se ele é igual ao primeiro token da entrada.</li>
@@ -707,10 +653,9 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </ul></li>
 
 </ul>
-
 </section>
-<section id="slide-org7077228">
-<h3 id="org7077228">Análise descendente</h3>
+<section id="slide-org7b12ad2">
+<h3 id="org7b12ad2">Análise descendente</h3>
 <ul>
 <li>Vantagem:
 <ul>
@@ -725,18 +670,16 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </ul></li>
 
 </ul>
-
 </section>
-<section id="slide-org36251b8">
-<h3 id="org36251b8">Análise descendente</h3>
+<section id="slide-orga58ff69">
+<h3 id="orga58ff69">Análise descendente</h3>
 <ul>
 <li>Em Haskell, analisadores descendentes são codificados por combinadores.</li>
 
 </ul>
-
 </section>
-<section id="slide-orgdff47de">
-<h3 id="orgdff47de">Análise descendente</h3>
+<section id="slide-orga7bdab9">
+<h3 id="orga7bdab9">Análise descendente</h3>
 <ul>
 <li>Combinadores são uma EDSL para expressar gramáticas.
 <ul>
@@ -745,18 +688,16 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 </ul></li>
 
 </ul>
-
 </section>
-<section id="slide-org15669f0">
-<h3 id="org15669f0">Análise descendente</h3>
+<section id="slide-org6b9cf93">
+<h3 id="org6b9cf93">Análise descendente</h3>
 <ul>
 <li>Veremos uma implementação simples de uma EDSL para gramáticas.</li>
 
 </ul>
-
 </section>
-<section id="slide-org3242a97">
-<h3 id="org3242a97">Análise descendente</h3>
+<section id="slide-org365a473">
+<h3 id="org365a473">Análise descendente</h3>
 <ul>
 <li>Representação de parsers</li>
 
@@ -764,14 +705,13 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">newtype</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> s a <span style="color: #7590db;">=</span>
-  <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #4f97d7;">{</span> runParser <span style="color: #7590db;">::</span> <span style="color: #bc6ec5;">[</span>s<span style="color: #bc6ec5;">]</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #bc6ec5;">[</span><span style="color: #2d9574;">(</span>a,<span style="color: #67b11d;">[</span>s<span style="color: #67b11d;">]</span><span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">]</span> <span style="color: #4f97d7;">}</span>
+<pre class="src src-haskell"><span style="color: #e45649;">newtype</span> <span style="color: #986801;">Parser</span> s a <span style="color: #6a1868;">=</span>
+  <span style="color: #986801;">Parser</span> { runParser <span style="color: #6a1868;">::</span> [s] <span style="color: #6a1868;">-&gt;</span> [(a,[s])] }
 </pre>
 </div>
-
 </section>
-<section id="slide-org104fa7c">
-<h3 id="org104fa7c">Análise descendente</h3>
+<section id="slide-org0b823ce">
+<h3 id="org0b823ce">Análise descendente</h3>
 <ul>
 <li>Parsers são functores</li>
 
@@ -779,14 +719,13 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">instance</span> <span style="color: #ce537a; font-weight: bold;">Functor</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Parser</span> s<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7; font-weight: bold;">where</span>
-  fmap f p <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">\</span> s <span style="color: #7590db;">-&gt;</span> <span style="color: #bc6ec5;">[</span><span style="color: #2d9574;">(</span>f x, s'<span style="color: #2d9574;">)</span> <span style="color: #7590db;">|</span> <span style="color: #2d9574;">(</span>x,s'<span style="color: #2d9574;">)</span> <span style="color: #7590db;">&lt;-</span> runParser p s<span style="color: #bc6ec5;">]</span><span style="color: #4f97d7;">)</span> 
+<pre class="src src-haskell"><span style="color: #e45649;">instance</span> <span style="color: #986801;">Functor</span> (<span style="color: #986801;">Parser</span> s) <span style="color: #e45649;">where</span>
+  fmap f p <span style="color: #6a1868;">=</span> <span style="color: #986801;">Parser</span> (<span style="color: #6a1868;">\</span> s <span style="color: #6a1868;">-&gt;</span> [(f x, s') <span style="color: #6a1868;">|</span> (x,s') <span style="color: #6a1868;">&lt;-</span> runParser p s]) 
 </pre>
 </div>
-
 </section>
-<section id="slide-orgb550f3f">
-<h3 id="orgb550f3f">Análise descendente</h3>
+<section id="slide-org12e96cc">
+<h3 id="org12e96cc">Análise descendente</h3>
 <ul>
 <li>Parsers são applicatives</li>
 
@@ -794,16 +733,15 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">instance</span> <span style="color: #ce537a; font-weight: bold;">Applicative</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Parser</span> s<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7; font-weight: bold;">where</span>
-  pure  a <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">\</span>ts <span style="color: #7590db;">-&gt;</span> <span style="color: #bc6ec5;">[</span><span style="color: #2d9574;">(</span>a, ts<span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">]</span><span style="color: #4f97d7;">)</span>
-  p1 <span style="color: #7590db;">&lt;*&gt;</span> p2 <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">\</span> s <span style="color: #7590db;">-&gt;</span> <span style="color: #bc6ec5;">[</span><span style="color: #2d9574;">(</span>f x, s2<span style="color: #2d9574;">)</span> <span style="color: #7590db;">|</span> <span style="color: #2d9574;">(</span>f, s1<span style="color: #2d9574;">)</span> <span style="color: #7590db;">&lt;-</span> runParser p1 s,
-                                          <span style="color: #2d9574;">(</span>x, s2<span style="color: #2d9574;">)</span> <span style="color: #7590db;">&lt;-</span> runParser p2 s1<span style="color: #bc6ec5;">]</span><span style="color: #4f97d7;">)</span>
+<pre class="src src-haskell"><span style="color: #e45649;">instance</span> <span style="color: #986801;">Applicative</span> (<span style="color: #986801;">Parser</span> s) <span style="color: #e45649;">where</span>
+  pure  a <span style="color: #6a1868;">=</span> <span style="color: #986801;">Parser</span> (<span style="color: #6a1868;">\</span>ts <span style="color: #6a1868;">-&gt;</span> [(a, ts)])
+  p1 <span style="color: #6a1868;">&lt;*&gt;</span> p2 <span style="color: #6a1868;">=</span> <span style="color: #986801;">Parser</span> (<span style="color: #6a1868;">\</span> s <span style="color: #6a1868;">-&gt;</span> [(f x, s2) <span style="color: #6a1868;">|</span> (f, s1) <span style="color: #6a1868;">&lt;-</span> runParser p1 s,
+                                          (x, s2) <span style="color: #6a1868;">&lt;-</span> runParser p2 s1])
 </pre>
 </div>
-
 </section>
-<section id="slide-orgba17c41">
-<h3 id="orgba17c41">Análise descendente</h3>
+<section id="slide-org26abee2">
+<h3 id="org26abee2">Análise descendente</h3>
 <ul>
 <li>Parsers são alternatives</li>
 
@@ -811,15 +749,14 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">instance</span> <span style="color: #ce537a; font-weight: bold;">Alternative</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Parser</span> t<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7; font-weight: bold;">where</span>
-  empty <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">\</span> <span style="color: #4f97d7; font-weight: bold;">_</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #bc6ec5; font-weight: bold;">[]</span><span style="color: #4f97d7;">)</span>
-  p1 <span style="color: #7590db;">&lt;|&gt;</span> p2 <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">\</span> s <span style="color: #7590db;">-&gt;</span> runParser p1 s <span style="color: #7590db;">++</span> runParser p2 s<span style="color: #4f97d7;">)</span>
+<pre class="src src-haskell"><span style="color: #e45649;">instance</span> <span style="color: #986801;">Alternative</span> (<span style="color: #986801;">Parser</span> t) <span style="color: #e45649;">where</span>
+  empty <span style="color: #6a1868;">=</span> <span style="color: #986801;">Parser</span> (<span style="color: #6a1868;">\</span> <span style="color: #e45649;">_</span> <span style="color: #6a1868;">-&gt;</span> <span style="color: #986801;">[]</span>)
+  p1 <span style="color: #6a1868;">&lt;|&gt;</span> p2 <span style="color: #6a1868;">=</span> <span style="color: #986801;">Parser</span> (<span style="color: #6a1868;">\</span> s <span style="color: #6a1868;">-&gt;</span> runParser p1 s <span style="color: #6a1868;">++</span> runParser p2 s)
 </pre>
 </div>
-
 </section>
-<section id="slide-org804a992">
-<h3 id="org804a992">Análise descendente</h3>
+<section id="slide-org362e832">
+<h3 id="org362e832">Análise descendente</h3>
 <ul>
 <li>Parsers são mônadas</li>
 
@@ -827,16 +764,15 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">instance</span> <span style="color: #ce537a; font-weight: bold;">Monad</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Parser</span> t<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7; font-weight: bold;">where</span>
-  return <span style="color: #7590db;">=</span>  pure
-  p <span style="color: #7590db;">&gt;&gt;=</span> f  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">\</span>ts <span style="color: #7590db;">-&gt;</span> concat <span style="color: #bc6ec5;">[</span> runParser <span style="color: #2d9574;">(</span>f a<span style="color: #2d9574;">)</span> cs' <span style="color: #7590db;">|</span>
-                                     <span style="color: #2d9574;">(</span>a,cs'<span style="color: #2d9574;">)</span> <span style="color: #7590db;">&lt;-</span> runParser p ts <span style="color: #bc6ec5;">]</span><span style="color: #4f97d7;">)</span>
+<pre class="src src-haskell"><span style="color: #e45649;">instance</span> <span style="color: #986801;">Monad</span> (<span style="color: #986801;">Parser</span> t) <span style="color: #e45649;">where</span>
+  return <span style="color: #6a1868;">=</span>  pure
+  p <span style="color: #6a1868;">&gt;&gt;=</span> f  <span style="color: #6a1868;">=</span> <span style="color: #986801;">Parser</span> (<span style="color: #6a1868;">\</span>ts <span style="color: #6a1868;">-&gt;</span> concat [ runParser (f a) cs' <span style="color: #6a1868;">|</span>
+                                     (a,cs') <span style="color: #6a1868;">&lt;-</span> runParser p ts ])
 </pre>
 </div>
-
 </section>
-<section id="slide-orgb097724">
-<h3 id="orgb097724">Análise descendente</h3>
+<section id="slide-org460e5b2">
+<h3 id="org460e5b2">Análise descendente</h3>
 <ul>
 <li>Processando o primeiro token da entrada</li>
 
@@ -844,17 +780,16 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">item</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> t t
-<span style="color: #bc6ec5; font-weight: bold;">item</span> <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">\</span> ts <span style="color: #7590db;">-&gt;</span>
-                 <span style="color: #4f97d7; font-weight: bold;">case</span> ts <span style="color: #4f97d7; font-weight: bold;">of</span>
-                   <span style="color: #bc6ec5; font-weight: bold;">[]</span>     <span style="color: #7590db;">-&gt;</span> <span style="color: #bc6ec5; font-weight: bold;">[]</span>
-                   <span style="color: #bc6ec5;">(</span>c<span style="color: #ce537a; font-weight: bold;">:</span>cs<span style="color: #bc6ec5;">)</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #bc6ec5;">[</span><span style="color: #2d9574;">(</span>c,cs<span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">]</span><span style="color: #4f97d7;">)</span>
+<pre class="src src-haskell"><span style="color: #a626a4;">item</span> <span style="color: #6a1868;">::</span> <span style="color: #986801;">Parser</span> t t
+<span style="color: #a626a4;">item</span> <span style="color: #6a1868;">=</span> <span style="color: #986801;">Parser</span> (<span style="color: #6a1868;">\</span> ts <span style="color: #6a1868;">-&gt;</span>
+                 <span style="color: #e45649;">case</span> ts <span style="color: #e45649;">of</span>
+                   <span style="color: #986801;">[]</span>     <span style="color: #6a1868;">-&gt;</span> <span style="color: #986801;">[]</span>
+                   (c<span style="color: #986801;">:</span>cs) <span style="color: #6a1868;">-&gt;</span> [(c,cs)])
 </pre>
 </div>
-
 </section>
-<section id="slide-orgd2aadc3">
-<h3 id="orgd2aadc3">Análise descendente</h3>
+<section id="slide-org0b46a99">
+<h3 id="org0b46a99">Análise descendente</h3>
 <ul>
 <li>Processando um token que satisfaz uma condição.</li>
 
@@ -862,16 +797,15 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">sat</span> <span style="color: #7590db;">::</span> <span style="color: #4f97d7;">(</span>t <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Bool</span><span style="color: #4f97d7;">)</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> t t
-<span style="color: #bc6ec5; font-weight: bold;">sat</span> p <span style="color: #7590db;">=</span> <span style="color: #4f97d7; font-weight: bold;">do</span>
-          t <span style="color: #7590db;">&lt;-</span> item
-          <span style="color: #4f97d7; font-weight: bold;">if</span> p t <span style="color: #4f97d7; font-weight: bold;">then</span> return t <span style="color: #4f97d7; font-weight: bold;">else</span> mzero
+<pre class="src src-haskell"><span style="color: #a626a4;">sat</span> <span style="color: #6a1868;">::</span> (t <span style="color: #6a1868;">-&gt;</span> <span style="color: #986801;">Bool</span>) <span style="color: #6a1868;">-&gt;</span> <span style="color: #986801;">Parser</span> t t
+<span style="color: #a626a4;">sat</span> p <span style="color: #6a1868;">=</span> <span style="color: #e45649;">do</span>
+          t <span style="color: #6a1868;">&lt;-</span> item
+          <span style="color: #e45649;">if</span> p t <span style="color: #e45649;">then</span> return t <span style="color: #e45649;">else</span> mzero
 </pre>
 </div>
-
 </section>
-<section id="slide-org889d79a">
-<h3 id="org889d79a">Análise descendente</h3>
+<section id="slide-org094b09c">
+<h3 id="org094b09c">Análise descendente</h3>
 <ul>
 <li>Processando um certo token.</li>
 
@@ -879,24 +813,22 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">symbol</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Eq</span> s <span style="color: #7590db;">=&gt;</span> s <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> s s
-<span style="color: #bc6ec5; font-weight: bold;">symbol</span> c <span style="color: #7590db;">=</span> sat <span style="color: #4f97d7;">(</span>c <span style="color: #7590db;">==</span><span style="color: #4f97d7;">)</span>
+<pre class="src src-haskell"><span style="color: #a626a4;">symbol</span> <span style="color: #6a1868;">::</span> <span style="color: #986801;">Eq</span> s <span style="color: #6a1868;">=&gt;</span> s <span style="color: #6a1868;">-&gt;</span> <span style="color: #986801;">Parser</span> s s
+<span style="color: #a626a4;">symbol</span> c <span style="color: #6a1868;">=</span> sat (c <span style="color: #6a1868;">==</span>)
 </pre>
 </div>
-
 </section>
-<section id="slide-orga902bbf">
-<h3 id="orga902bbf">Análise descendente</h3>
+<section id="slide-org763d3e2">
+<h3 id="org763d3e2">Análise descendente</h3>
 <ul>
 <li>Devido a lazy evaluation, podemos entender recursão à esquerda em expressões como uma lista de separadores.</li>
 
 <li>Ideia sumarizada pela ER: \(E(op\:E)^*\)</li>
 
 </ul>
-
 </section>
-<section id="slide-org384e14f">
-<h3 id="org384e14f">Análise descendente</h3>
+<section id="slide-org18d693a">
+<h3 id="org18d693a">Análise descendente</h3>
 <ul>
 <li>Função <code>chainl</code></li>
 
@@ -904,16 +836,15 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">chainl</span>  <span style="color: #7590db;">::</span>  <span style="color: #ce537a; font-weight: bold;">Parser</span> s a <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> s <span style="color: #4f97d7;">(</span>a <span style="color: #7590db;">-&gt;</span> a <span style="color: #7590db;">-&gt;</span> a<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> s a
-<span style="color: #bc6ec5; font-weight: bold;">chainl</span> pe po  <span style="color: #7590db;">=</span>  h <span style="color: #7590db;">&lt;$&gt;</span> pe <span style="color: #7590db;">&lt;*&gt;</span> many <span style="color: #4f97d7;">(</span>j <span style="color: #7590db;">&lt;$&gt;</span> po <span style="color: #7590db;">&lt;*&gt;</span> pe<span style="color: #4f97d7;">)</span>
-  <span style="color: #4f97d7; font-weight: bold;">where</span> j op x  <span style="color: #7590db;">=</span>  <span style="color: #4f97d7;">(</span><span style="color: #7590db;">`op`</span> x<span style="color: #4f97d7;">)</span>
-        h x fs  <span style="color: #7590db;">=</span>  foldl <span style="color: #4f97d7;">(</span>flip <span style="color: #bc6ec5;">(</span><span style="color: #7590db;">$</span><span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span> x fs
+<pre class="src src-haskell"><span style="color: #a626a4;">chainl</span>  <span style="color: #6a1868;">::</span>  <span style="color: #986801;">Parser</span> s a <span style="color: #6a1868;">-&gt;</span> <span style="color: #986801;">Parser</span> s (a <span style="color: #6a1868;">-&gt;</span> a <span style="color: #6a1868;">-&gt;</span> a) <span style="color: #6a1868;">-&gt;</span> <span style="color: #986801;">Parser</span> s a
+<span style="color: #a626a4;">chainl</span> pe po  <span style="color: #6a1868;">=</span>  h <span style="color: #6a1868;">&lt;$&gt;</span> pe <span style="color: #6a1868;">&lt;*&gt;</span> many (j <span style="color: #6a1868;">&lt;$&gt;</span> po <span style="color: #6a1868;">&lt;*&gt;</span> pe)
+  <span style="color: #e45649;">where</span> j op x  <span style="color: #6a1868;">=</span>  (<span style="color: #6a1868;">`op`</span> x)
+        h x fs  <span style="color: #6a1868;">=</span>  foldl (flip (<span style="color: #6a1868;">$</span>)) x fs
 </pre>
 </div>
-
 </section>
-<section id="slide-org1485b9a">
-<h3 id="org1485b9a">Análise descendente</h3>
+<section id="slide-orge07dcb2">
+<h3 id="orge07dcb2">Análise descendente</h3>
 <ul>
 <li>Automatizando parsers de expressões</li>
 
@@ -921,18 +852,17 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">type</span> <span style="color: #ce537a; font-weight: bold;">Op</span> s a <span style="color: #7590db;">=</span> <span style="color: #4f97d7;">(</span>s, a <span style="color: #7590db;">-&gt;</span> a <span style="color: #7590db;">-&gt;</span> a<span style="color: #4f97d7;">)</span>
+<pre class="src src-haskell"><span style="color: #e45649;">type</span> <span style="color: #986801;">Op</span> s a <span style="color: #6a1868;">=</span> (s, a <span style="color: #6a1868;">-&gt;</span> a <span style="color: #6a1868;">-&gt;</span> a)
 
-<span style="color: #bc6ec5; font-weight: bold;">gen</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Eq</span> s <span style="color: #7590db;">=&gt;</span> <span style="color: #4f97d7;">[</span><span style="color: #ce537a; font-weight: bold;">Op</span> s a<span style="color: #4f97d7;">]</span> <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> s a <span style="color: #7590db;">-&gt;</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> s a
-<span style="color: #bc6ec5; font-weight: bold;">gen</span> ops p <span style="color: #7590db;">=</span> chainl p <span style="color: #4f97d7;">(</span>choice <span style="color: #bc6ec5;">(</span>map f ops<span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span>
-  <span style="color: #4f97d7; font-weight: bold;">where</span>
-    f <span style="color: #4f97d7;">(</span>s,c<span style="color: #4f97d7;">)</span> <span style="color: #7590db;">=</span> const c <span style="color: #7590db;">&lt;$&gt;</span> symbol s
+<span style="color: #a626a4;">gen</span> <span style="color: #6a1868;">::</span> <span style="color: #986801;">Eq</span> s <span style="color: #6a1868;">=&gt;</span> [<span style="color: #986801;">Op</span> s a] <span style="color: #6a1868;">-&gt;</span> <span style="color: #986801;">Parser</span> s a <span style="color: #6a1868;">-&gt;</span> <span style="color: #986801;">Parser</span> s a
+<span style="color: #a626a4;">gen</span> ops p <span style="color: #6a1868;">=</span> chainl p (choice (map f ops))
+  <span style="color: #e45649;">where</span>
+    f (s,c) <span style="color: #6a1868;">=</span> const c <span style="color: #6a1868;">&lt;$&gt;</span> symbol s
 </pre>
 </div>
-
 </section>
-<section id="slide-org637387e">
-<h3 id="org637387e">Análise descendente</h3>
+<section id="slide-orgbbcfe87">
+<h3 id="orgbbcfe87">Análise descendente</h3>
 <ul>
 <li>Tipo do token</li>
 
@@ -940,20 +870,19 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">data</span> <span style="color: #ce537a; font-weight: bold;">Token</span>
-  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Id</span> <span style="color: #ce537a; font-weight: bold;">String</span>
-  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">Number</span> <span style="color: #ce537a; font-weight: bold;">Int</span>
-  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">Add</span>
-  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">Mult</span>
-  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">LParen</span>
-  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">RParen</span>
-  <span style="color: #4f97d7; font-weight: bold;">deriving</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Eq</span>, <span style="color: #ce537a; font-weight: bold;">Show</span><span style="color: #4f97d7;">)</span>
+<pre class="src src-haskell"><span style="color: #e45649;">data</span> <span style="color: #986801;">Token</span>
+  <span style="color: #6a1868;">=</span> <span style="color: #986801;">Id</span> <span style="color: #986801;">String</span>
+  <span style="color: #6a1868;">|</span> <span style="color: #986801;">Number</span> <span style="color: #986801;">Int</span>
+  <span style="color: #6a1868;">|</span> <span style="color: #986801;">Add</span>
+  <span style="color: #6a1868;">|</span> <span style="color: #986801;">Mult</span>
+  <span style="color: #6a1868;">|</span> <span style="color: #986801;">LParen</span>
+  <span style="color: #6a1868;">|</span> <span style="color: #986801;">RParen</span>
+  <span style="color: #e45649;">deriving</span> (<span style="color: #986801;">Eq</span>, <span style="color: #986801;">Show</span>)
 </pre>
 </div>
-
 </section>
-<section id="slide-org3e74f03">
-<h3 id="org3e74f03">Análise descendente</h3>
+<section id="slide-orgabe6326">
+<h3 id="orgabe6326">Análise descendente</h3>
 <ul>
 <li>Tipo de expressões</li>
 
@@ -961,18 +890,17 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #4f97d7; font-weight: bold;">data</span> <span style="color: #ce537a; font-weight: bold;">Expr</span>
-  <span style="color: #7590db;">=</span> <span style="color: #ce537a; font-weight: bold;">Var</span> <span style="color: #ce537a; font-weight: bold;">String</span>
-  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">Lit</span> <span style="color: #ce537a; font-weight: bold;">Int</span>
-  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">Expr</span> <span style="color: #ce537a; font-weight: bold;">:+:</span> <span style="color: #ce537a; font-weight: bold;">Expr</span>
-  <span style="color: #7590db;">|</span> <span style="color: #ce537a; font-weight: bold;">Expr</span> <span style="color: #ce537a; font-weight: bold;">:*:</span> <span style="color: #ce537a; font-weight: bold;">Expr</span>
-  <span style="color: #4f97d7; font-weight: bold;">deriving</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Eq</span>, <span style="color: #ce537a; font-weight: bold;">Show</span><span style="color: #4f97d7;">)</span>
+<pre class="src src-haskell"><span style="color: #e45649;">data</span> <span style="color: #986801;">Expr</span>
+  <span style="color: #6a1868;">=</span> <span style="color: #986801;">Var</span> <span style="color: #986801;">String</span>
+  <span style="color: #6a1868;">|</span> <span style="color: #986801;">Lit</span> <span style="color: #986801;">Int</span>
+  <span style="color: #6a1868;">|</span> <span style="color: #986801;">Expr</span> <span style="color: #986801;">:+:</span> <span style="color: #986801;">Expr</span>
+  <span style="color: #6a1868;">|</span> <span style="color: #986801;">Expr</span> <span style="color: #986801;">:*:</span> <span style="color: #986801;">Expr</span>
+  <span style="color: #e45649;">deriving</span> (<span style="color: #986801;">Eq</span>, <span style="color: #986801;">Show</span>)
 </pre>
 </div>
-
 </section>
-<section id="slide-org239c181">
-<h3 id="org239c181">Análise descendente</h3>
+<section id="slide-org00d2a4b">
+<h3 id="org00d2a4b">Análise descendente</h3>
 <ul>
 <li>Criando o parser de expressões</li>
 
@@ -980,16 +908,15 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">exprParser</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #ce537a; font-weight: bold;">Token</span> <span style="color: #ce537a; font-weight: bold;">Expr</span>
-<span style="color: #bc6ec5; font-weight: bold;">exprParser</span> <span style="color: #7590db;">=</span> addtable <span style="color: #7590db;">`gen`</span> termParser
-  <span style="color: #4f97d7; font-weight: bold;">where</span>
-    addtable <span style="color: #7590db;">=</span> <span style="color: #4f97d7;">[</span><span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">Add</span>, <span style="color: #2d9574;">(</span><span style="color: #ce537a; font-weight: bold;">:+:</span><span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">]</span>
+<pre class="src src-haskell"><span style="color: #a626a4;">exprParser</span> <span style="color: #6a1868;">::</span> <span style="color: #986801;">Parser</span> <span style="color: #986801;">Token</span> <span style="color: #986801;">Expr</span>
+<span style="color: #a626a4;">exprParser</span> <span style="color: #6a1868;">=</span> addtable <span style="color: #6a1868;">`gen`</span> termParser
+  <span style="color: #e45649;">where</span>
+    addtable <span style="color: #6a1868;">=</span> [(<span style="color: #986801;">Add</span>, (<span style="color: #986801;">:+:</span>))]
 </pre>
 </div>
-
 </section>
-<section id="slide-org3b244b3">
-<h3 id="org3b244b3">Análise descendente</h3>
+<section id="slide-org64aa8f2">
+<h3 id="org64aa8f2">Análise descendente</h3>
 <ul>
 <li>Parser para termos</li>
 
@@ -997,16 +924,15 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">termParser</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #ce537a; font-weight: bold;">Token</span> <span style="color: #ce537a; font-weight: bold;">Expr</span>
-<span style="color: #bc6ec5; font-weight: bold;">termParser</span> <span style="color: #7590db;">=</span> multable <span style="color: #7590db;">`gen`</span> factParser
-  <span style="color: #4f97d7; font-weight: bold;">where</span>
-    multable <span style="color: #7590db;">=</span> <span style="color: #4f97d7;">[</span><span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">Mult</span>, <span style="color: #2d9574;">(</span><span style="color: #ce537a; font-weight: bold;">:*:</span><span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">]</span>
+<pre class="src src-haskell"><span style="color: #a626a4;">termParser</span> <span style="color: #6a1868;">::</span> <span style="color: #986801;">Parser</span> <span style="color: #986801;">Token</span> <span style="color: #986801;">Expr</span>
+<span style="color: #a626a4;">termParser</span> <span style="color: #6a1868;">=</span> multable <span style="color: #6a1868;">`gen`</span> factParser
+  <span style="color: #e45649;">where</span>
+    multable <span style="color: #6a1868;">=</span> [(<span style="color: #986801;">Mult</span>, (<span style="color: #986801;">:*:</span>))]
 </pre>
 </div>
-
 </section>
-<section id="slide-org2e41ce9">
-<h3 id="org2e41ce9">Análise descendente</h3>
+<section id="slide-orgb0755ce">
+<h3 id="orgb0755ce">Análise descendente</h3>
 <ul>
 <li>Parser para fatores</li>
 
@@ -1014,62 +940,58 @@ E_3 & \to & num\,|\,var\,|\,(E_1)\\
 
 <div class="org-src-container">
 
-<pre class="src src-haskell"><span style="color: #bc6ec5; font-weight: bold;">factParser</span> <span style="color: #7590db;">::</span> <span style="color: #ce537a; font-weight: bold;">Parser</span> <span style="color: #ce537a; font-weight: bold;">Token</span> <span style="color: #ce537a; font-weight: bold;">Expr</span>
-<span style="color: #bc6ec5; font-weight: bold;">factParser</span> <span style="color: #7590db;">=</span> numParser  <span style="color: #7590db;">&lt;|&gt;</span>
-             varParser  <span style="color: #7590db;">&lt;|&gt;</span>
+<pre class="src src-haskell"><span style="color: #a626a4;">factParser</span> <span style="color: #6a1868;">::</span> <span style="color: #986801;">Parser</span> <span style="color: #986801;">Token</span> <span style="color: #986801;">Expr</span>
+<span style="color: #a626a4;">factParser</span> <span style="color: #6a1868;">=</span> numParser  <span style="color: #6a1868;">&lt;|&gt;</span>
+             varParser  <span style="color: #6a1868;">&lt;|&gt;</span>
              parenExpr
-  <span style="color: #4f97d7; font-weight: bold;">where</span>
-    parenExpr <span style="color: #7590db;">=</span> pack lparen exprParser rparen
-    lparen <span style="color: #7590db;">=</span> symbol <span style="color: #ce537a; font-weight: bold;">LParen</span>
-    rparen <span style="color: #7590db;">=</span> symbol <span style="color: #ce537a; font-weight: bold;">RParen</span>
+  <span style="color: #e45649;">where</span>
+    parenExpr <span style="color: #6a1868;">=</span> pack lparen exprParser rparen
+    lparen <span style="color: #6a1868;">=</span> symbol <span style="color: #986801;">LParen</span>
+    rparen <span style="color: #6a1868;">=</span> symbol <span style="color: #986801;">RParen</span>
 </pre>
 </div>
-
 </section>
 </section>
 <section>
-<section id="slide-org81d01b7">
-<h2 id="org81d01b7">Concluindo</h2>
-<div class="outline-text-2" id="text-org81d01b7">
+<section id="slide-org06f2846">
+<h2 id="org06f2846">Concluindo</h2>
+<div class="outline-text-2" id="text-org06f2846">
 </div>
 </section>
-<section id="slide-org339ff07">
-<h3 id="org339ff07">Concluindo</h3>
+<section id="slide-org6e8b8dd">
+<h3 id="org6e8b8dd">Concluindo</h3>
 <ul>
 <li>Apresentamos uma introdução à análise sintática.</li>
 
 <li>Revisamos sobre GLCs e transformações sobre estas.</li>
 
 </ul>
-
 </section>
-<section id="slide-orgccfd00a">
-<h3 id="orgccfd00a">Concluindo</h3>
+<section id="slide-org606a491">
+<h3 id="org606a491">Concluindo</h3>
 <ul>
 <li>Apresentamos a técnica de análise sintática descendente recursiva.</li>
 
 <li>Em Haskell, esta técnica é representada por combinadores.</li>
 
 </ul>
-
 </section>
-<section id="slide-orgca91f8f">
-<h3 id="orgca91f8f">Concluindo</h3>
+<section id="slide-orgf2c4123">
+<h3 id="orgf2c4123">Concluindo</h3>
 <ul>
 <li>Próxima aula: análise sintática LL(1).</li>
 
 </ul>
-
 </section>
 </section>
 <section>
-<section id="slide-orge32d535">
-<h2 id="orge32d535">Exercícios</h2>
-<div class="outline-text-2" id="text-orge32d535">
+<section id="slide-org2150737">
+<h2 id="org2150737">Exercícios</h2>
+<div class="outline-text-2" id="text-org2150737">
 </div>
 </section>
-<section id="slide-orgd732173">
-<h3 id="orgd732173">Exercícios</h3>
+<section id="slide-org7f7e7ed">
+<h3 id="org7f7e7ed">Exercícios</h3>
 <ul>
 <li>Construa um analisador sintático descendente recursivo para seguinte
 linguagem de fórmulas da lógica proposicional.</li>

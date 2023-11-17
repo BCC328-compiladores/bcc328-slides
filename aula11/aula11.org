@@ -7,7 +7,7 @@
 #+REVEAL_HLEVEL: 1
 #+REVEAL_ROOT: file:///home/rodrigo/reveal.js
 
-#+Title: Análise Ascendente
+#+Title: Parsing Expression Grammars
 #+Author: Construção de compiladores I
 
 
@@ -15,367 +15,556 @@
 
 ** Objetivos
 
-- Apresentar uma motivação para o uso de analisadores ascendentes.
+- Apresentar o formalismo de Parsing Expression Grammars (PEGs).
 
-- Introduzir os as funções de fechamento e goto em analisadores LR(0).
+- Apresentar a sintaxe, semântica e boa-formação de PEGs.
+
+** Objetivos
+
+- Apresentar um sistema de tipos para PEGs.
+
+- Apresentar uma implementação de PEGs em Haskell.
 
 * Introdução
 
 ** Introdução
 
-- Até o presente, vimos técnicas de análise sintática top-down.
+- Gramáticas livres de contexto são o *padrão* para especificar linguagens.
 
-- Intuitivamente, essas técnicas produzem uma derivação iniciando no
-  símbolo de partida da gramática.
-
-** Introdução
-
-- Analisadores descendentes recursivos
-  - Simples implementação manual.
-  - Restrições sobre a forma da gramática.
-
+- Problemas: *ambiguidade*
 
 ** Introdução
 
-- Analisador LL(1)
-  - Constrói uma derivação mais a esquerda.
-  - Utiliza uma tabela construída utilizando os conjuntos first e follow.
+- Apesar de existirem artifícios para eliminar problemas de ambiguidade, no geral este é um problema *indecidível*.
 
 ** Introdução
 
-- Problemas com gramáticas LL(1):
-  - Parser deve tomar decisão sobre qual produção usar com base nos
-    primeiro token da entrada.
+- GLCs são um formalismo *gerativo*, isto é, gramáticas geram palavras.
+
+- Usamos GLCs para especificar *reconhecedores*.
 
 ** Introdução
 
-- Mas, existe outra alternativa?
+- Essa diferença parece mínima mas é fundamental!
 
 ** Introdução
 
-- Outra possibilidade: Análise ascendente.
-  - Construir uma derivação mais a direita ao *inverso*.
+- Para entender a diferença, vamos considerar a linguagem de palavras com uma quantidade par de zeros.
 
 ** Introdução
 
-- Derivação mais à direita
-  - Expandir o não terminal mais a direita em cada passo.
+- Especificação baseada em geração.
+  - Palavras são construídas acrescentando um número finito de 00.
+
+$\{s \in 0^{*}\,|\, \exists n \in \mathbb{N}. s = (00)^n\}$
 
 ** Introdução
 
-- Gramática de exemplo
+- Especificação baseada em reconhecimento
+  - Palavras são aceitas se tem tamanho par.
+
+$\{s \in 0^{*}\,|\,|s|\mathtt{ mod } 2 = 0\}$
+
+
+** Introdução
+
+- Uma alternativa recente são as chamadas Parsing Expression Grammars (PEGs).
+
+- Permitem a especificação de *reconhecedores*.
+
+** Introdução
+
+- Vantagem: não temos mais o problema de ambiguidade.
+
+- Expressividade: PEGs podem expressar linguagens sensíveis ao contexto.
+
+* Parsing Expression Grammars
+
+** Parsing Expression Grammars
+
+- Uma PEG G = (V, \Sigma, R, e) é tal que:
+  - V: conjunto de não terminais da gramática.
+  - \Sigma: alfabeto.
+  - R: função total que associa uma /parsing expression/ a cada não terminal.
+  - e: expressão inicial da gramática.
+
+** Parsing Expression Grammars
+
+- Sintaxe de expressões
 
 \begin{array}{lcl}
-  E & \to & E \textbf{+} E \,|\,E \textbf{*} E\,|\,id 
+e & \to  & \lambda\,|\, a \in \Sigma \,|\, A \in V\\
+  & \mid & e\:e\,|\,e\,/\, e\,|\,e^{*}\,|\,!\,e\\
 \end{array}
 
+** Parsing Expression Grammars
 
-** Introdução
+- Qual o significado de uma parsing expression?
 
-- Derivação mais a direita para id * id:
+- Definido em termos de uma relação $\Rightarrow_{G}$, em que $G = (V,\Sigma, R, e)$.
 
-\begin{array}{lc}
-E      & \Rightarrow^R \\
-\end{array}
+** Parsing Expression Grammars
 
+- Relação $(e,s) \Rightarrow (s_p, s_s)$ denota:
+  - Expressão $e$ processa o prefixo $s_p$ de $s$, deixando o sufixo $s_s$.
+  - Caso exista um erro de parsing, utilizamos o símbolo $\bot$.
 
-** Introdução
+** Parsing Expression Grammars
 
-- Derivação mais a direita para id * id:
+- Regra para $e = \lambda$
 
-\begin{array}{lc}
-E      & \Rightarrow^R \\
-E * E  & \Rightarrow^R \\
-\end{array}
 
+#+HEADER: :imagemagick yes
+#+HEADER: :results silent :file ./imgs/image1.png
+#+HEADER: :headers '("\\usepackage{proof}")
+#+HEADER: :fit yes :imoutoptions -geometry 1500 :iminoptions -density 1500
+#+BEGIN_SRC latex
+  \[ \LARGE
+    \infer{(\lambda,s)\Rightarrow_{G} (\lambda, s)}{}
+  \]
+#+END_SRC
 
-** Introdução
+[[./imgs/image1.png]]
 
-- Derivação mais a direita para id * id:
 
-\begin{array}{lc}
-E      & \Rightarrow^R \\
-E * E  & \Rightarrow^R \\
-E * id & \Rightarrow^R \\
-\end{array}
 
+** Parsing Expression Grammars
 
-** Introdução
+- Regras para $e = a$
 
-- Derivação mais a direita para id * id:
 
-\begin{array}{lc}
-E      & \Rightarrow^R \\
-E * E  & \Rightarrow^R \\
-E * id & \Rightarrow^R \\
-id * id \\
-\end{array}
+#+HEADER: :imagemagick yes
+#+HEADER: :results silent :file ./imgs/image2.png
+#+HEADER: :headers '("\\usepackage{proof}")
+#+HEADER: :fit yes :imoutoptions -geometry 1500 :iminoptions -density 1500
+#+BEGIN_SRC latex
+  \[ \LARGE
+    \begin{array}{ccc}
+      \infer{(a,as)\Rightarrow_{G} (a, s)}{} &
+      \infer{(b,as)\Rightarrow_{G} \bot}{a \neq b} &
+      \infer{(a,\lambda)\Rightarrow_{G} \bot}{} \\
+    \end{array}
+  \]
+#+END_SRC
 
-** Introdução
+[[./imgs/image2.png]]
 
-- Mas, como um analisador ascendente functiona?
 
-** Introdução
+** Parsing Expression Grammars
 
-- O analisador utiliza:
-  - Sequência de tokens de entrada.
-  - Pilha.
+- Regras para $e = A$
 
-** Introdução
 
-- O analisador pode utilizar 4 tipos de ação:
-  - shift: mover itens da entrada para a pilha
-  - reduce: escolher regra $A \to \beta$
-    - remover $\beta$ do topo da pilha
-    - empilhar $A$.
-  - aceitar e falhar.
+#+HEADER: :imagemagick yes
+#+HEADER: :results silent :file ./imgs/image3.png
+#+HEADER: :headers '("\\usepackage{proof}")
+#+HEADER: :fit yes :imoutoptions -geometry 1500 :iminoptions -density 1500
+#+BEGIN_SRC latex
+  \[ \LARGE
+    \begin{array}{c}
+      \infer{(A,s)\Rightarrow_{G} r}
+            {A \leftarrow e \in R &
+             (e,s)\Rightarrow_{G} r}
+    \end{array}
+  \]
+#+END_SRC
 
-** Introdução
+[[./imgs/image3.png]]
 
-- Idealmente, o analisador deve reduzir uma palavra de entrada até o símbolo de partida da gramática.
 
-- Vamos mostrar o funcionamento, usando um exemplo.
+** Parsing Expression Grammars
 
-** Introdução
+- Regras para $e = e_1\:e_2$
 
-- Exemplo:
-  - entrada: id * id$
-  - pilha: $
 
-** Introdução
+#+HEADER: :imagemagick yes
+#+HEADER: :results silent :file ./imgs/image4.png
+#+HEADER: :headers '("\\usepackage{proof}")
+#+HEADER: :fit yes :imoutoptions -geometry 1500 :iminoptions -density 1500
+#+BEGIN_SRC latex
+  \[ \LARGE
+    \begin{array}{c}
+      \infer{(e_1\:e_2,s)\Rightarrow_{G} (s_{p1}\,s_{p2}, s_s)}
+            {(e_1,s)\Rightarrow_{G} (s_{p1}, s_f) &
+             (e_2,s_f) \Rightarrow_{G} (s_{p2}, s_s)}
+      \\ \\
+      \infer{(e_1\:e_2,s)\Rightarrow_{G} \bot}
+            {(e_1,s)\Rightarrow_{G} (s_{p1}, s_f) &
+             (e_2,s_f) \Rightarrow_{G} \bot}
+      \\ \\
+      \infer{(e_1\:e_2,s)\Rightarrow_{G} (s_{p1}\,s_{p2}, s_s)}
+            {(e_1,s)\Rightarrow_{G} \bot}
+    \end{array}
+  \]
+#+END_SRC
 
-- Ação: shift id para a pilha.
+[[./imgs/image4.png]]
 
-- Exemplo:
-  - entrada: * id$
-  - pilha: $ id
 
-** Introdução
+** Parsing Expression Grammars
 
-- Ação: reduzir id usando $E \to id$.
+- Regras para $e = e_1\,/\,e_2$
 
-- Exemplo:
-  - entrada: * id$
-  - pilha: $ E
 
+#+HEADER: :imagemagick yes
+#+HEADER: :results silent :file ./imgs/image5.png
+#+HEADER: :headers '("\\usepackage{proof}")
+#+HEADER: :fit yes :imoutoptions -geometry 1500 :iminoptions -density 1500
+#+BEGIN_SRC latex
+  \[ \LARGE
+    \begin{array}{cc}
+      \infer{(e_1\,/\,e_2,s)\Rightarrow_{G} (s_{p}, s_s)}
+            {(e_1,s)\Rightarrow_{G} (s_{p}, s_s) }
+      &
+      \infer{(e_1\,/\,e_2,s)\Rightarrow_{G} r}
+            {(e_1,s)\Rightarrow_{G} \bot &
+             (e_2,s) \Rightarrow_{G} r}
+    \end{array}
+  \]
+#+END_SRC
 
-** Introdução
+[[./imgs/image5.png]]
 
-- Ação: shift * para a pilha.
 
-- Exemplo:
-  - entrada: id$
-  - pilha: $ E *
+** Parsing Expression Grammars
 
+- Regras para $e = e_1^{*}$
 
-** Introdução
 
-- Ação: shift id para a pilha.
+#+HEADER: :imagemagick yes
+#+HEADER: :results silent :file ./imgs/image6.png
+#+HEADER: :headers '("\\usepackage{proof}")
+#+HEADER: :fit yes :imoutoptions -geometry 1500 :iminoptions -density 1500
+#+BEGIN_SRC latex
+  \[ \LARGE
+    \begin{array}{cc}
+      \infer{(e_1^{*},s)\Rightarrow_{G} (s_{p1}\,s_{p2}, s_s)}
+            {(e_1,s)\Rightarrow_{G} (s_{p1}, s_f) &
+             (e_1^{*}, s_f) \Rightarrow_{G} (s_{p2}, s_s)}
+      &
+      \infer{(e_1^{*},s)\Rightarrow_{G} (\lambda, s)}
+            {(e_1,s)\Rightarrow_{G} \bot}
+    \end{array}
+  \]
+#+END_SRC
 
-- Exemplo:
-  - entrada: $
-  - pilha: $ E * id
+[[./imgs/image6.png]]
 
 
-** Introdução
+** Parsing Expression Grammars
 
-- Ação: reduce id usando $E\to id$.
+- Regras para $e = !\,e_1$
 
-- Exemplo:
-  - entrada: $
-  - pilha: $ E * E
 
+#+HEADER: :imagemagick yes
+#+HEADER: :results silent :file ./imgs/image7.png
+#+HEADER: :headers '("\\usepackage{proof}")
+#+HEADER: :fit yes :imoutoptions -geometry 1500 :iminoptions -density 1500
+#+BEGIN_SRC latex
+  \[ \LARGE
+    \begin{array}{cc}
+      \infer{(!\,e_1,s)\Rightarrow_{G} \bot}
+            {(e_1,s)\Rightarrow_{G} (s_{p}, s_s)}
+      &
+      \infer{(!\,e_1,s)\Rightarrow_{G} (\lambda, s)}
+            {(e_1,s)\Rightarrow_{G} \bot}
+    \end{array}
+  \]
+#+END_SRC
 
-** Introdução
+[[./imgs/image7.png]]
 
-- Ação: reduce E * E usando $E\to E * E$.
+** Parsing Expression Grammars
 
-- Exemplo:
-  - entrada: $
-  - pilha: $ E
-
-** Introdução
-
-- Tendo a entrada sido consumida e a pilha é formada apenas pelo símbolo de partida e o marcador de final de pilha,
-  temos que a palavra é aceita.
-
-** Introdução
-
-- Observe que o analisador produz uma derivação mais a direita *invertida*
-
-** Introdução
-
-- Porém, como determinar qual ação deve ser executada?
-
-** Introdução
-
-- Analisadores ascendentes usam um AFD sobre a pilha para
-  determinar qual ação executar.
-
-- AFD representado por uma tabela que armazena quais ações
- devem ser executadas pelo analisador.
-
-** Introdução
-
-- Diferentes técnicas de análise ascendente usam diferentes
-  estratégias para construção das tabelas.
-
-- Nesta aula, veremos o analisador LR(0)
-
-* Analisador LR(0)
-
-** Analisador LR(0)
-
-- Analisador sintático ascendente que usa apenas a pilha para decidir ações.
-
-- Não aplicável em gramáticas de linguagens de programação.
-  - Útil para compreensão do mecanismo de construção de tabelas.
-
-** Analisador LR(0)
-
-- A construção de tabelas LR(0) utiliza o conceito de *item*
-  - Item: regra de uma gramática contendo uma marcação em seu lado direito.
-  - Marcação representada por um "."
-
-** Analisador LR(0)
-
-- A ideia do algoritmo é construir um AFD sobre coleções de itens.
-
-- Cada estado do AFD representa um conjunto de itens.
-
-** Analisador LR(0)
-
-- Como obter o conjunto de itens?
-
-- Primeiro, precisamos modificar a gramática de entrada e calculamos o fechamento e
-  transição entre conjuntos de itens.
-
-** Analisador LR(0)
-
-- Ilustraremos essas etapas considerando a seguinte gramática.
+- Exemplo
 
 \begin{array}{lcl}
-  S & \to & \textbf{(}L\textbf{)}\,|\, \textbf{x}\\
-  L & \to & L\,\textbf{,}\,S\,|\,S\\
+A & \leftarrow & a A b \,/\, ab\\
 \end{array}
 
-** Analisador LR(0)
+- Expressão inicial: $A /\:!\, (a\, /\, b)\: /\: \lambda$
 
-- Primeiro passo, modificamos a gramática para criar uma nova variável de partida.
+- Exemplos da semântica: aabb, a, \lambda
+
+** Parsing Expression Grammars
+
+- Qual o problema com a seguinte gramática?
+  - Expressão inicial: A
 
 \begin{array}{lcl}
-  S' & \to & S\textbf{.}\\
-  S  & \to & \textbf{(}L\textbf{)}\,|\, \textbf{x}\\
-  L  & \to & L\,\textbf{,}\,S\,|\,S\\
-\end{array}
-
-** Analisador LR(0)
-
-- Por que modificar a gramática?
-  - Facilitar a identificação de aceitação.
-  - Aceitação determinada por reduzir usando
-    - S' \to S.
-
-** Analisador LR(0)
-
-- Fechamento do conjunto de itens $I$.
-  - $I\subseteq closure(I)$.
-  - Se $A \to \alpha \textbf{.}B\beta \in I$, incluir toda regra $B \to \gamma$ em I.
-  - Repetir passo anterior enquanto possível.
-
-** Analisador LR(0)
-
-- Vamos considerar o conjunto inicial de itens da gramática de exemplo:
-
-\begin{array}{l}
-\{S \to \textbf{.}S\}
-\end{array}
-
-** Analisador LR(0)
-
-- Como a regra $S \to \textbf{.} S$ está no conjunto, vamos incluir regras $S$.
-
-** Analisador LR(0)
-
-- Incluindo todas as regras $S$ no conjunto.
-
-\begin{array}{rll}
-\{ & S \to \textbf{.}S &, \\
-   & S \to \textbf{.(}L\textbf{)} & , \\
-   & S \to \textbf{.x} & \}\\
-\end{array}
-
-** Analisador LR(0)
-
-- Outro ponto da construção do autômato LR(0) é o cálculo da função de transição.
-
-- $goto(I,a)$
-  - $I$: conjunto de itens.
-  - $a \in \Sigma$.
-
-** Analisador LR(0)
-
-- Definimos $goto(I,X)$:
-  - $J \leftarrow \emptyset$
-  - Para cada item $A \to \alpha .X\beta \in I$
-    - Adicione $A \to \alpha X.\beta$ a $J$.
-  - retorne $closure(J)$.
-
-** Analisador LR(0)
-
-- Exemplo:
-  - Calcular $goto(I,()$, em que $I$ é:
-
-\begin{array}{rll}
-\{ & S \to \textbf{.}S &, \\
-   & S \to \textbf{.(}L\textbf{)} & , \\
-   & S \to \textbf{.x} & \}\\
-\end{array}
-
-** Analisador LR(0)
-
-- Produção base:
-
-\begin{array}{lcl}
-S \to \textbf{(.}L\textbf{)}\\
+A & \leftarrow & A a\,/\,a
 \end{array}
 
 
-** Analisador LR(0)
+** Parsing Expression Grammars
 
-- Aplicando o fechamento:
-  - Incluindo regras $L$
+- Qual o problema com a seguinte expressão?
+  - $(a^*)^*$
 
-\begin{array}{lcl}
-S & \to & \textbf{(.}L\textbf{)}\\
-L & \to & \textbf{.}L\textbf{,}S\\
-L & \to & .S
-\end{array}
+** Parsing Expression Grammars
+
+- Assim como programas em geral, PEGs podem entrar em *loop*.
+
+- Basicamente, PEGs são especificações de parsers descendentes recursivos.
 
 
-** Analisador LR(0)
+* Terminação em PEGs
 
-- Aplicando o fechamento:
-  - Incluindo regras $S$
+** Terminação em PEGs
 
-\begin{array}{lcl}
-S & \to & \textbf{(.}L\textbf{)}\\
-L & \to & \textbf{.}L\textbf{,}S\\
-L & \to & \textbf{.}S\\
-S & \to & \textbf{.(}L\textbf{)}\\
-S & \to & \textbf{.x}\\
-\end{array}
+- Dizemos que uma expressão $e$ sucede com uma string $s$ se:
+  - $\exists s_p\,s_s . (e,s)\Rightarrow_{G} (s_p,s_s)$
 
-*
+** Terminação em PEGs
+
+- Relação $e \rightharpoonup o$, $o\in\{0,1,f\}$.
+  - Caso $s_p = \lambda$, temos que $e \rightharpoonup 0$.
+  - Caso $s_p = ay$, temos que $e \rightharpoonup 1$.
+  - Em caso de falha, temos que $e\rightharpoonup f$.
+
+** Terminação em PEGs
+
+- Dizemos que uma expressão é bem formada se:
+  - Não possui recursão à esquerda direta / indireta.
+  - Não é da forma $e^*$, em que $e\rightharpoonup 0$.
+
+** Terminação em PEGs
+
+- Uma PEG é *bem formada* se todas as suas subexpressões são bem formadas.
+
+** Terminação em PEGs
+
+- Definição original de boa formação é feita em dois passos:
+  - Primeiro, define-se quando uma expressão é bem formada.
+  - Depois, computa-se o ponto fixo do conjunto de expressões bem formadas de uma gramática.
+
+** Terminação em PEGs
+
+- Problemas
+  - Definição não composicional
+  - Difícil compreensão.
+
+- Solução: Uso de tipos.
+  - Falaremos sobre isso quando estudarmos análise semântica.
+
+* Implementação
+
+** Implementação
+
+- Vamos apresentar uma implementação de PEGs usando combinadores.
+
+- Note que nossa implementação não irá garantir a terminação!
+  - Problema de pesquisa em aberto!
+
+** Implementação
+
+- Representando o resultado de uma expressão
+
+#+BEGIN_SRC haskell
+data Result s a
+  = Pure a           -- did not consume anything. We can backtrack.
+  | Commit s a       -- remaining input and result.
+  | Fail String Bool -- true if consume any input
+  deriving (Show, Functor)
+#+END_SRC
+
+** Implementação
+
+- Definindo uma expressão.
+
+#+BEGIN_SRC haskell
+newtype PExp s a
+  = PExp {
+      runPExp :: s -> Result s a
+    } deriving Functor
+#+END_SRC
+
+
+** Implementação
+
+- Representando a entrada
+
+#+BEGIN_SRC haskell
+class Stream a where
+  anyChar :: PExp a Char
+
+instance Stream String where
+  anyChar = PExp $ \ d ->
+    case d of
+      (x : xs) -> Commit xs x
+      []       -> Fail "eof" False
+#+END_SRC
+
+** Implementação
+
+- Expressões são applicatives
+
+#+BEGIN_SRC haskell
+instance Applicative (PExp s) where
+  pure x = PExp $ \ _ -> Pure x
+  (PExp efun) <*> (PExp earg)
+    = PExp $ \ d ->
+        case efun d of
+          Pure f   -> f <$> earg d
+          Fail s c -> Fail s c
+          Commit d' f ->
+            case earg d' of
+              Pure a -> Commit d' (f a)
+              Fail s' _ -> Fail s' True
+              Commit d'' a -> Commit d'' (f a)
+#+END_SRC
+
+** Implementação
+
+- Expressões são alternatives
+
+#+BEGIN_SRC haskell
+instance Alternative (PExp d) where
+  (PExp e1) <|> (PExp e2) = PExp $ \ d ->
+    case e1 d of
+      Fail _ False -> e2 d
+      x            -> x
+  empty = PExp $ \ _ -> Fail "empty" False
+#+END_SRC
+
+** Implementação
+
+- Controlando backtracking
+
+#+BEGIN_SRC haskell
+try :: PExp d a -> PExp d a
+try (PExp m) = PExp $ \ d ->
+  case m d of
+    Fail s _ -> Fail s False
+    x        -> x
+#+END_SRC
+
+** Implementação
+
+- Escolha ordenada
+
+#+BEGIN_SRC haskell
+(</>) :: PExp d a -> PExp d a -> PExp d a
+e1 </> e2 = try e1 <|> e2
+#+END_SRC
+
+** Implementação
+
+- Símbolos e \lambda
+
+#+BEGIN_SRC haskell
+satisfy :: Stream d => (Char -> Bool) -> PExp d Char
+satisfy p = do
+  x <- anyChar
+  x <$ guard (p x)
+
+symbol :: Stream d => Char -> PExp d Char
+symbol c = satisfy (c ==)
+
+lambda :: Stream d => a -> PExp d a
+lambda v = PExp $ \ d -> Commit d v
+#+END_SRC
+
+** Implementação
+
+- Operador star
+
+#+BEGIN_SRC haskell
+star :: Stream d => PExp d a -> PExp d [a]
+star e1 = PExp $ \ d ->
+  case runPExp e1 d of
+    Fail _ _ -> Commit d []
+    Pure _ -> Fail "Nullable star" False
+    Commit d' v ->
+      case runPExp (star e1) d' of
+        Fail _ _ -> Commit d []
+        Commit d'' vs -> Commit d'' (v : vs)
+        Pure _ -> Fail "Nullable star" False
+#+END_SRC
+
+** Implementação
+
+- Operador not
+
+#+BEGIN_SRC haskell
+not :: Stream d => PExp d a -> PExp d ()
+not e = PExp $ \ d ->
+  case runPExp e d of
+    Fail _ _ -> Pure ()
+    _        -> Fail "not" True
+
+and :: Stream d => PExp d a -> PExp d ()
+and e = not $ not e
+#+END_SRC
+
+** Implementação
+
+- Exemplo: $\{a^nb^n | n \geq 1\}$
+
+#+BEGIN_SRC haskell
+ab1 :: PExp String String
+ab1 = (f <$> symbol 'a' <*> ab <*> symbol 'b') </>
+      (g <$> symbol 'a' <*> symbol 'b')
+  where
+    f x s y = x : s ++ [y]
+    g x y = [x,y]
+#+END_SRC
+
+** Implementação
+
+- Exemplo: $\{b^nc^n | n \geq 1\}$
+
+#+BEGIN_SRC haskell
+bc1 :: PExp String String
+bc1 = (f <$> symbol 'b' <*> bc <*> symbol 'c') </>
+      (g <$> symbol 'b' <*> symbol 'c')
+  where
+    f x s y = x : s ++ [y]
+    g x y = [x,y]
+#+END_SRC
+
+
+** Implementação
+
+- Exemplo $\{a^nb^nc^n | n \geq 1\}$
+
+#+BEGIN_SRC haskell
+abc1 :: PExp String String
+abc1 = f <$> and (ab1 *> not b) <*>
+             star a             <*>
+             and b              <*>
+             bc1                <*>
+             not anyChar
+  where
+    a = symbol 'a'
+    b = symbol 'b'
+    f _ as _ bcs _ = as ++ bcs
+#+END_SRC
+
+* Concluindo
+
+** Concluindo
+
+- Nesta aula apresentamos uma alternativa às GLCs: PEGs
+
+- Apresentamos a sintaxe e semântica de PEGs
+  - Discutimos o problema de terminação.
+
+** Concluindo
+
+- Apresentamos uma implementação de PEGs em Haskell
+
+- PEGs não são equivalentes a GLCs
+  - Não existe PEG para palíndromos
+  - Existe PEG para $\{a^nb^nc^n\,|\,n\geq 1\}$
+
+** Concluindo
+
+- Próxima aula: análise sintática ascendente.
 
 * Exercícios
 
 ** Exercícios
 
-- Apresente o conjunto de itens obtidos para a versão estendida da seguinte gramática:
-  - Considere como conjunto inicial o formado pela nova variável de partida.
-
-\begin{array}{lcl}
-E & \to & T \textbf{+} E\,|\,T\\
-T & \to & \textbf{x}\\
-\end{array}
+- Usando a implementação apresentada, construa uma PEG para expressões aritméticas
+  envolvendo números, variáveis, adição, multiplicação e parêntesis.
