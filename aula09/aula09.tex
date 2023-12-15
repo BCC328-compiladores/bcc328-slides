@@ -1,0 +1,493 @@
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\author{Construção de compiladores I}
+\date{}
+\title{Conjuntos first e follow}
+\hypersetup{
+ pdfauthor={Construção de compiladores I},
+ pdftitle={Conjuntos first e follow},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 28.2 (Org mode 9.7)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+\section*{Objetivos}
+\label{sec:org8d6932c}
+
+\subsection*{Objetivos}
+\label{sec:org01dff8a}
+
+\begin{itemize}
+\item Apresentar os conjuntos first e follow e seu uso para definir gramáticas LL(1)
+
+\item Apresentar uma implementação de first e follow em Haskell.
+\end{itemize}
+\section*{Gramáticas LL(1)}
+\label{sec:org205e540}
+
+\subsection*{Gramáticas LL(1)}
+\label{sec:org97e6725}
+
+\begin{itemize}
+\item Classe de gramáticas que admitem analisadores sem backtracking
+
+\item LL(1) significa
+\begin{itemize}
+\item *L*eft to right: entrada analisada da esquerda para direita.
+\item *L*eft most derivation: construção de derivação mais a esquerda.
+\item Uso de \textbf{1} token da entrada para decidir a derivação.
+\end{itemize}
+\end{itemize}
+\subsection*{Gramáticas LL(1)}
+\label{sec:orgcad0bd2}
+
+\begin{itemize}
+\item Como determinar se uma gramática é LL(1)?
+\begin{itemize}
+\item Vamos usar os conjuntos First e Follow.
+\end{itemize}
+\end{itemize}
+\section*{First e Follow}
+\label{sec:orgea4e52c}
+
+\subsection*{First e Follow}
+\label{sec:org66866dc}
+
+\begin{itemize}
+\item \(first(\alpha)\): conjunto de terminais que iniciam sentenças derivadas a partir de \(\alpha\).
+
+\item \(\alpha \in (V\cup \Sigma)^*\).
+\end{itemize}
+\subsection*{First e Follow}
+\label{sec:org7660d9c}
+
+\begin{itemize}
+\item \(first(a) = \{a\}\), se \(a \in \Sigma\).
+\item \(\lambda\in first(A)\) se \(A\to\lambda \in R\).
+\end{itemize}
+\subsection*{First e Follow}
+\label{sec:org351515d}
+
+\begin{itemize}
+\item Se \(A \in V\) e
+\item \(A \to Y_1\,Y_2\,...\,Y_k \in R\) e
+\item \(a\in first(Y_i)\) e
+\item \(\forall j. 1 \leq j \leq i - 1. \lambda \in first(Y_j)\) então \(a \in first(A)\).
+\end{itemize}
+\subsection*{First e Follow}
+\label{sec:org726c687}
+
+\begin{itemize}
+\item Aplique estas regras enquanto for possível.
+\end{itemize}
+\subsection*{First e Follow}
+\label{sec:orgf079d34}
+
+\begin{itemize}
+\item Calcular os conjuntos \(first\) para:
+\end{itemize}
+
+\begin{array}{lcl}
+E  & \to & TE'\\
+E' & \to & \textbf{+}TE'\,|\,\lambda\\
+T  & \to & FT' \\
+T' & \to & \textbf{*}FT'\,|\,\lambda\\
+F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
+\end{array}
+\subsection*{First e Follow}
+\label{sec:org720a121}
+
+\begin{itemize}
+\item \(first(E) = first(T) = first(F)\)
+
+\item \(first(F) = \{\textbf{(}, \textbf{id}\}\)
+\end{itemize}
+\subsection*{First e Follow}
+\label{sec:org8027e64}
+
+\begin{itemize}
+\item \(first(E') = \{\textbf{+},\lambda\}\)
+
+\item \(first(T') = \{\textbf{*},\lambda\}\)
+\end{itemize}
+\subsection*{First e Follow}
+\label{sec:org63fcb24}
+
+\begin{itemize}
+\item \(follow(A)\): conjunto de terminais que aparecem logo a direita de \(A\) em alguma derivação.
+
+\item \(A \in V\).
+\end{itemize}
+\subsection*{First e Follow}
+\label{sec:org0146466}
+
+\begin{itemize}
+\item \$ \(\in follow(P)\)
+
+\item Se \(A \to \alpha B \beta \in R\) então:
+\end{itemize}
+
+\begin{array}{l}
+first(\beta) - \{\lambda\} \subseteq follow(B)
+\end{array}
+\subsection*{First e Follow}
+\label{sec:orgae2ab56}
+
+\begin{itemize}
+\item Se \(A \to \alpha B\) ou \(A \to \alpha B \beta\), em que \(\lambda \in first(\beta)\) então:
+\end{itemize}
+
+\begin{array}{l}
+follow(A) \subseteq follow(B)
+\end{array}
+\subsection*{First e Follow}
+\label{sec:orgcb0afa8}
+
+\begin{itemize}
+\item Aplique estas regras enquanto possível.
+\end{itemize}
+\subsection*{First e Follow}
+\label{sec:orgb7300a0}
+
+\begin{itemize}
+\item Calcular os conjuntos \(follow\) para:
+\end{itemize}
+
+\begin{array}{lcl}
+E  & \to & TE'\\
+E' & \to & \textbf{+}TE'\,|\,\lambda\\
+T  & \to & FT' \\
+T' & \to & \textbf{*}FT'\,|\,\lambda\\
+F  & \to & \textbf{(}E\textbf{)}\,|\,\textbf{id}
+\end{array}
+\subsection*{First e Follow}
+\label{sec:org629b3c9}
+
+\begin{itemize}
+\item \$ \(\in follow(E)\):
+\begin{itemize}
+\item \(E\) é a variável inicial da gramática.
+\end{itemize}
+\end{itemize}
+\subsection*{First e Follow}
+\label{sec:org724fec5}
+
+\begin{itemize}
+\item \textbf{)} \(\in follow(E)\):
+\begin{itemize}
+\item Devido a produção \(F \to (E)\)
+\item Regra: \(A \to \alpha B \beta\) então \(first(\beta) \subseteq follow(B)\).
+\begin{itemize}
+\item Neste caso, \(\beta = \textbf{)}\)
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\subsection*{First e Follow}
+\label{sec:org875c47c}
+
+\begin{itemize}
+\item Logo, temos que \$follow(E) = $\backslash${\textbf{)},$\backslash$\(\}\).
+\end{itemize}
+\section*{Implementação em Haskell}
+\label{sec:org9be93c9}
+
+\subsection*{Implementação em Haskell}
+\label{sec:org755d21d}
+
+\begin{itemize}
+\item Representando terminais
+\end{itemize}
+
+\begin{verbatim}
+data Terminal
+  = T String
+  | Dollar
+  | Lambda
+\end{verbatim}
+\subsection*{Implementação em Haskell}
+\label{sec:orgc526fbf}
+
+\begin{itemize}
+\item Representando não terminais
+\end{itemize}
+
+\begin{verbatim}
+data Nonterminal
+  = NT String
+\end{verbatim}
+\subsection*{Implementação em Haskell}
+\label{sec:org512b8fc}
+
+\begin{itemize}
+\item Representando símbolos
+\end{itemize}
+
+\begin{verbatim}
+data Symbol
+  = Var Nonterminal
+  | Symb Terminal
+\end{verbatim}
+\subsection*{Implementação em Haskell}
+\label{sec:org23dadf7}
+
+\begin{itemize}
+\item Representando produções
+\end{itemize}
+
+\begin{verbatim}
+data Production
+  = Prod {
+      leftHand :: Nonterminal
+    , rightHand :: [Symbol]
+    } 
+\end{verbatim}
+\subsection*{Implementação em Haskell}
+\label{sec:orge56ccd3}
+
+\begin{itemize}
+\item Representando gramáticas
+\end{itemize}
+
+\begin{verbatim}
+data Grammar
+  = Grammar {
+      productions :: [Production]
+    , start       :: Nonterminal
+    }
+\end{verbatim}
+\subsection*{Implementação em Haskell}
+\label{sec:orgb0e2b15}
+
+\begin{itemize}
+\item Representação de ponto fixo.
+\end{itemize}
+
+\begin{verbatim}
+fixpoint :: Eq a => (a -> a) -> a -> a
+fixpoint f x = let x' = f x
+               in if x == x' then x
+                  else fixpoint f x'
+\end{verbatim}
+\subsection*{Implementação em Haskell}
+\label{sec:org9e43c18}
+
+\begin{itemize}
+\item Definição de tabela de first.
+\end{itemize}
+
+\begin{verbatim}
+type First = Map Nonterminal [Terminal]
+
+merge :: First -> Nonterminal -> [Terminal] -> First
+merge m nt ts = Map.insertWith union nt ts m
+
+firstSetFor :: Nonterminal -> First -> [Terminal]
+firstSetFor nt m
+  = case Map.lookup nt m of
+      Nothing -> []
+      Just ts -> ts
+\end{verbatim}
+\subsection*{Implementação em Haskell}
+\label{sec:orge6a7272}
+
+\begin{itemize}
+\item Cálculo de first
+\end{itemize}
+
+\begin{verbatim}
+first :: Grammar -> [(Nonterminal, [Terminal])]
+first g = Map.toList m
+  where
+     m = fixpoint (stepFirst g) (first0 g)
+\end{verbatim}
+\subsection*{Implementação em Haskell}
+\label{sec:org6480083}
+
+\begin{itemize}
+\item Cálculo de first0
+\end{itemize}
+
+\begin{verbatim}
+first0 :: Grammar -> First
+first0 g = Map.fromList $ map f (nonterminals g)
+  where
+    f nt = (nt , [])
+\end{verbatim}
+\subsection*{Implementação em Haskell}
+\label{sec:org92abba2}
+
+\begin{itemize}
+\item Iteração do conjunto first
+\end{itemize}
+
+\begin{verbatim}
+stepFirst :: Grammar -> First -> First
+stepFirst g current
+  = step' (productions g) current
+  where
+    step' [] curr = curr
+    step' (p:ps) curr
+      = merge (step' ps curr)
+              (leftHand p)
+              (terminalsForRHS p)
+\end{verbatim}
+\subsection*{Implementação em Haskell}
+\label{sec:org0a9d1a4}
+
+\begin{itemize}
+\item Definição de \texttt{terminalsForRHS}
+\end{itemize}
+
+\begin{verbatim}
+terminalsForRHS :: Production -> [Terminal]
+terminalsForRHS (Prod _ []) = [Lambda]
+terminalsForRHS (Prod _ [Symb Lambda]) = [Lambda]
+terminalsForRHS (Prod x (yj : ys))
+  = case  yj of
+      Symb terminal -> [terminal]
+      Var nonterminal ->
+         if Lambda `elem` first_iminus1 then
+            terminalsForYj `union` terminalsForRHS (Prod x ys)
+         else
+            terminalsForYj
+      where
+         first_iminus1 = firstSetFor nonterminal current
+         terminalsForYj = filter (/= Lambda) first_iminus1
+\end{verbatim}
+\subsection*{Implementação em Haskell}
+\label{sec:org4e7fba5}
+
+\begin{itemize}
+\item Extensão de first para palavras
+\end{itemize}
+
+\begin{verbatim}
+firstForWord :: [Symbol] -> First -> [Terminal]
+firstForWord [(Var nt)] ft = firstSetFor nt ft
+firstForWord [(Symb t)] _ = [t]
+firstForWord ((Var nt) : ss) ft =
+  if Lambda `elem` firstSetFor nt ft then 
+        firstMinusLambda `union` firstForWord ss ft
+  else firstMinusLambda
+       where firstMinusLambda = [x | x <- firstSetFor nt ft, x /= Lambda]
+firstForWord _ _ = []
+\end{verbatim}
+\subsection*{Implementação em Haskell}
+\label{sec:org06ab902}
+
+\begin{itemize}
+\item Implementação de follow
+\end{itemize}
+
+\begin{verbatim}
+follow :: Grammar -> [(Nonterminal, [Terminal])]
+follow g
+  = Map.toList $ fixpoint (stepFollow g m) (follow0 g)
+  where
+    m = Map.fromList $ first g
+\end{verbatim}
+\subsection*{Implementação em Haskell}
+\label{sec:org3bca858}
+
+\begin{itemize}
+\item Inicialização de follow
+\end{itemize}
+
+\begin{verbatim}
+follow0 :: Grammar -> Follow
+follow0 g = Map.fromList $ map f (nonterminals g)
+  where
+    f nt = if nt == start g then (nt, [Dollar]) else (nt, [])
+\end{verbatim}
+\subsection*{Implementação em Haskell}
+\label{sec:org46be6ae}
+
+\begin{itemize}
+\item Iteração do conjunto follow
+\end{itemize}
+
+\begin{verbatim}
+stepFollow :: Grammar -> First -> Follow -> Follow
+stepFollow g firstG current
+  = step' (productions g) firstG current
+    where
+      step' [] _ curr = curr
+      step' (p : ps) fG curr
+        = mergeTerminals p (step' ps fG curr)
+       where
+         ...
+\end{verbatim}
+\subsection*{Implementação em Haskell}
+\label{sec:org60c15b2}
+
+\begin{itemize}
+\item Iteração do conjunto follow
+\end{itemize}
+
+\begin{verbatim}
+mergeTerminals (Prod _ []) = undefined
+mergeTerminals (Prod l (s : ss)) = merge' l [] s ss
+\end{verbatim}
+\subsection*{Implementação em Haskell}
+\label{sec:org139ef9c}
+
+\begin{itemize}
+\item Iteração do conjunto follow
+\end{itemize}
+
+\begin{verbatim}
+merge' a _ (Var b) [] fMinus1
+  = merge fMinus1 b (followSetFor a fMinus1)
+merge' _ _  (Symb _) [] fMinus1 = fMinus1
+merge' a w1 (Symb t) (w2 : w2s) fMinus1
+ = merge' a (w1 ++ [Symb t]) w2 w2s fMinus1
+merge' a w1 nt@(Var b) w2@(w21 : w2s) fMinus1
+  = merge (merge' a (w1 ++ [nt]) w21 w2s fMinus1) b new
+    where
+       firstW2 = [x | x <- firstForWord w2 fG, x /= Lambda]
+       new = if Lambda `elem` firstForWord w2 fG then
+                followSetFor a fMinus1 `union` firstW2
+              else firstForWord w2 fG
+\end{verbatim}
+\section*{Concluindo}
+\label{sec:orgee6d676}
+
+\subsection*{Concluindo}
+\label{sec:org18baf81}
+
+\begin{itemize}
+\item Nesta aula, apresentamos os conjuntos first e follow.
+
+\item Apresentamos uma implementação simples em Haskell de funções para calcular estes conjuntos.
+\end{itemize}
+\subsection*{Concluindo}
+\label{sec:org828a3a2}
+
+\begin{itemize}
+\item Próxima aula: Análise sintática LL(1)
+\end{itemize}
+\section*{Exercícios}
+\label{sec:org438f7a3}
+
+\subsection*{Exercícios}
+\label{sec:orgd183041}
+
+\begin{itemize}
+\item Utilizando a representação de gramáticas utilizada para obter os conjuntos first e follow,
+implemente uma função para obter o conjunto de não terminais anuláveis de uma gramática.
+Dizemos que um não terminal é anulável se ele deriva \(\lambda\) em um ou mais passos de derivação.
+\end{itemize}
+\end{document}

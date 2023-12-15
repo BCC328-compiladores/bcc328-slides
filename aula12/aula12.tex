@@ -1,0 +1,503 @@
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\author{Construção de compiladores I}
+\date{}
+\title{Análise Ascendente}
+\hypersetup{
+ pdfauthor={Construção de compiladores I},
+ pdftitle={Análise Ascendente},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 28.2 (Org mode 9.7)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+\section*{Objetivos}
+\label{sec:org846d29b}
+
+\subsection*{Objetivos}
+\label{sec:orgeae88ac}
+
+\begin{itemize}
+\item Apresentar uma motivação para o uso de analisadores ascendentes.
+
+\item Introduzir os as funções de fechamento e goto em analisadores LR(0).
+\end{itemize}
+\section*{Introdução}
+\label{sec:orgad79db8}
+
+\subsection*{Introdução}
+\label{sec:orgb901c23}
+
+\begin{itemize}
+\item Até o presente, vimos técnicas de análise sintática top-down.
+
+\item Intuitivamente, essas técnicas produzem uma derivação iniciando no
+símbolo de partida da gramática.
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:org34cf22e}
+
+\begin{itemize}
+\item Analisadores descendentes recursivos
+\begin{itemize}
+\item Simples implementação manual.
+\item Restrições sobre a forma da gramática.
+\end{itemize}
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:orgea1a920}
+
+\begin{itemize}
+\item Parsing expression grammars
+\begin{itemize}
+\item Não suportam recursão à esquerda.
+\item Semântica não intuitiva.
+\end{itemize}
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:orgcbe5ca0}
+
+\begin{itemize}
+\item Analisador LL(1)
+\begin{itemize}
+\item Constrói uma derivação mais a esquerda.
+\item Utiliza uma tabela construída utilizando os conjuntos first e follow.
+\end{itemize}
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:orge56f22d}
+
+\begin{itemize}
+\item Problemas com gramáticas LL(1):
+\begin{itemize}
+\item Parser deve tomar decisão sobre qual produção usar com base nos
+primeiro token da entrada.
+\end{itemize}
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:org922bc31}
+
+\begin{itemize}
+\item Mas, existe outra alternativa?
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:org05d6357}
+
+\begin{itemize}
+\item Outra possibilidade: Análise ascendente.
+\begin{itemize}
+\item Construir uma derivação mais a direita ao \textbf{inverso}.
+\end{itemize}
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:org4fc9124}
+
+\begin{itemize}
+\item Derivação mais à direita
+\begin{itemize}
+\item Expandir o não terminal mais a direita em cada passo.
+\end{itemize}
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:orgc4ec4c8}
+
+\begin{itemize}
+\item Gramática de exemplo
+\end{itemize}
+
+\begin{array}{lcl}
+  E & \to & E \textbf{+} E \,|\,E \textbf{*} E\,|\,id 
+\end{array}
+\subsection*{Introdução}
+\label{sec:org4abe8d3}
+
+\begin{itemize}
+\item Derivação mais a direita para id * id:
+\end{itemize}
+
+\begin{array}{lc}
+E      & \Rightarrow^R \\
+\end{array}
+\subsection*{Introdução}
+\label{sec:org93f276e}
+
+\begin{itemize}
+\item Derivação mais a direita para id * id:
+\end{itemize}
+
+\begin{array}{lc}
+E      & \Rightarrow^R \\
+E * E  & \Rightarrow^R \\
+\end{array}
+\subsection*{Introdução}
+\label{sec:org66dc30c}
+
+\begin{itemize}
+\item Derivação mais a direita para id * id:
+\end{itemize}
+
+\begin{array}{lc}
+E      & \Rightarrow^R \\
+E * E  & \Rightarrow^R \\
+E * id & \Rightarrow^R \\
+\end{array}
+\subsection*{Introdução}
+\label{sec:orgce11548}
+
+\begin{itemize}
+\item Derivação mais a direita para id * id:
+\end{itemize}
+
+\begin{array}{lc}
+E      & \Rightarrow^R \\
+E * E  & \Rightarrow^R \\
+E * id & \Rightarrow^R \\
+id * id \\
+\end{array}
+\subsection*{Introdução}
+\label{sec:org590befd}
+
+\begin{itemize}
+\item Mas, como um analisador ascendente functiona?
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:org03c7b9c}
+
+\begin{itemize}
+\item O analisador utiliza:
+\begin{itemize}
+\item Sequência de tokens de entrada.
+\item Pilha.
+\end{itemize}
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:org740311a}
+
+\begin{itemize}
+\item O analisador pode utilizar 4 tipos de ação:
+\begin{itemize}
+\item shift: mover itens da entrada para a pilha
+\item reduce: escolher regra \(A \to \beta\)
+\begin{itemize}
+\item remover \(\beta\) do topo da pilha
+\item empilhar \(A\).
+\end{itemize}
+\item aceitar e falhar.
+\end{itemize}
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:org0d95eb5}
+
+\begin{itemize}
+\item Idealmente, o analisador deve reduzir uma palavra de entrada até o símbolo de partida da gramática.
+
+\item Vamos mostrar o funcionamento, usando um exemplo.
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:orgc101255}
+
+\begin{itemize}
+\item Exemplo:
+\begin{itemize}
+\item entrada: id * id\$
+\item pilha: \$
+\end{itemize}
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:org2975fdf}
+
+\begin{itemize}
+\item Ação: shift id para a pilha.
+
+\item Exemplo:
+\begin{itemize}
+\item entrada: * id\$
+\item pilha: \$ id
+\end{itemize}
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:orgbdba4d5}
+
+\begin{itemize}
+\item Ação: reduzir id usando \(E \to id\).
+
+\item Exemplo:
+\begin{itemize}
+\item entrada: * id\$
+\item pilha: \$ E
+\end{itemize}
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:org5e36856}
+
+\begin{itemize}
+\item Ação: shift * para a pilha.
+
+\item Exemplo:
+\begin{itemize}
+\item entrada: id\$
+\item pilha: \$ E *
+\end{itemize}
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:org21469ad}
+
+\begin{itemize}
+\item Ação: shift id para a pilha.
+
+\item Exemplo:
+\begin{itemize}
+\item entrada: \$
+\item pilha: \$ E * id
+\end{itemize}
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:org74d4882}
+
+\begin{itemize}
+\item Ação: reduce id usando \(E\to id\).
+
+\item Exemplo:
+\begin{itemize}
+\item entrada: \$
+\item pilha: \$ E * E
+\end{itemize}
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:org81807ca}
+
+\begin{itemize}
+\item Ação: reduce E * E usando \(E\to E * E\).
+
+\item Exemplo:
+\begin{itemize}
+\item entrada: \$
+\item pilha: \$ E
+\end{itemize}
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:orgfd27892}
+
+\begin{itemize}
+\item Tendo a entrada sido consumida e a pilha é formada apenas pelo símbolo de partida e o marcador de final de pilha,
+temos que a palavra é aceita.
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:org077efeb}
+
+\begin{itemize}
+\item Observe que o analisador produz uma derivação mais a direita \textbf{invertida}
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:org425ea64}
+
+\begin{itemize}
+\item Porém, como determinar qual ação deve ser executada?
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:org8695d98}
+
+\begin{itemize}
+\item Analisadores ascendentes usam um AFD sobre a pilha para
+determinar qual ação executar.
+
+\item AFD representado por uma tabela que armazena quais ações
+devem ser executadas pelo analisador.
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:org1f138e5}
+
+\begin{itemize}
+\item Diferentes técnicas de análise ascendente usam diferentes
+estratégias para construção das tabelas.
+
+\item Nesta aula, veremos o analisador LR(0)
+\end{itemize}
+\section*{Analisador LR(0)}
+\label{sec:orgd6e76bf}
+
+\subsection*{Analisador LR(0)}
+\label{sec:orgb3df8fa}
+
+\begin{itemize}
+\item Analisador sintático ascendente que usa apenas a pilha para decidir ações.
+
+\item Não aplicável em gramáticas de linguagens de programação.
+\begin{itemize}
+\item Útil para compreensão do mecanismo de construção de tabelas.
+\end{itemize}
+\end{itemize}
+\subsection*{Analisador LR(0)}
+\label{sec:orgd6f6b3e}
+
+\begin{itemize}
+\item A construção de tabelas LR(0) utiliza o conceito de \textbf{item}
+\begin{itemize}
+\item Item: regra de uma gramática contendo uma marcação em seu lado direito.
+\item Marcação representada por um ``.''
+\end{itemize}
+\end{itemize}
+\subsection*{Analisador LR(0)}
+\label{sec:orga998d9e}
+
+\begin{itemize}
+\item A ideia do algoritmo é construir um AFD sobre coleções de itens.
+
+\item Cada estado do AFD representa um conjunto de itens.
+\end{itemize}
+\subsection*{Analisador LR(0)}
+\label{sec:org42e4bc5}
+
+\begin{itemize}
+\item Como obter o conjunto de itens?
+
+\item Primeiro, precisamos modificar a gramática de entrada e calculamos o fechamento e
+transição entre conjuntos de itens.
+\end{itemize}
+\subsection*{Analisador LR(0)}
+\label{sec:org30dc8ec}
+
+\begin{itemize}
+\item Fechamento do conjunto de itens \(I\).
+\begin{itemize}
+\item \(I\subseteq closure(I)\).
+\item Se \(A \to \alpha \textbf{.}B\beta \in I\), incluir toda regra \(B \to \gamma\) em I.
+\item Repetir passo anterior enquanto possível.
+\end{itemize}
+\end{itemize}
+\subsection*{Analisador LR(0)}
+\label{sec:orgaa463cc}
+
+\begin{itemize}
+\item Outro ponto da construção do autômato LR(0) é o cálculo da função de transição.
+
+\item \(goto(I,a)\)
+\begin{itemize}
+\item \(I\): conjunto de itens.
+\item \(a \in \Sigma\).
+\end{itemize}
+\end{itemize}
+\subsection*{Analisador LR(0)}
+\label{sec:org82b1b54}
+
+\begin{itemize}
+\item Definimos \(goto(I,X)\):
+\begin{itemize}
+\item \(J \leftarrow \emptyset\)
+\item Para cada item \(A \to \alpha .X\beta \in I\)
+\begin{itemize}
+\item Adicione \(A \to \alpha X.\beta\) a \(J\).
+\end{itemize}
+\item retorne \(closure(J)\).
+\end{itemize}
+\end{itemize}
+\subsection*{Analisador LR(0)}
+\label{sec:orgf9ccaf6}
+
+\begin{itemize}
+\item Construção da tabela
+\begin{itemize}
+\item Inicialize \(T\) com \{closure(\{S' \(\to\) .S \$\})\}.
+\item Inicialize \(E\) com \(\emptyset\)
+\end{itemize}
+\end{itemize}
+\subsection*{Analisador LR(0)}
+\label{sec:org9d02f4e}
+
+\begin{itemize}
+\item Repita enquanto T e E mudarem
+\begin{itemize}
+\item para cada I \(\in\) T
+\begin{itemize}
+\item para cada A \(\to\) \(\alpha\) .X \(\beta\) \(\in\) I
+\begin{itemize}
+\item J = goto(I,X)
+\item T = T \(\cup\) \{J\}
+\item E = E \(\cup\) \{(I, X , J)\}
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\subsection*{Analisador LR(0)}
+\label{sec:orga5db731}
+
+\begin{itemize}
+\item Ilustraremos essas etapas considerando a seguinte gramática.
+\end{itemize}
+
+\begin{array}{lcl}
+  S & \to & \textbf{(}L\textbf{)}\,|\, \textbf{x}\\
+  L & \to & L\,\textbf{,}\,S\,|\,S\\
+\end{array}
+\subsection*{Analisador LR(0)}
+\label{sec:orgf13f75a}
+
+\begin{itemize}
+\item Algoritmo de análise
+
+\item Inicialize a entrada com w\$
+\item Inicialize a pilha com \$0
+\end{itemize}
+\subsection*{Analisador LR(0)}
+\label{sec:org300f9f3}
+
+\begin{itemize}
+\item repita enquanto possível
+\begin{itemize}
+\item Seja \emph{a} o 1o token da entrada
+\item Seja \emph{t} o topo da pilha.
+\item Se A[t,a] = shift n
+\begin{itemize}
+\item Empilhe n
+\item \emph{a} passa a ser o próximo token
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\subsection*{Analisador LR(0)}
+\label{sec:org1fe43a0}
+
+\begin{itemize}
+\item se A[t,a] = reduce A \(\to\) \(\gamma\)
+\begin{itemize}
+\item Desempilhe \(|\gamma|\) itens.
+\item Seja \emph{p} o topo da pilha
+\item empilhe G[t, A]
+\end{itemize}
+\end{itemize}
+\subsection*{Analisador LR(0)}
+\label{sec:org9fe6def}
+
+\begin{itemize}
+\item Se A[t, a] = accept, aceite senão erro.
+\end{itemize}
+\section*{Exercícios}
+\label{sec:orgc9b7d52}
+
+\subsection*{Exercícios}
+\label{sec:org23449fa}
+
+\begin{itemize}
+\item Apresente o conjunto de itens obtidos para a versão estendida da seguinte gramática:
+\begin{itemize}
+\item Considere como conjunto inicial o formado pela nova variável de partida.
+\end{itemize}
+\end{itemize}
+
+\begin{array}{lcl}
+E & \to & T \textbf{+} E\,|\,T\\
+T & \to & \textbf{x}\\
+\end{array}
+\end{document}

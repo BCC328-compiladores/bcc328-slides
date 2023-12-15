@@ -1,0 +1,835 @@
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\author{Construção de compiladores I}
+\date{}
+\title{Análise SLR}
+\hypersetup{
+ pdfauthor={Construção de compiladores I},
+ pdftitle={Análise SLR},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 28.2 (Org mode 9.7)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+\section*{Objetivos}
+\label{sec:org5b707d9}
+
+\subsection*{Objetivos}
+\label{sec:org5b3ef79}
+
+\begin{itemize}
+\item Apresentar o algoritmo de análise sintática SLR.
+\end{itemize}
+\section*{Introdução}
+\label{sec:org84ccf9f}
+
+\subsection*{Introdução}
+\label{sec:org00f7c7e}
+
+\begin{itemize}
+\item Nas aulas anteriores, vimos o as funções de fechamento e goto,
+utilizadas para a construção de itens LR(0), do autômato LR(0)
+e do algoritmo de análise sintática LR(0).
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:orgdc28dc4}
+
+\begin{itemize}
+\item Nesta aula, vamos conhecer outro algoritmo de análise
+ascendente: SLR
+
+\item O algoritmo SLR consiste de uma pequena modificação na construção
+de tabela usada pelo algoritmo LR(0).
+\end{itemize}
+\section*{Construção da tabela SLR}
+\label{sec:org6d13c48}
+
+\subsection*{Construção da tabela SLR}
+\label{sec:org74dfa0e}
+
+\begin{itemize}
+\item Seja \(G\) a gramática original. Estenda \(G\) com uma nova variável inicial.
+Chamaremos essa nova gramática de \(G'\).
+
+\item Calcule follow(\(A\)) para cada não terminal \(A\) de \(G'\).
+\end{itemize}
+\subsection*{Construção da tabela SLR}
+\label{sec:orgfd36233}
+
+\begin{itemize}
+\item Construção do AFD LR(0).
+
+\item Construção da tabela SLR.
+\end{itemize}
+\subsection*{Construção da tabela SLR}
+\label{sec:org5c6d1e0}
+
+\begin{itemize}
+\item Construa o conjunto \(C=\{I_1,...,I_n\}\) de itens canônicos para a
+gramática \(G'\).
+
+\item Cada item \(I_i\) produz o estado \(i\). As ações da tabela são
+determinadas como se segue.
+\end{itemize}
+\subsection*{Construção da tabela SLR}
+\label{sec:org2ead519}
+
+\begin{itemize}
+\item Se \(A \to \alpha .a\beta \in I_i\) e \(goto(I_i,a) = I_j\), marque a
+entrada A[i,a] = shift j.
+\end{itemize}
+\subsection*{Construção da tabela SLR}
+\label{sec:orged7e2a6}
+
+\begin{itemize}
+\item Se \(A \to \alpha. \in I_i\), marque A[i,a] = reduce \(A \to \alpha\),
+para todo \(a\in follow(A) - \{S'\}\).
+\end{itemize}
+\subsection*{Construção da tabela SLR}
+\label{sec:org904d778}
+
+\begin{itemize}
+\item Se \(S' \to S. \in I_i\), marque A[i,\$] = accept.
+\end{itemize}
+\subsection*{Construção da tabela SLR}
+\label{sec:org4001766}
+
+\begin{itemize}
+\item Se \(goto(I_i,a) = I_j\), marque G[i,a] = goto j.
+
+\item Qualquer entrada não marcada, são consideradas como rejeitar.
+\end{itemize}
+\section*{Exemplo}
+\label{sec:orge9045d4}
+
+\subsection*{Exemplo}
+\label{sec:org7dc4d22}
+
+\begin{itemize}
+\item Vamos considerar a gramática de exemplo:
+\end{itemize}
+
+\begin{array}{lcl}
+  S  & \to & \textbf{(}L\textbf{)}\,|\, \textbf{x}\\
+  L  & \to & L\,\textbf{,}\,S\,|\,S\\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:orgfc90e0a}
+
+\begin{itemize}
+\item Inicialmente, vamos criar uma nova variável inicial.
+\end{itemize}
+
+\begin{array}{lcl}
+  S' & \to & S\textbf{.}\\
+  S  & \to & \textbf{(}L\textbf{)}\,|\, \textbf{x}\\
+  L  & \to & L\,\textbf{,}\,S\,|\,S\\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:orgfb0c5d8}
+
+\begin{itemize}
+\item Vamos construir o AFD LR(0).
+\end{itemize}
+\subsection*{Exemplo}
+\label{sec:org2c68545}
+
+\begin{itemize}
+\item Inicializando \(C \leftarrow closure(\{S'\to \textbf{.}S\})\).
+\begin{itemize}
+\item Chamaremos esse conjunto de \(I_1\)
+\end{itemize}
+\end{itemize}
+
+\begin{array}{rll}
+\{ & S \to \textbf{.}S &, \\
+   & S \to \textbf{.(}L\textbf{)} & , \\
+   & S \to \textbf{.x} & \}\\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:org640023f}
+
+\begin{itemize}
+\item Processando \(goto(I_1,x)\):
+\begin{itemize}
+\item Criando um estado \(I_2\)
+\end{itemize}
+\end{itemize}
+
+\begin{array}{lcl}
+S & \to & \textbf{x.}\\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:org7ee9d1e}
+
+\begin{itemize}
+\item Atualizando arestas:
+\end{itemize}
+
+\begin{array}{l}
+E = \{(I_1,x,I_2)\}
+\end{array}
+\subsection*{Exemplo}
+\label{sec:orgd3c4db5}
+
+\begin{itemize}
+\item Processando \(goto(I_1,()\):
+\begin{itemize}
+\item Criando um estado \(I_3\)
+\end{itemize}
+\end{itemize}
+
+\begin{array}{lcl}
+S & \to & \textbf{(.}L\textbf{)}\\
+L & \to & \textbf{.}L\textbf{,}S\\
+L & \to & \textbf{.}S\\
+S & \to & \textbf{.(}L\textbf{)}\\
+S & \to & \textbf{.x}\\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:org0ec3477}
+
+\begin{itemize}
+\item Atualizando arestas:
+\end{itemize}
+
+\begin{array}{l}
+E = \{(I_1,x,I_2),(I_1,(,I_3)\}
+\end{array}
+\subsection*{Exemplo}
+\label{sec:org6f5c886}
+
+\begin{itemize}
+\item Processando \(goto(I_1,S)\):
+\begin{itemize}
+\item Criando um estado \(I_4\)
+\end{itemize}
+\end{itemize}
+
+\begin{array}{lcl}
+S' & \to & S.
+\end{array}
+\subsection*{Exemplo}
+\label{sec:org1b184e2}
+
+\begin{itemize}
+\item Atualizando arestas:
+\end{itemize}
+
+\begin{array}{l}
+E = \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4)\}
+\end{array}
+\subsection*{Exemplo}
+\label{sec:org483e738}
+
+\begin{itemize}
+\item Com isso, concluímos as transições sobre \(I_1\).
+\end{itemize}
+\subsection*{Exemplo}
+\label{sec:org0bc4378}
+
+\begin{itemize}
+\item Agora, vamos considerar o conjunto \(I_2\):
+\end{itemize}
+
+\begin{array}{lcl}
+S & \to & \textbf{x.}\\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:orga0ce101}
+
+\begin{itemize}
+\item Nenhuma transição pode ser construída a partir de
+\end{itemize}
+
+\begin{array}{lcl}
+S & \to & \textbf{x.}\\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:orgf7bede6}
+
+\begin{itemize}
+\item Agora, vamos considerar o conjunto \(I_3\):
+\end{itemize}
+
+\begin{array}{lcl}
+S & \to & \textbf{(.}L\textbf{)}\\
+L & \to & \textbf{.}L\textbf{,}S\\
+L & \to & \textbf{.}S\\
+S & \to & \textbf{.(}L\textbf{)}\\
+S & \to & \textbf{.x}\\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:orgc8b8242}
+
+\begin{itemize}
+\item Calculando \(goto(I_3,x)\)
+
+\item Única produção a ser considerada:
+\end{itemize}
+
+\begin{array}{lcl}
+S & \to & \textbf{.x}\\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:org32263f4}
+
+\begin{itemize}
+\item Atualizando arestas:
+\end{itemize}
+
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2) \}\\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:org41d9c66}
+
+\begin{itemize}
+\item Logo, obtemos o estado \(I_2\):
+\end{itemize}
+
+\begin{array}{lcl}
+S & \to & \textbf{x.}\\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:orgfaaf155}
+
+\begin{itemize}
+\item Calculando \(goto(I_3,()\).
+\item Produção base
+\end{itemize}
+
+\begin{array}{lcl}
+S & \to & .(L)
+\end{array}
+\subsection*{Exemplo}
+\label{sec:org165c748}
+
+\begin{itemize}
+\item Calculando o \(closure(\{S \to (.L)\}\).
+\begin{itemize}
+\item Incluindo produções \(L\)
+\end{itemize}
+\end{itemize}
+
+\begin{array}{lcl}
+S & \to & (.L)\\
+L & \to & \textbf{.}L\textbf{,}S\\
+L & \to & \textbf{.}S\\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:orga3d70a5}
+
+\begin{itemize}
+\item Calculando o \(closure(\{S \to (.L)\}\).
+\begin{itemize}
+\item Incluindo produções \(S\)
+\item Estado \(I_3\)
+\end{itemize}
+\end{itemize}
+
+\begin{array}{lcl}
+S & \to & (.L)\\
+S & \to & .x\\
+L & \to & \textbf{.}L\textbf{,}S\\
+L & \to & \textbf{.}S\\
+S & \to & \textbf{.(}L\textbf{)}\\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:org606bda0}
+
+\begin{itemize}
+\item Atualizando arestas:
+\end{itemize}
+
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3) \}\\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:org3e4df22}
+
+\begin{itemize}
+\item Calculando \(goto(I_3,L)\)
+\begin{itemize}
+\item Vamos chamar esse estado de \(I_5\)
+\end{itemize}
+\end{itemize}
+
+\begin{array}{lcl}
+S & \to & (L.)\\
+S & \to & L.,S\\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:orgd4eb9f7}
+
+\begin{itemize}
+\item Atualizando arestas:
+\end{itemize}
+
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5)\} \\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:org7281b78}
+
+\begin{itemize}
+\item Calculando \(goto(I_3,S)\):
+\begin{itemize}
+\item Chamaremos esse estado de \(I_6\)
+\end{itemize}
+\end{itemize}
+
+\begin{array}{lcl}
+L & \to & S.\\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:org997d5f4}
+
+\begin{itemize}
+\item Atualizando arestas:
+\end{itemize}
+
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6)\}
+\end{array}
+\subsection*{Exemplo}
+\label{sec:orga667934}
+
+\begin{itemize}
+\item Agora, vamos considerar o estado \(I_4\)
+\begin{itemize}
+\item Não há transições possíveis.
+\end{itemize}
+\end{itemize}
+
+\begin{array}{lcl}
+S' & \to & S.
+\end{array}
+\subsection*{Exemplo}
+\label{sec:orgfac539e}
+
+\begin{itemize}
+\item Agora, vamos considerar o estado \(I_5\)
+\end{itemize}
+
+\begin{array}{lcl}
+S & \to & (L.)\\
+S & \to & L.,S\\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:org2580d40}
+
+\begin{itemize}
+\item Calculando \(goto(I_5,))\)
+\begin{itemize}
+\item Chamaremos esse estado de \(I_7\).
+\end{itemize}
+\end{itemize}
+
+\begin{array}{lcl}
+S & \to & (L).\\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:org4e97a37}
+
+\begin{itemize}
+\item Atualizando arestas:
+\end{itemize}
+
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6),(I_5,),I_7)\}
+\end{array}
+\subsection*{Exemplo}
+\label{sec:orgcf40877}
+
+\begin{itemize}
+\item Calculando \(goto(I_5, ,)\)
+\begin{itemize}
+\item Chamaremos esse estado de \(I_8\)
+\end{itemize}
+
+\item Produção base
+\end{itemize}
+
+\begin{array}{lcl}
+S & \to & L,.S\\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:orgb3dcf7d}
+
+\begin{itemize}
+\item Calculando \(closure(\{S\to L,.S\})\):
+\begin{itemize}
+\item Chamaremos esse estado de \(I_8\)
+\end{itemize}
+\end{itemize}
+
+\begin{array}{lcl}
+S & \to & L,.S\\
+S & \to & .(L)\\
+S & \to & .x\\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:org410734b}
+
+\begin{itemize}
+\item Atualizando arestas:
+\end{itemize}
+
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6),(I_5,),I_7), (I_5,,,I_8)\}
+\end{array}
+\subsection*{Exemplo}
+\label{sec:org21a5d6c}
+
+\begin{itemize}
+\item Agora, vamos considerar o estado \(I_6\):
+\begin{itemize}
+\item Não há transições possíveis.
+\end{itemize}
+\end{itemize}
+
+\begin{array}{lcl}
+L & \to & S.\\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:org38baebb}
+
+\begin{itemize}
+\item Agora vamos considerar o estado \(I_7\):
+\begin{itemize}
+\item Não há transições possíveis.
+\end{itemize}
+\end{itemize}
+
+\begin{array}{lcl}
+S & \to & (L).\\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:org4e294a3}
+
+\begin{itemize}
+\item Agora vamos consderar o estado \(I_8\):
+\end{itemize}
+
+\begin{array}{lcl}
+S & \to & L,.S\\
+S & \to & .(L)\\
+S & \to & .x\\
+\end{array}
+\subsection*{Exemplo}
+\label{sec:orge914c41}
+
+\begin{itemize}
+\item Calculando \(goto(I_8,x)\)
+
+\item Produção base: \(S \to .x\)
+
+\item Resultado: estado \(I_2\)
+\end{itemize}
+\subsection*{Exemplo}
+\label{sec:orge1fccef}
+
+\begin{itemize}
+\item Atualizando arestas:
+\end{itemize}
+
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6),(I_5,),I_7), (I_5,,,I_8), \\
+  &   &   (I_8,x,I_2)\}
+\end{array}
+\subsection*{Exemplo}
+\label{sec:orgd0db717}
+
+\begin{itemize}
+\item Calculando \(goto(I_8,()\)
+
+\item Produção base: \(S \to (.S)\)
+
+\item Resultado: estado \(I_3\).
+\end{itemize}
+\subsection*{Exemplo}
+\label{sec:org5547ed1}
+
+\begin{itemize}
+\item Atualizando arestas:
+\end{itemize}
+
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6),(I_5,),I_7), (I_5,,,I_8), \\
+  &   &   (I_8,x,I_2),(I_8,(,I_3))\}
+\end{array}
+\subsection*{Exemplo}
+\label{sec:orgea60184}
+
+\begin{itemize}
+\item Calculando \(goto(I_8,S)\)
+\begin{itemize}
+\item Vamos chamar esse estado de \(I_9\).
+\end{itemize}
+
+\item Produção base: S \(\to\) L,S.
+\end{itemize}
+
+\begin{array}{lcl}
+S & \to & L,S.
+\end{array}
+\subsection*{Exemplo}
+\label{sec:org42f6a6a}
+
+\begin{itemize}
+\item Atualizando arestas:
+\end{itemize}
+
+\begin{array}{lcl}
+E & = & \{(I_1,x,I_2),(I_1,(,I_3),(I_1,S,I_4), \\
+  &   &   (I_3,x,I_2),(I_3,(,I_3),(I_3,L,I_5), \\
+  &   &   (I_3,S,I_6),(I_5,),I_7), (I_5,,,I_8), \\
+  &   &   (I_8,x,I_2),(I_8,(,I_3)), (I_8,S,I_9)\}
+\end{array}
+\subsection*{Exemplo}
+\label{sec:org1faa480}
+
+\begin{itemize}
+\item Agora vamos considerar o estado \(I_9\)
+\begin{itemize}
+\item Não há transições possíveis.
+\end{itemize}
+\end{itemize}
+
+\begin{array}{lcl}
+S & \to & L,S.
+\end{array}
+\subsection*{Exemplo}
+\label{sec:org61df5cf}
+
+\begin{itemize}
+\item Como não há modificações, o algoritmo termina
+
+\item Agora, temos o AFD LR(0) para a gramática.
+\end{itemize}
+\subsection*{Exemplo}
+\label{sec:org3232c4e}
+
+\begin{itemize}
+\item Desenho do AFD LR(0) para a gramática na lousa.
+\end{itemize}
+\subsection*{Exemplo}
+\label{sec:org73157a3}
+
+\begin{itemize}
+\item Construção dos conjuntos follow(A)
+\end{itemize}
+\subsection*{Exemplo}
+\label{sec:org04483eb}
+
+\begin{itemize}
+\item Primeiro calculando os conjuntos first.
+\begin{itemize}
+\item first(S') = first(S) = first((L)) \(\cup\) first(x) = \{(,x\}.
+\item first(L) = first(S) = \{(,x\}.
+\end{itemize}
+\end{itemize}
+\subsection*{Exemplo}
+\label{sec:org6e4b8c7}
+
+\begin{itemize}
+\item Calculando follow:
+\begin{itemize}
+\item follow(S') = \{\$,(, ,\}
+\item follow(S) = \{ ), ,\}
+\item follow(L) = \{ ), ,\}
+\end{itemize}
+\end{itemize}
+\subsection*{Exemplo}
+\label{sec:orgb0fd8b4}
+
+\begin{itemize}
+\item Agora vamos construir a tabela de análise.
+
+\item Primeiro, considerando o estado \(I_1\).
+\end{itemize}
+\subsection*{Exemplo}
+\label{sec:orgc463154}
+
+\begin{itemize}
+\item Produção \(S \to x\):
+\begin{itemize}
+\item Como goto(\(I_1\),x) = \(I_2\), temos que A[1,x] = shift 2.
+\end{itemize}
+\end{itemize}
+\subsection*{Exemplo}
+\label{sec:orgebe535d}
+
+\begin{itemize}
+\item Produção \(S \to (L)\):
+\begin{itemize}
+\item Como goto(\(I_1\),() = \(I_3\), temos que A[1,(] = shift 3.
+\end{itemize}
+\end{itemize}
+\subsection*{Exemplo}
+\label{sec:org4f48c18}
+
+\begin{itemize}
+\item Como goto(\(I_1\), S) = \(I_4\), temos que G[1,S] = goto 4.
+\end{itemize}
+\subsection*{Exemplo}
+\label{sec:orga00a250}
+
+\begin{itemize}
+\item Considerando o estado \(I_2\).
+
+\item Como S \(\to\) x. e follow(S) = \{), ,\}, temos que
+\begin{itemize}
+\item A[2,)] = A[2, ,] = reduce \(S \to x\).
+\end{itemize}
+\end{itemize}
+\subsection*{Exemplo}
+\label{sec:orgda56097}
+
+\begin{itemize}
+\item Considerando o estado \(I_3\).
+\begin{itemize}
+\item Como goto(\(I_3\),x) = \(I_2\), temos que A[3,x] = shift 2.
+\item Como goto(\(I_3,(\)) = \(I_3\), temos que A[3,)] = shift 3.
+\end{itemize}
+\end{itemize}
+\subsection*{Exemplo}
+\label{sec:org52592b6}
+
+\begin{itemize}
+\item Como goto(\(I_3\),L) = \(I_5\), temos que G[3,L] = goto 5.
+\item Como goto(\(I_3\),S) = \(I_6\), temos que G[3,S] = goto 6.
+\end{itemize}
+\subsection*{Exemplo}
+\label{sec:org35f1ae7}
+
+\begin{itemize}
+\item Considerando o estado \(I_4\).
+\begin{itemize}
+\item Como S' \(\to\) S., temos que A[4,\$] = accept.
+\end{itemize}
+\end{itemize}
+\subsection*{Exemplo}
+\label{sec:orge904868}
+
+\begin{itemize}
+\item Considerando o estado \(I_5\).
+\begin{itemize}
+\item Como goto(\(I_5\),)) = \(I_7\), temos que A[5,)] = shift 7.
+\item Como goto(\(I_5\), ,) = \(I_8\), temos que A[5, ,] = shift 8.
+\end{itemize}
+\end{itemize}
+\subsection*{Exemplo}
+\label{sec:org28dcfb9}
+
+\begin{itemize}
+\item Considerando o estado \(I_6\).
+\begin{itemize}
+\item Como L \(\to\) S. e follow(L) = \{), ,\}, temos que:
+\begin{itemize}
+\item A[6,)] = A[6, ,] = reduce \(L \to S\).
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\subsection*{Exemplo}
+\label{sec:orgead9341}
+
+\begin{itemize}
+\item Considerando o estado \(I_7\).
+\begin{itemize}
+\item Como S \(\to\) (L) e follow(S) = \{), ,\}, temos que:
+\begin{itemize}
+\item A[7,)] = A[7, ,] = reduce \(S \to (L)\)
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\subsection*{Exemplo}
+\label{sec:org60b0c29}
+
+\begin{itemize}
+\item Considerando o estado \(I_8\).
+\begin{itemize}
+\item Como goto(\(I_8\), () = \(I_3\), temos que A[8,(] = shift 3
+\item Como goto(\(I_8\), x) = \(I_2\), temos que A[8,x] = shift 2
+\end{itemize}
+\end{itemize}
+\subsection*{Exemplo}
+\label{sec:org128be5d}
+
+\begin{itemize}
+\item Como goto(\(I_8\),S) = \(I_9\), temos que G[8,S] = goto 9.
+\end{itemize}
+\subsection*{Exemplo}
+\label{sec:org89aff83}
+
+\begin{itemize}
+\item Considerando o estado \(I_9\).
+\begin{itemize}
+\item Como L  \(\to\) L,S. e follow(L) = \{), ,\}, temos que:
+\begin{itemize}
+\item A[9,)] = A[9, ,] = reduce \(L \to L, S\).
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\subsection*{Exemplo}
+\label{sec:org9d3e0ef}
+
+\begin{itemize}
+\item Desenho da tabela na lousa.
+
+\item Uso da tabela para análise sintática de (x,x).
+\end{itemize}
+\section*{Concluindo}
+\label{sec:orgd575f9f}
+
+\subsection*{Concluindo}
+\label{sec:org746ef5d}
+
+\begin{itemize}
+\item Nesta aula apresentamos a construção de tabelas SLR.
+
+\item Próxima aula: Analisadores sintáticos LR(1).
+\end{itemize}
+\section*{Exercícios}
+\label{sec:org18eb99b}
+
+\subsection*{Exercícios}
+\label{sec:orgf1a77de}
+
+\begin{itemize}
+\item Determine se a seguinte gramática possui conflitos,
+utilizando o algoritmo de construção de tabelas SLR.
+\end{itemize}
+
+\begin{array}{lcl}
+E & \to & T \textbf{+} E\,|\,T\\
+T & \to & \textbf{x}\\
+\end{array}
+\end{document}

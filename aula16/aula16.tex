@@ -1,0 +1,474 @@
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\author{Construção de compiladores I}
+\date{}
+\title{Geradores de analisadores LALR}
+\hypersetup{
+ pdfauthor={Construção de compiladores I},
+ pdftitle={Geradores de analisadores LALR},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 28.2 (Org mode 9.7)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+\section*{Objetivos}
+\label{sec:org790d602}
+
+\subsection*{Objetivos}
+\label{sec:org755955f}
+
+\begin{itemize}
+\item Apresentar o gerador de analisadores sintáticos LALR para Haskell.
+\end{itemize}
+\section*{Introdução}
+\label{sec:org66f10e4}
+
+\subsection*{Introdução}
+\label{sec:orgd1775ba}
+
+\begin{itemize}
+\item Nas aulas anteriores, vimos alguns algoritmos LR.
+\begin{itemize}
+\item Em especial, o LALR.
+\end{itemize}
+
+\item Este algoritmo consegue realizar o parsing de construções
+de linguagens de programação.
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:org100d5db}
+
+\begin{itemize}
+\item Nesta aula, veremos uma ferramenta para produzir estes analisadores automaticamente.
+
+\item Este tipo de ferramenta é disponível em praticamente todas as linguagens de programação.
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:org1ab801e}
+
+\begin{itemize}
+\item Em Haskell, o analisador que utilizaremos é o Happy, capaz de produzir analisadores LALR a partir de gramáticas.
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:orged6b48a}
+
+\begin{itemize}
+\item Apresentaremos a linguagem do Happy, utilizando uma pequena linguagem de expressões.
+\end{itemize}
+\section*{Especificações Happy}
+\label{sec:orgb5852b4}
+
+\subsection*{Especificações Happy}
+\label{sec:orgc766b4e}
+
+\begin{itemize}
+\item Especificações são formadas por:
+\begin{itemize}
+\item Trechos de código Haskell
+\item Declarações de tokens, erro e nome do parser
+\item Definição da gramática.
+\end{itemize}
+\end{itemize}
+\subsection*{Especificações Happy}
+\label{sec:orgfe4682c}
+
+\begin{itemize}
+\item Trechos de código Haskell são usados para:
+\begin{itemize}
+\item Definir funções auxiliares.
+\item Definir tipos de dados a serem usados pelo parser.
+\end{itemize}
+\end{itemize}
+\subsection*{Especificações Happy}
+\label{sec:org4751114}
+
+\begin{itemize}
+\item Declarações
+\end{itemize}
+
+\begin{verbatim}
+ expParser
+%tokentype { Token }
+%error { parseError }
+\end{verbatim}
+\subsection*{Especificações Happy}
+\label{sec:org09d2062}
+
+\begin{itemize}
+\item Definições de tokens
+\end{itemize}
+
+\begin{verbatim}
+%token
+     int  {TNumber $$}
+     var  {TVar $$}
+     '+'  {TAdd}
+     '*'  {TMul}
+     '('  {TLParen}
+     ')'  {TRParen}
+\end{verbatim}
+\subsection*{Especificações Happy}
+\label{sec:org305efda}
+
+\begin{itemize}
+\item Definição da gramática
+\end{itemize}
+
+\begin{verbatim}
+Expr   : Term '+' Expr   {Add $1 $3}
+       | Term            {$1}
+
+Term   : Factor '*' Term {Mul $1 $3}
+       | Factor          {$1}
+
+Factor : int             {Number $1}
+       | var             {Var $1}
+       | '(' Expr ')'    {$2}
+\end{verbatim}
+\subsection*{Especificações Happy}
+\label{sec:org34a5cfe}
+
+\begin{itemize}
+\item Podemos produzir um parser LALR a partir da especificação mostrada.
+\end{itemize}
+
+\begin{verbatim}
+happy Parser.y -o Parser.hs
+\end{verbatim}
+\subsection*{Especificações Happy}
+\label{sec:org975284d}
+
+\begin{itemize}
+\item Produzindo o conjunto de itens
+\begin{itemize}
+\item Produzindo arquivo Parser.info
+\end{itemize}
+\end{itemize}
+
+\begin{verbatim}
+happy -i Parser.y
+\end{verbatim}
+\subsection*{Especificações Happy}
+\label{sec:org3ee4795}
+
+\begin{itemize}
+\item Exemplo de gramática com conflitos de shift/reduce
+
+\item Solucionando o conflito com predências.
+\end{itemize}
+\section*{Mônadas}
+\label{sec:orgdd561a7}
+
+\subsection*{Mônadas}
+\label{sec:orgee0464f}
+
+\begin{itemize}
+\item Para construir parsers com suporte
+\begin{itemize}
+\item Manter contagem da linha atual.
+\item Melhor diagnóstico de erros.
+\end{itemize}
+\item Precisamos de mônadas
+\end{itemize}
+\subsection*{Mônadas}
+\label{sec:orgd7875d9}
+
+\begin{itemize}
+\item Tanto o Happy quanto o Alex possuem suporte a mônadas para lidar com estado (número de linhas e colunas).
+
+\item Vamos iniciar com mudanças na especificação Alex.
+\end{itemize}
+\subsection*{Mônadas}
+\label{sec:org2bf99a6}
+
+\begin{itemize}
+\item Inserimos suporte a mônadas em especificações Alex usando o wrapper monadUserState
+
+\item Com isso, ações para produzir tokens passam a ter o tipo
+\begin{itemize}
+\item Tipo Alex: mônada usada pelo analisador léxico.
+\end{itemize}
+\end{itemize}
+
+\begin{verbatim}
+type Action a = AlexInput -> Int -> Alex a
+\end{verbatim}
+\subsection*{Mônadas}
+\label{sec:org5153a9b}
+
+\begin{itemize}
+\item Tipo AlexInput
+\end{itemize}
+
+\begin{verbatim}
+type AlexInput =
+  ( AlexPosn      -- current position,
+  , Char          -- previous char
+  , [Byte]        -- rest of the bytes for the current char
+  , String        -- current input string
+  )
+\end{verbatim}
+\subsection*{Mônadas}
+\label{sec:org5ddc3a2}
+
+\begin{itemize}
+\item Tipo AlexPosn
+\end{itemize}
+
+\begin{verbatim}
+data AlexPosn = AlexPn
+  !Int            -- absolute character offset
+  !Int            -- line number
+  !Int            -- column number
+\end{verbatim}
+\subsection*{Mônadas}
+\label{sec:org7ec5941}
+
+\begin{itemize}
+\item Produzindo tokens
+\end{itemize}
+
+\begin{verbatim}
+tokenInteger :: Action RangedToken
+tokenInteger inp@(_, _, _, str) len
+  = pure RangedToken {
+           token_ = TNumber $ read $ take len str
+         , range_ = mkRange inp len
+         }
+\end{verbatim}
+\subsection*{Mônadas}
+\label{sec:org6c29206}
+
+\begin{itemize}
+\item Tipo RangedToken
+\end{itemize}
+
+\begin{verbatim}
+data Range
+  = Range {
+      start_ :: AlexPosn
+    , stop_  :: AlexPosn
+    }
+data RangedToken
+  = RangedToken {
+      token_ :: Token
+    , range_ :: Range
+    } deriving (Eq, Show)
+\end{verbatim}
+\subsection*{Mônadas}
+\label{sec:orgef797c6}
+
+\begin{itemize}
+\item Com isso, resolvemos o problema de produzir informações de posições fazendo com que o analisador léxico retorne RangedToken's.
+\end{itemize}
+\subsection*{Mônadas}
+\label{sec:org5de3709}
+
+\begin{itemize}
+\item Outro problema: como permitir comentários de várias linhas?
+\begin{itemize}
+\item Comentários aninhados?
+\end{itemize}
+\end{itemize}
+\subsection*{Mônadas}
+\label{sec:org0fdef86}
+
+\begin{itemize}
+\item Para lidar com isso, vamos criar um estado para armazenar o nível de comentários aninhados.
+\begin{itemize}
+\item Tipo deve possuir esse nome
+\end{itemize}
+\end{itemize}
+
+\begin{verbatim}
+data AlexUserState
+  = AlexUserState {
+      level :: Int
+    }
+\end{verbatim}
+\subsection*{Mônadas}
+\label{sec:org12a5611}
+
+\begin{itemize}
+\item Funções da mônada
+\end{itemize}
+
+\begin{verbatim}
+get :: Alex AlexUserState
+get = Alex $ \s -> Right (s, alex_ust s)
+
+put :: AlexUserState -> Alex ()
+put s' = Alex $ \s -> Right (s{alex_ust = s'}, ())
+
+modify :: (AlexUserState -> AlexUserState) -> Alex ()
+modify f = Alex $ \s -> Right (s{alex_ust = f (alex_ust s)}, ())
+\end{verbatim}
+\subsection*{Mônadas}
+\label{sec:org80bf425}
+
+\begin{itemize}
+\item Funções para lidar com aninhamento
+\end{itemize}
+
+\begin{verbatim}
+nestComment :: Action RangedToken
+nestComment input len = do
+  modify $ \s -> s{level = level s + 1}
+  skip input len
+\end{verbatim}
+\subsection*{Mônadas}
+\label{sec:org3f80a4f}
+
+\begin{itemize}
+\item Funções para lidar com aninhamento
+\end{itemize}
+
+\begin{verbatim}
+unnestComment :: Action RangedToken
+unnestComment input len = do
+  state <- get
+  let level' = level state - 1
+  put state{level = level'}
+  when (level' == 0) $
+    alexSetStartCode 0
+  skip input len
+\end{verbatim}
+\subsection*{Mônadas}
+\label{sec:orgd49914c}
+
+\begin{itemize}
+\item Definição do estado inicial
+\end{itemize}
+
+\begin{verbatim}
+alexInitUserState :: AlexUserState
+alexInitUserState = AlexUserState 0
+\end{verbatim}
+\subsection*{Mônadas}
+\label{sec:orgf992621}
+
+\begin{itemize}
+\item Definição de tokens com marcações de estados
+\end{itemize}
+
+\begin{verbatim}
+tokens :-
+<0>  $white+                 ; -- removing whitespace
+<0>  @number                 { tokenInteger }
+<0>  @identifier             { tokenId }
+<0>  \+                      { simpleToken TAdd }
+...
+<0>  "{-"                    { nestComment `andBegin` comment }
+<0>  "-}"                    { \ _ _ -> alexError "Error: unexpected close comment!" }
+\end{verbatim}
+\subsection*{Mônadas}
+\label{sec:org4681a10}
+
+\begin{itemize}
+\item Definição de tokens com marcações de estados
+\end{itemize}
+
+\begin{verbatim}
+<comment> "{-"               { nestComment }
+<comment> "-}"               { unnestComment }
+<comment> .                  ;
+<comment> \n                 ;
+\end{verbatim}
+\subsection*{Mônadas}
+\label{sec:orgb3869bd}
+
+\begin{itemize}
+\item Mudanças na especificação Happy.
+\end{itemize}
+\subsection*{Mônadas}
+\label{sec:org52b22d0}
+
+\begin{itemize}
+\item Definição de uma mônada
+\end{itemize}
+
+\begin{verbatim}
+%monad { Alex }{ >>= }{ pure }
+%lexer { lexer }{ RangedToken EOF _ }
+\end{verbatim}
+\subsection*{Mônadas}
+\label{sec:org4787bf9}
+
+\begin{itemize}
+\item Especificação dos tokens
+\end{itemize}
+
+\begin{verbatim}
+%token
+     int  {RangedToken (TNumber _) _}
+     var  {RangedToken (TVar _) _}
+     '+'  {RangedToken TAdd _}
+     '*'  {RangedToken TMul _}
+     '('  {RangedToken TLParen _}
+     ')'  {RangedToken TRParen _}
+\end{verbatim}
+\subsection*{Mônadas}
+\label{sec:org910f8ee}
+
+\begin{itemize}
+\item Combinando posições de linha
+\end{itemize}
+
+\begin{verbatim}
+(<->) :: Range -> Range -> Range
+(Range a1 _) <-> (Range _ b2) = Range a1 b2
+\end{verbatim}
+\subsection*{Mônadas}
+\label{sec:orgecf5846}
+
+\begin{itemize}
+\item Especificação da gramática
+\end{itemize}
+
+\begin{verbatim}
+Expr   : Expr '+' Expr   {Add ((info $1) <-> (info $3)) $1 $3}
+Expr   : Expr '*' Expr   {Mul ((info $1) <-> (info $3)) $1 $3}
+       | int             {Number (info $1) (unNumber $1)}
+       | var             {Var (info $1) (unId $1)}
+       | '(' Expr ')'    {$2}
+\end{verbatim}
+\section*{Concluindo}
+\label{sec:org44fb423}
+
+\subsection*{Concluindo}
+\label{sec:orgb761d23}
+
+\begin{itemize}
+\item Nesta aula apresentamos o gerador de analisadores sintáticos Happy.
+
+\item Mostramos como adicionar suporte a marcação de linhas / colunas.
+\end{itemize}
+\subsection*{Concluindo}
+\label{sec:orgc700c66}
+
+\begin{itemize}
+\item Próximas aulas: Semântica formal e interpretadores.
+\end{itemize}
+\section*{Exercícios}
+\label{sec:org4c523cc}
+
+\subsection*{Exercícios}
+\label{sec:orgc157b51}
+
+\begin{itemize}
+\item Utilizando o gerador de analisadores sintáticos Happy, construa um analisador sintático para sintaxe de fórmulas da lógica proposicional.
+\end{itemize}
+\end{document}

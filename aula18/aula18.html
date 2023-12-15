@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Semântica de IMP</title>
+<meta name="author" content="Construção de compiladores I"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/reveal.css"/>
+
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/theme/white.css" id="theme"/>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1 class="title">Semântica de IMP</h1><h2 class="author">Construção de compiladores I</h2>
+</section>
+<section>
+<section id="slide-orga299e8b">
+<h2 id="orga299e8b">Objetivos</h2>
+<div class="outline-text-2" id="text-orga299e8b">
+</div>
+</section>
+<section id="slide-org455a515">
+<h3 id="org455a515">Objetivos</h3>
+<ul>
+<li>Apresentar a semântica operacional para a linguagem IMP.</li>
+
+<li>Implementar um interpretador de IMP.</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org076f8e4">
+<h2 id="org076f8e4">Introdução</h2>
+<div class="outline-text-2" id="text-org076f8e4">
+</div>
+</section>
+<section id="slide-orgcb29ac7">
+<h3 id="orgcb29ac7">Introdução</h3>
+<ul>
+<li>Na última aula, apresentamos uma semântica operacional para uma linguagem de expressões.</li>
+
+<li>Implementamos um interpretador a partir da semântica desta linguagem.</li>
+
+</ul>
+</section>
+<section id="slide-org7b43ff2">
+<h3 id="org7b43ff2">Introdução</h3>
+<ul>
+<li>Porém, o que vimos não é suficiente para lidar com linguagens imperativas.</li>
+
+<li>Como lidar com a manipulação de variáveis?</li>
+
+</ul>
+</section>
+<section id="slide-orgb5f0422">
+<h3 id="orgb5f0422">Introdução</h3>
+<ul>
+<li>Para lidar com variáveis, vamos adicionar uma abstração para representar a memória.</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org38c5dc1">
+<h2 id="org38c5dc1">Sintaxe de Imp</h2>
+<div class="outline-text-2" id="text-org38c5dc1">
+</div>
+</section>
+<section id="slide-orge732c85">
+<h3 id="orge732c85">Sintaxe de Imp</h3>
+<ul>
+<li>Recapitulando: Sintaxe de Imp</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+Program   & \to  & Stmts\\
+Stmts     & \to & Statement\:\:Stmts\,\mid\,\lambda\\
+\end{array}
+
+</div>
+</section>
+<section id="slide-org16b0d28">
+<h3 id="org16b0d28">Sintaxe de Imp</h3>
+<ul>
+<li>Recapitulando: Sintaxe de Imp</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+Statement & \to  & \mathtt{skip ;}\:\:\mid\:\:Type\:\:\mathrm{id}\:\:Init \mathrm{;} \\
+          & \mid & \mathrm{id}\:\:\mathtt{:=}\:\:Expr\mathrm{;}\\
+          & \mid & \mathtt{read}\:\:\mathrm{id ;}\:\:\mid\:\:\mathtt{print}\:\:Expr \mathrm{;}\\
+          & \mid & \mathtt{if}\:\:Expr\:\:\mathtt{then}\:\:Block\\
+          & \mid & \mathtt{if}\:\:Expr\:\:\mathtt{then}\:\:Block\:\:\mathrm{else}\:\:Block\\
+          & \mid & \mathtt{while}\:\:Expr\:\:Block
+\end{array}
+
+</div>
+</section>
+<section id="slide-orgbb6eddd">
+<h3 id="orgbb6eddd">Sintaxe de Imp</h3>
+<ul>
+<li>Recapitulando: Sintaxe de Imp</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+Expr & \to  & Expr\:\:Op\:\:Expr\\
+     & \mid & \mathrm{-}\:\: Expr\:\mid\:\mathrm{(} Expr \mathrm{)}\\
+     & \mid & \mathrm{!}\:\: Expr\\
+     & \mid & \mathrm{number}\,\mid\, \mathrm{id}\\
+     & \mid & \mathrm{true}\,\mid\,\mathrm{false}\\
+\end{array}
+
+</div>
+</section>
+<section id="slide-org5ece1f3">
+<h3 id="org5ece1f3">Sintaxe de Imp</h3>
+<ul>
+<li>Recapitulando: Sintaxe de Imp</li>
+
+</ul>
+
+<div>
+\begin{array}{lcl}
+Op   & \to  & \mathrm{+}\:\mid\:\mathrm{-}\:\mid\:\mathrm{*}\:\mid\:\mathrm{/}\\
+     & \mid & \mathrm{\&\&}\:\mid\:\mathrm{<}\:\mid\:\mathrm{==}\\
+Type & \to  & \mathrm{int}\,\mid\,\mathrm{bool}\\
+Block & \to & \mathrm{\{} Statement^* \mathrm{\}}\\
+Init & \to & \mathrm{:=}\:\:Expr\,\mid\,\lambda\\
+\end{array}
+
+</div>
+</section>
+<section id="slide-org82d35e5">
+<h3 id="org82d35e5">Sintaxe de Imp</h3>
+<ul>
+<li>Representação da AST</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #1c86ee;">newtype</span> <span style="color: #00688b;">Var</span> a <span style="color: #2e8b57;">=</span> <span style="color: #00688b;">Var</span> { unVar <span style="color: #2e8b57;">::</span> a }
+
+<span style="color: #1c86ee;">data</span> <span style="color: #00688b;">Value</span>
+  <span style="color: #2e8b57;">=</span> <span style="color: #00688b;">EInt</span> <span style="color: #00688b;">Int</span>
+  <span style="color: #2e8b57;">|</span> <span style="color: #00688b;">EBool</span> <span style="color: #00688b;">Bool</span>
+</pre>
+</div>
+</section>
+<section id="slide-org76bc091">
+<h3 id="org76bc091">Sintaxe de Imp</h3>
+<ul>
+<li>Representação da AST</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #1c86ee;">data</span> <span style="color: #00688b;">Exp</span> a
+  <span style="color: #2e8b57;">=</span> <span style="color: #00688b;">EValue</span> <span style="color: #00688b;">Value</span>
+  <span style="color: #2e8b57;">|</span> <span style="color: #00688b;">EVar</span> (<span style="color: #00688b;">Var</span> a)
+  <span style="color: #2e8b57;">|</span> (<span style="color: #00688b;">Exp</span> a) <span style="color: #00688b;">:+:</span> (<span style="color: #00688b;">Exp</span> a)
+  <span style="color: #2e8b57;">|</span> (<span style="color: #00688b;">Exp</span> a) <span style="color: #00688b;">:*:</span> (<span style="color: #00688b;">Exp</span> a)
+  <span style="color: #2e8b57;">|</span> (<span style="color: #00688b;">Exp</span> a) <span style="color: #00688b;">:-:</span> (<span style="color: #00688b;">Exp</span> a)
+  <span style="color: #2e8b57;">|</span> (<span style="color: #00688b;">Exp</span> a) <span style="color: #00688b;">:/:</span> (<span style="color: #00688b;">Exp</span> a)
+  <span style="color: #2e8b57;">|</span> (<span style="color: #00688b;">Exp</span> a) <span style="color: #00688b;">:==:</span> (<span style="color: #00688b;">Exp</span> a)
+  <span style="color: #2e8b57;">|</span> (<span style="color: #00688b;">Exp</span> a) <span style="color: #00688b;">:&lt;:</span> (<span style="color: #00688b;">Exp</span> a)
+  <span style="color: #2e8b57;">|</span> <span style="color: #00688b;">ENot</span> (<span style="color: #00688b;">Exp</span> a)
+  <span style="color: #2e8b57;">|</span> (<span style="color: #00688b;">Exp</span> a) <span style="color: #00688b;">:&amp;:</span> (<span style="color: #00688b;">Exp</span> a)
+</pre>
+</div>
+</section>
+<section id="slide-org1957e11">
+<h3 id="org1957e11">Sintaxe de Imp</h3>
+<ul>
+<li>Representação da AST</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #1c86ee;">data</span> <span style="color: #00688b;">Stmt</span> a
+  <span style="color: #2e8b57;">=</span> <span style="color: #00688b;">Skip</span>
+  <span style="color: #2e8b57;">|</span> <span style="color: #00688b;">Def</span> <span style="color: #00688b;">Ty</span> (<span style="color: #00688b;">Var</span> a) (<span style="color: #00688b;">Maybe</span> (<span style="color: #00688b;">Exp</span> a))
+  <span style="color: #2e8b57;">|</span> (<span style="color: #00688b;">Var</span> a) <span style="color: #00688b;">:=</span> (<span style="color: #00688b;">Exp</span> a)
+  <span style="color: #2e8b57;">|</span> <span style="color: #00688b;">If</span> (<span style="color: #00688b;">Exp</span> a) (<span style="color: #00688b;">Block</span> a) (<span style="color: #00688b;">Block</span> a)
+  <span style="color: #2e8b57;">|</span> <span style="color: #00688b;">Print</span> (<span style="color: #00688b;">Exp</span> a)
+  <span style="color: #2e8b57;">|</span> <span style="color: #00688b;">SRead</span> (<span style="color: #00688b;">Var</span> a)
+  <span style="color: #2e8b57;">|</span> <span style="color: #00688b;">While</span> (<span style="color: #00688b;">Exp</span> a) (<span style="color: #00688b;">Block</span> a)
+</pre>
+</div>
+</section>
+<section id="slide-org6a35690">
+<h3 id="org6a35690">Sintaxe de Imp</h3>
+<ul>
+<li>Representação da AST</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #1c86ee;">type</span> <span style="color: #00688b;">Program</span> a <span style="color: #2e8b57;">=</span> <span style="color: #00688b;">Block</span> a
+
+<span style="color: #1c86ee;">newtype</span> <span style="color: #00688b;">Block</span> a
+  <span style="color: #2e8b57;">=</span> <span style="color: #00688b;">Block</span> { unBlock <span style="color: #2e8b57;">::</span> [<span style="color: #00688b;">Stmt</span> a] }
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orge5f8079">
+<h2 id="orge5f8079">Semântica de Imp</h2>
+<div class="outline-text-2" id="text-orge5f8079">
+</div>
+</section>
+<section id="slide-org884e49e">
+<h3 id="org884e49e">Semântica de Imp</h3>
+<ul>
+<li>Principal diferença: inclusão de <b>estado</b>
+<ul>
+<li>Variáveis.</li>
+
+</ul></li>
+
+<li>Representamos o estado usando uma <b>função finita</b>.
+<ul>
+<li>Tabela de variáveis para valores.</li>
+
+</ul></li>
+
+</ul>
+</section>
+<section id="slide-org453ee9a">
+<h3 id="org453ee9a">Semântica de Imp</h3>
+<ul>
+<li>Representaremos o estado por &sigma;.</li>
+
+<li>&sigma;(x): obter o valor de \(x\) em &sigma;.</li>
+
+</ul>
+</section>
+<section id="slide-org5810db6">
+<h3 id="org5810db6">Semântica de Imp</h3>
+<ul>
+<li>&sigma; [x \(\mapsto\) v]: incluir o valor v para a variável x.
+<ul>
+<li>Sobreescreve valores anteriores de x</li>
+<li>Insere, caso x não esteja presente no domínio de &sigma;.</li>
+
+</ul></li>
+
+</ul>
+</section>
+<section id="slide-org33167ef">
+<h3 id="org33167ef">Semântica de Imp</h3>
+<ul>
+<li>Semântica big-step</li>
+
+</ul>
+
+
+<div id="org63f37d3" class="figure">
+<p><img src="./imgs/image1.png" alt="image1.png" />
+</p>
+</div>
+</section>
+<section id="slide-orgbc72572">
+<h3 id="orgbc72572">Semântica de Imp</h3>
+<ul>
+<li>Semântica big-step</li>
+
+</ul>
+
+
+<div id="org9361d3e" class="figure">
+<p><img src="./imgs/image2.png" alt="image2.png" />
+</p>
+</div>
+</section>
+<section id="slide-orgf60107b">
+<h3 id="orgf60107b">Semântica de Imp</h3>
+<ul>
+<li>Definição de uma mônada</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #1c86ee;">type</span> <span style="color: #00688b;">Env</span> <span style="color: #2e8b57;">=</span> <span style="color: #00688b;">Map</span> (<span style="color: #00688b;">Var</span> <span style="color: #00688b;">String</span>) <span style="color: #00688b;">Value</span>
+
+<span style="color: #1c86ee;">type</span> <span style="color: #00688b;">ExecM</span> a <span style="color: #2e8b57;">=</span> <span style="color: #00688b;">ExceptT</span> <span style="color: #00688b;">String</span> (<span style="color: #00688b;">StateT</span> <span style="color: #00688b;">Env</span> <span style="color: #00688b;">IO</span>) a
+</pre>
+</div>
+</section>
+<section id="slide-org2b1beef">
+<h3 id="org2b1beef">Semântica de Imp</h3>
+<ul>
+<li>Operações sobre a mônada</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #cd9b1d;">insertEnv</span> <span style="color: #2e8b57;">::</span> <span style="color: #00688b;">Var</span> <span style="color: #00688b;">String</span> <span style="color: #2e8b57;">-&gt;</span> <span style="color: #00688b;">Value</span> <span style="color: #2e8b57;">-&gt;</span> <span style="color: #00688b;">ExecM</span> <span style="color: #00688b;">()</span>
+<span style="color: #cd9b1d;">insertEnv</span> v val <span style="color: #2e8b57;">=</span> modify (insert v val)
+
+<span style="color: #cd9b1d;">removeEnv</span> <span style="color: #2e8b57;">::</span> [<span style="color: #00688b;">Var</span> <span style="color: #00688b;">String</span>] <span style="color: #2e8b57;">-&gt;</span> <span style="color: #00688b;">ExecM</span> <span style="color: #00688b;">()</span>
+<span style="color: #cd9b1d;">removeEnv</span> vs <span style="color: #2e8b57;">=</span> modify (<span style="color: #2e8b57;">\</span> env <span style="color: #2e8b57;">-&gt;</span> foldr delete env vs)
+</pre>
+</div>
+</section>
+<section id="slide-org5ca732a">
+<h3 id="org5ca732a">Semântica de Imp</h3>
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #cd9b1d;">lookupEnv</span> <span style="color: #2e8b57;">::</span> <span style="color: #00688b;">Var</span> <span style="color: #00688b;">String</span> <span style="color: #2e8b57;">-&gt;</span> <span style="color: #00688b;">ExecM</span> <span style="color: #00688b;">Value</span>
+<span style="color: #cd9b1d;">lookupEnv</span> v
+  <span style="color: #2e8b57;">=</span> <span style="color: #1c86ee;">do</span>
+       val <span style="color: #2e8b57;">&lt;-</span> gets (lookup v)
+       <span style="color: #1c86ee;">case</span> val <span style="color: #1c86ee;">of</span>
+         <span style="color: #00688b;">Nothing</span> <span style="color: #2e8b57;">-&gt;</span> throwError <span style="color: #2e8b57;">$</span> <span style="color: #8b7355;">"Variable undefined:"</span> <span style="color: #2e8b57;">++</span> (unVar v)
+         <span style="color: #00688b;">Just</span> val' <span style="color: #2e8b57;">-&gt;</span> return val'
+</pre>
+</div>
+</section>
+<section id="slide-orgb456100">
+<h3 id="orgb456100">Semântica de Imp</h3>
+<ul>
+<li>Definição de duas funções.
+<ul>
+<li>Semântica de expressões</li>
+<li>Semântica de comandos.</li>
+
+</ul></li>
+
+</ul>
+</section>
+<section id="slide-orga2cf593">
+<h3 id="orga2cf593">Semântica de Imp</h3>
+<ul>
+<li>Semântica de expressões
+<ul>
+<li>Valores</li>
+
+</ul></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #cd9b1d;">semanticsExpr</span> <span style="color: #2e8b57;">::</span> <span style="color: #00688b;">Exp</span> <span style="color: #00688b;">String</span> <span style="color: #2e8b57;">-&gt;</span> <span style="color: #00688b;">ExecM</span> <span style="color: #00688b;">Value</span>
+<span style="color: #cd9b1d;">semanticsExpr</span> (<span style="color: #00688b;">EValue</span> v) <span style="color: #2e8b57;">=</span> return v
+</pre>
+</div>
+</section>
+<section id="slide-org1a573b5">
+<h3 id="org1a573b5">Semântica de Imp</h3>
+<ul>
+<li>Semântica de expressões
+<ul>
+<li>Variáveis</li>
+
+</ul></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #cd9b1d;">semanticsExpr</span> (<span style="color: #00688b;">EVar</span> v) <span style="color: #2e8b57;">=</span> lookupEnv v
+</pre>
+</div>
+</section>
+<section id="slide-orgf49083e">
+<h3 id="orgf49083e">Semântica de Imp</h3>
+<ul>
+<li>Semântica de expressões
+<ul>
+<li>Operadores</li>
+
+</ul></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell">(<span style="color: #cd9b1d;">.+.</span>) <span style="color: #2e8b57;">::</span> <span style="color: #00688b;">Value</span> <span style="color: #2e8b57;">-&gt;</span> <span style="color: #00688b;">Value</span> <span style="color: #2e8b57;">-&gt;</span> <span style="color: #00688b;">Value</span>
+(<span style="color: #00688b;">EInt</span> n) <span style="color: #2e8b57;">.+.</span> (<span style="color: #00688b;">EInt</span> m) <span style="color: #2e8b57;">=</span> <span style="color: #00688b;">EInt</span> (n <span style="color: #2e8b57;">+</span> m)
+<span style="color: #1c86ee;">_</span> <span style="color: #cd9b1d;">.+.</span> <span style="color: #1c86ee;">_</span> <span style="color: #2e8b57;">=</span> error <span style="color: #8b7355;">"Impossible! Type Error"</span>
+
+<span style="color: #cd9b1d;">semanticsExpr</span> (e1 <span style="color: #00688b;">:+:</span> e2)
+  <span style="color: #2e8b57;">=</span> <span style="color: #1c86ee;">do</span>
+       v1 <span style="color: #2e8b57;">&lt;-</span> semanticsExpr e1
+       v2 <span style="color: #2e8b57;">&lt;-</span> semanticsExpr e2
+       return <span style="color: #2e8b57;">$</span> v1 <span style="color: #2e8b57;">.+.</span> v2
+</pre>
+</div>
+</section>
+<section id="slide-org52fe15f">
+<h3 id="org52fe15f">Semântica de Imp</h3>
+<ul>
+<li>Semântica de comandos</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #cd9b1d;">semanticsStmt</span> <span style="color: #2e8b57;">::</span> <span style="color: #00688b;">Stmt</span> <span style="color: #00688b;">String</span> <span style="color: #2e8b57;">-&gt;</span> <span style="color: #00688b;">ExecM</span> [<span style="color: #00688b;">Var</span> <span style="color: #00688b;">String</span>]
+<span style="color: #cd9b1d;">semanticsStmt</span> <span style="color: #00688b;">Skip</span> <span style="color: #2e8b57;">=</span> return <span style="color: #00688b;">[]</span>
+<span style="color: #cd9b1d;">semanticsStmt</span> (<span style="color: #00688b;">Def</span> ty v e)
+  <span style="color: #2e8b57;">=</span> <span style="color: #1c86ee;">do</span>
+      val <span style="color: #2e8b57;">&lt;-</span> maybe (return <span style="color: #2e8b57;">$</span> defaultValue ty) semanticsExpr e
+      insertEnv v val
+      return [v]
+</pre>
+</div>
+</section>
+<section id="slide-org67a77b0">
+<h3 id="org67a77b0">Semântica de Imp</h3>
+<ul>
+<li>Semântica de comandos</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #cd9b1d;">semanticsStmt</span> (v <span style="color: #00688b;">:=</span> e)
+  <span style="color: #2e8b57;">=</span> <span style="color: #1c86ee;">do</span>
+      val <span style="color: #2e8b57;">&lt;-</span> semanticsExpr e
+      insertEnv v val
+      return <span style="color: #00688b;">[]</span>
+<span style="color: #cd9b1d;">semanticsStmt</span> (<span style="color: #00688b;">If</span> e blk1 blk2)
+  <span style="color: #2e8b57;">=</span> <span style="color: #1c86ee;">do</span>
+      val <span style="color: #2e8b57;">&lt;-</span> semanticsExpr e
+      <span style="color: #1c86ee;">if</span> val <span style="color: #2e8b57;">==</span> <span style="color: #00688b;">EBool</span> <span style="color: #00688b;">True</span> <span style="color: #1c86ee;">then</span> semanticsBlock blk1
+        <span style="color: #1c86ee;">else</span> semanticsBlock blk2
+      return <span style="color: #00688b;">[]</span>
+</pre>
+</div>
+</section>
+<section id="slide-org688391e">
+<h3 id="org688391e">Semântica de Imp</h3>
+<ul>
+<li>Semântica de comandos</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #cd9b1d;">semanticsStmt</span> (<span style="color: #00688b;">Print</span> e)
+  <span style="color: #2e8b57;">=</span> <span style="color: #1c86ee;">do</span>
+      val <span style="color: #2e8b57;">&lt;-</span> semanticsExpr e
+      liftIO (putStr (render (pprint val)))
+      return <span style="color: #00688b;">[]</span>
+<span style="color: #cd9b1d;">semanticsStmt</span> (<span style="color: #00688b;">SRead</span> v)
+  <span style="color: #2e8b57;">=</span> <span style="color: #1c86ee;">do</span>
+       inp <span style="color: #2e8b57;">&lt;-</span> liftIO getLine
+       <span style="color: #1c86ee;">case</span> parse parserValue <span style="color: #8b7355;">""</span> inp <span style="color: #1c86ee;">of</span>
+         <span style="color: #00688b;">Left</span> <span style="color: #1c86ee;">_</span> <span style="color: #2e8b57;">-&gt;</span> throwError <span style="color: #8b7355;">"invalid input!"</span>
+         <span style="color: #00688b;">Right</span> val <span style="color: #2e8b57;">-&gt;</span> insertEnv v val <span style="color: #2e8b57;">&gt;&gt;</span> return <span style="color: #00688b;">[]</span>
+</pre>
+</div>
+</section>
+<section id="slide-org07c0fb9">
+<h3 id="org07c0fb9">Semântica de Imp</h3>
+<ul>
+<li>Semântica de comandos</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #cd9b1d;">semanticsStmt</span> (<span style="color: #00688b;">While</span> e blk)
+  <span style="color: #2e8b57;">=</span> <span style="color: #1c86ee;">do</span>
+      val <span style="color: #2e8b57;">&lt;-</span> semanticsExpr e
+      <span style="color: #1c86ee;">if</span> val <span style="color: #2e8b57;">==</span> <span style="color: #00688b;">EBool</span> <span style="color: #00688b;">True</span> <span style="color: #1c86ee;">then</span> <span style="color: #1c86ee;">do</span>
+        semanticsBlock blk
+        semanticsStmt (<span style="color: #00688b;">While</span> e blk)
+      <span style="color: #1c86ee;">else</span> return <span style="color: #00688b;">[]</span>
+</pre>
+</div>
+</section>
+<section id="slide-orgdcb00cd">
+<h3 id="orgdcb00cd">Semântica de Imp</h3>
+<ul>
+<li>Semântica de blocos</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #cd9b1d;">semanticsBlock</span> <span style="color: #2e8b57;">::</span> <span style="color: #00688b;">Block</span> <span style="color: #00688b;">String</span> <span style="color: #2e8b57;">-&gt;</span> <span style="color: #00688b;">ExecM</span> <span style="color: #00688b;">()</span>
+<span style="color: #cd9b1d;">semanticsBlock</span> (<span style="color: #00688b;">Block</span> blk)
+  <span style="color: #2e8b57;">=</span> <span style="color: #1c86ee;">do</span>
+      vs <span style="color: #2e8b57;">&lt;-</span> concat <span style="color: #2e8b57;">&lt;$&gt;</span> mapM semanticsStmt blk
+      removeEnv vs
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org49efef2">
+<h2 id="org49efef2">Concluindo</h2>
+<div class="outline-text-2" id="text-org49efef2">
+</div>
+</section>
+<section id="slide-org7f27619">
+<h3 id="org7f27619">Concluindo</h3>
+<ul>
+<li>Apresentamos a semântica operacional da linguagem Imp.</li>
+
+<li>Apresentamos como esta é a especificação de um interpretador desta linguagem.</li>
+
+</ul>
+</section>
+<section id="slide-orgb52f910">
+<h3 id="orgb52f910">Concluindo</h3>
+<ul>
+<li>Apresentamos a implementação do interpretador em Haskell.</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-orgf85e804">
+<h2 id="orgf85e804">Exercícios</h2>
+<div class="outline-text-2" id="text-orgf85e804">
+</div>
+</section>
+<section id="slide-orgd68a6b5">
+<h3 id="orgd68a6b5">Exercícios</h3>
+<ul>
+<li>O interpretador de Imp não provê suporte a valores de String.
+Modifique a implementação de Imp de forma a permitir Strings e
+também adicione a operação de concatenação de strings.</li>
+
+</ul>
+</section>
+</section>
+</div>
+</div>
+<script src="file:///home/rodrigo/reveal.js/dist/reveal.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/markdown/markdown.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/notes/notes.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/search/search.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/zoom/zoom.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+overview: true,
+
+transition: 'convex',
+transitionSpeed: 'default',
+
+// Plugins with reveal.js 4.x
+plugins: [ RevealMarkdown, RevealNotes, RevealSearch, RevealZoom ],
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+]
+
+});
+</script>
+</body>
+</html>

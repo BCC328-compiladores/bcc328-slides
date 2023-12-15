@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Geradores de analisadores LALR</title>
+<meta name="author" content="Construção de compiladores I"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/reveal.css"/>
+
+<link rel="stylesheet" href="file:///home/rodrigo/reveal.js/dist/theme/white.css" id="theme"/>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1 class="title">Geradores de analisadores LALR</h1><h2 class="author">Construção de compiladores I</h2>
+</section>
+<section>
+<section id="slide-orgdb86479">
+<h2 id="orgdb86479">Objetivos</h2>
+<div class="outline-text-2" id="text-orgdb86479">
+</div>
+</section>
+<section id="slide-orgdb71979">
+<h3 id="orgdb71979">Objetivos</h3>
+<ul>
+<li>Apresentar o gerador de analisadores sintáticos LALR para Haskell.</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org3b96d0c">
+<h2 id="org3b96d0c">Introdução</h2>
+<div class="outline-text-2" id="text-org3b96d0c">
+</div>
+</section>
+<section id="slide-orgc36cfcc">
+<h3 id="orgc36cfcc">Introdução</h3>
+<ul>
+<li>Nas aulas anteriores, vimos alguns algoritmos LR.
+<ul>
+<li>Em especial, o LALR.</li>
+
+</ul></li>
+
+<li>Este algoritmo consegue realizar o parsing de construções
+de linguagens de programação.</li>
+
+</ul>
+</section>
+<section id="slide-org7300dae">
+<h3 id="org7300dae">Introdução</h3>
+<ul>
+<li>Nesta aula, veremos uma ferramenta para produzir estes analisadores automaticamente.</li>
+
+<li>Este tipo de ferramenta é disponível em praticamente todas as linguagens de programação.</li>
+
+</ul>
+</section>
+<section id="slide-org1171afc">
+<h3 id="org1171afc">Introdução</h3>
+<ul>
+<li>Em Haskell, o analisador que utilizaremos é o Happy, capaz de produzir analisadores LALR a partir de gramáticas.</li>
+
+</ul>
+</section>
+<section id="slide-org6855f46">
+<h3 id="org6855f46">Introdução</h3>
+<ul>
+<li>Apresentaremos a linguagem do Happy, utilizando uma pequena linguagem de expressões.</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-orgc5e75a2">
+<h2 id="orgc5e75a2">Especificações Happy</h2>
+<div class="outline-text-2" id="text-orgc5e75a2">
+</div>
+</section>
+<section id="slide-orgbe0a2d3">
+<h3 id="orgbe0a2d3">Especificações Happy</h3>
+<ul>
+<li>Especificações são formadas por:
+<ul>
+<li>Trechos de código Haskell</li>
+<li>Declarações de tokens, erro e nome do parser</li>
+<li>Definição da gramática.</li>
+
+</ul></li>
+
+</ul>
+</section>
+<section id="slide-org5f6289e">
+<h3 id="org5f6289e">Especificações Happy</h3>
+<ul>
+<li>Trechos de código Haskell são usados para:
+<ul>
+<li>Definir funções auxiliares.</li>
+<li>Definir tipos de dados a serem usados pelo parser.</li>
+
+</ul></li>
+
+</ul>
+</section>
+<section id="slide-org0254520">
+<h3 id="org0254520">Especificações Happy</h3>
+<ul>
+<li>Declarações</li>
+
+</ul>
+
+<pre class="example">
+ expParser
+%tokentype { Token }
+%error { parseError }
+</pre>
+</section>
+<section id="slide-org0c2d123">
+<h3 id="org0c2d123">Especificações Happy</h3>
+<ul>
+<li>Definições de tokens</li>
+
+</ul>
+
+<pre class="example">
+%token
+     int  {TNumber $$}
+     var  {TVar $$}
+     '+'  {TAdd}
+     '*'  {TMul}
+     '('  {TLParen}
+     ')'  {TRParen}
+</pre>
+</section>
+<section id="slide-orgfb53d1c">
+<h3 id="orgfb53d1c">Especificações Happy</h3>
+<ul>
+<li>Definição da gramática</li>
+
+</ul>
+
+<pre class="example">
+Expr   : Term '+' Expr   {Add $1 $3}
+       | Term            {$1}
+
+Term   : Factor '*' Term {Mul $1 $3}
+       | Factor          {$1}
+
+Factor : int             {Number $1}
+       | var             {Var $1}
+       | '(' Expr ')'    {$2}
+</pre>
+</section>
+<section id="slide-org6645c23">
+<h3 id="org6645c23">Especificações Happy</h3>
+<ul>
+<li>Podemos produzir um parser LALR a partir da especificação mostrada.</li>
+
+</ul>
+
+<pre class="example">
+happy Parser.y -o Parser.hs
+</pre>
+</section>
+<section id="slide-org3b76ef6">
+<h3 id="org3b76ef6">Especificações Happy</h3>
+<ul>
+<li>Produzindo o conjunto de itens
+<ul>
+<li>Produzindo arquivo Parser.info</li>
+
+</ul></li>
+
+</ul>
+
+<pre class="example">
+happy -i Parser.y
+</pre>
+</section>
+<section id="slide-org0bc8826">
+<h3 id="org0bc8826">Especificações Happy</h3>
+<ul>
+<li>Exemplo de gramática com conflitos de shift/reduce</li>
+
+<li>Solucionando o conflito com predências.</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-orgd51b124">
+<h2 id="orgd51b124">Mônadas</h2>
+<div class="outline-text-2" id="text-orgd51b124">
+</div>
+</section>
+<section id="slide-orgc0580d9">
+<h3 id="orgc0580d9">Mônadas</h3>
+<ul>
+<li>Para construir parsers com suporte
+<ul>
+<li>Manter contagem da linha atual.</li>
+<li>Melhor diagnóstico de erros.</li>
+
+</ul></li>
+<li>Precisamos de mônadas</li>
+
+</ul>
+</section>
+<section id="slide-orgba8b7e9">
+<h3 id="orgba8b7e9">Mônadas</h3>
+<ul>
+<li>Tanto o Happy quanto o Alex possuem suporte a mônadas para lidar com estado (número de linhas e colunas).</li>
+
+<li>Vamos iniciar com mudanças na especificação Alex.</li>
+
+</ul>
+</section>
+<section id="slide-org7a1055b">
+<h3 id="org7a1055b">Mônadas</h3>
+<ul>
+<li>Inserimos suporte a mônadas em especificações Alex usando o wrapper monadUserState</li>
+
+<li>Com isso, ações para produzir tokens passam a ter o tipo
+<ul>
+<li>Tipo Alex: mônada usada pelo analisador léxico.</li>
+
+</ul></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #1c86ee;">type</span> <span style="color: #00688b;">Action</span> a <span style="color: #2e8b57;">=</span> <span style="color: #00688b;">AlexInput</span> <span style="color: #2e8b57;">-&gt;</span> <span style="color: #00688b;">Int</span> <span style="color: #2e8b57;">-&gt;</span> <span style="color: #00688b;">Alex</span> a
+</pre>
+</div>
+</section>
+<section id="slide-org697fc80">
+<h3 id="org697fc80">Mônadas</h3>
+<ul>
+<li>Tipo AlexInput</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #1c86ee;">type</span> <span style="color: #00688b;">AlexInput</span> <span style="color: #2e8b57;">=</span>
+  ( <span style="color: #00688b;">AlexPosn</span>      <span style="color: #7f7f7f;">-- </span><span style="color: #7f7f7f;">current position,</span>
+  , <span style="color: #00688b;">Char</span>          <span style="color: #7f7f7f;">-- </span><span style="color: #7f7f7f;">previous char</span>
+  , [<span style="color: #00688b;">Byte</span>]        <span style="color: #7f7f7f;">-- </span><span style="color: #7f7f7f;">rest of the bytes for the current char</span>
+  , <span style="color: #00688b;">String</span>        <span style="color: #7f7f7f;">-- </span><span style="color: #7f7f7f;">current input string</span>
+  )
+</pre>
+</div>
+</section>
+<section id="slide-orgbc74dce">
+<h3 id="orgbc74dce">Mônadas</h3>
+<ul>
+<li>Tipo AlexPosn</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #1c86ee;">data</span> <span style="color: #00688b;">AlexPosn</span> <span style="color: #2e8b57;">=</span> <span style="color: #00688b;">AlexPn</span>
+  <span style="color: #2e8b57;">!</span><span style="color: #00688b;">Int</span>            <span style="color: #7f7f7f;">-- </span><span style="color: #7f7f7f;">absolute character offset</span>
+  <span style="color: #2e8b57;">!</span><span style="color: #00688b;">Int</span>            <span style="color: #7f7f7f;">-- </span><span style="color: #7f7f7f;">line number</span>
+  <span style="color: #2e8b57;">!</span><span style="color: #00688b;">Int</span>            <span style="color: #7f7f7f;">-- </span><span style="color: #7f7f7f;">column number</span>
+</pre>
+</div>
+</section>
+<section id="slide-org6b9f837">
+<h3 id="org6b9f837">Mônadas</h3>
+<ul>
+<li>Produzindo tokens</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #cd9b1d;">tokenInteger</span> <span style="color: #2e8b57;">::</span> <span style="color: #00688b;">Action</span> <span style="color: #00688b;">RangedToken</span>
+<span style="color: #cd9b1d;">tokenInteger</span> inp<span style="color: #2e8b57;">@</span>(<span style="color: #1c86ee;">_</span>, <span style="color: #1c86ee;">_</span>, <span style="color: #1c86ee;">_</span>, str) len
+  <span style="color: #2e8b57;">=</span> pure <span style="color: #00688b;">RangedToken</span> {
+           token_ <span style="color: #2e8b57;">=</span> <span style="color: #00688b;">TNumber</span> <span style="color: #2e8b57;">$</span> read <span style="color: #2e8b57;">$</span> take len str
+         , range_ <span style="color: #2e8b57;">=</span> mkRange inp len
+         }
+</pre>
+</div>
+</section>
+<section id="slide-orge8bdc68">
+<h3 id="orge8bdc68">Mônadas</h3>
+<ul>
+<li>Tipo RangedToken</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #1c86ee;">data</span> <span style="color: #00688b;">Range</span>
+  <span style="color: #2e8b57;">=</span> <span style="color: #00688b;">Range</span> {
+      start_ <span style="color: #2e8b57;">::</span> <span style="color: #00688b;">AlexPosn</span>
+    , stop_  <span style="color: #2e8b57;">::</span> <span style="color: #00688b;">AlexPosn</span>
+    }
+<span style="color: #1c86ee;">data</span> <span style="color: #00688b;">RangedToken</span>
+  <span style="color: #2e8b57;">=</span> <span style="color: #00688b;">RangedToken</span> {
+      token_ <span style="color: #2e8b57;">::</span> <span style="color: #00688b;">Token</span>
+    , range_ <span style="color: #2e8b57;">::</span> <span style="color: #00688b;">Range</span>
+    } <span style="color: #1c86ee;">deriving</span> (<span style="color: #00688b;">Eq</span>, <span style="color: #00688b;">Show</span>)
+</pre>
+</div>
+</section>
+<section id="slide-org4bac98d">
+<h3 id="org4bac98d">Mônadas</h3>
+<ul>
+<li>Com isso, resolvemos o problema de produzir informações de posições fazendo com que o analisador léxico retorne RangedToken&rsquo;s.</li>
+
+</ul>
+</section>
+<section id="slide-orga876bb0">
+<h3 id="orga876bb0">Mônadas</h3>
+<ul>
+<li>Outro problema: como permitir comentários de várias linhas?
+<ul>
+<li>Comentários aninhados?</li>
+
+</ul></li>
+
+</ul>
+</section>
+<section id="slide-org67da1ff">
+<h3 id="org67da1ff">Mônadas</h3>
+<ul>
+<li>Para lidar com isso, vamos criar um estado para armazenar o nível de comentários aninhados.
+<ul>
+<li>Tipo deve possuir esse nome</li>
+
+</ul></li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #1c86ee;">data</span> <span style="color: #00688b;">AlexUserState</span>
+  <span style="color: #2e8b57;">=</span> <span style="color: #00688b;">AlexUserState</span> {
+      level <span style="color: #2e8b57;">::</span> <span style="color: #00688b;">Int</span>
+    }
+</pre>
+</div>
+</section>
+<section id="slide-org92cdab8">
+<h3 id="org92cdab8">Mônadas</h3>
+<ul>
+<li>Funções da mônada</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #cd9b1d;">get</span> <span style="color: #2e8b57;">::</span> <span style="color: #00688b;">Alex</span> <span style="color: #00688b;">AlexUserState</span>
+<span style="color: #cd9b1d;">get</span> <span style="color: #2e8b57;">=</span> <span style="color: #00688b;">Alex</span> <span style="color: #2e8b57;">$</span> <span style="color: #2e8b57;">\</span>s <span style="color: #2e8b57;">-&gt;</span> <span style="color: #00688b;">Right</span> (s, alex_ust s)
+
+<span style="color: #cd9b1d;">put</span> <span style="color: #2e8b57;">::</span> <span style="color: #00688b;">AlexUserState</span> <span style="color: #2e8b57;">-&gt;</span> <span style="color: #00688b;">Alex</span> <span style="color: #00688b;">()</span>
+<span style="color: #cd9b1d;">put</span> s' <span style="color: #2e8b57;">=</span> <span style="color: #00688b;">Alex</span> <span style="color: #2e8b57;">$</span> <span style="color: #2e8b57;">\</span>s <span style="color: #2e8b57;">-&gt;</span> <span style="color: #00688b;">Right</span> (s{alex_ust <span style="color: #2e8b57;">=</span> s'}, <span style="color: #00688b;">()</span>)
+
+<span style="color: #cd9b1d;">modify</span> <span style="color: #2e8b57;">::</span> (<span style="color: #00688b;">AlexUserState</span> <span style="color: #2e8b57;">-&gt;</span> <span style="color: #00688b;">AlexUserState</span>) <span style="color: #2e8b57;">-&gt;</span> <span style="color: #00688b;">Alex</span> <span style="color: #00688b;">()</span>
+<span style="color: #cd9b1d;">modify</span> f <span style="color: #2e8b57;">=</span> <span style="color: #00688b;">Alex</span> <span style="color: #2e8b57;">$</span> <span style="color: #2e8b57;">\</span>s <span style="color: #2e8b57;">-&gt;</span> <span style="color: #00688b;">Right</span> (s{alex_ust <span style="color: #2e8b57;">=</span> f (alex_ust s)}, <span style="color: #00688b;">()</span>)
+</pre>
+</div>
+</section>
+<section id="slide-org060b06a">
+<h3 id="org060b06a">Mônadas</h3>
+<ul>
+<li>Funções para lidar com aninhamento</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #cd9b1d;">nestComment</span> <span style="color: #2e8b57;">::</span> <span style="color: #00688b;">Action</span> <span style="color: #00688b;">RangedToken</span>
+<span style="color: #cd9b1d;">nestComment</span> input len <span style="color: #2e8b57;">=</span> <span style="color: #1c86ee;">do</span>
+  modify <span style="color: #2e8b57;">$</span> <span style="color: #2e8b57;">\</span>s <span style="color: #2e8b57;">-&gt;</span> s{level <span style="color: #2e8b57;">=</span> level s <span style="color: #2e8b57;">+</span> <span style="color: #6e8b3d;">1</span>}
+  skip input len
+</pre>
+</div>
+</section>
+<section id="slide-org6b16bb2">
+<h3 id="org6b16bb2">Mônadas</h3>
+<ul>
+<li>Funções para lidar com aninhamento</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #cd9b1d;">unnestComment</span> <span style="color: #2e8b57;">::</span> <span style="color: #00688b;">Action</span> <span style="color: #00688b;">RangedToken</span>
+<span style="color: #cd9b1d;">unnestComment</span> input len <span style="color: #2e8b57;">=</span> <span style="color: #1c86ee;">do</span>
+  state <span style="color: #2e8b57;">&lt;-</span> get
+  <span style="color: #1c86ee;">let</span> level' <span style="color: #2e8b57;">=</span> level state <span style="color: #2e8b57;">-</span> <span style="color: #6e8b3d;">1</span>
+  put state{level <span style="color: #2e8b57;">=</span> level'}
+  when (level' <span style="color: #2e8b57;">==</span> <span style="color: #6e8b3d;">0</span>) <span style="color: #2e8b57;">$</span>
+    alexSetStartCode <span style="color: #6e8b3d;">0</span>
+  skip input len
+</pre>
+</div>
+</section>
+<section id="slide-org67ef64a">
+<h3 id="org67ef64a">Mônadas</h3>
+<ul>
+<li>Definição do estado inicial</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #cd9b1d;">alexInitUserState</span> <span style="color: #2e8b57;">::</span> <span style="color: #00688b;">AlexUserState</span>
+<span style="color: #cd9b1d;">alexInitUserState</span> <span style="color: #2e8b57;">=</span> <span style="color: #00688b;">AlexUserState</span> <span style="color: #6e8b3d;">0</span>
+</pre>
+</div>
+</section>
+<section id="slide-orgb7a7e45">
+<h3 id="orgb7a7e45">Mônadas</h3>
+<ul>
+<li>Definição de tokens com marcações de estados</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell">tokens <span style="color: #cd9b1d;">:-</span>
+<span style="color: #2e8b57;">&lt;</span><span style="color: #6e8b3d;">0</span><span style="color: #2e8b57;">&gt;</span>  <span style="color: #2e8b57;">$</span>white<span style="color: #2e8b57;">+</span>                 ; <span style="color: #7f7f7f;">-- </span><span style="color: #7f7f7f;">removing whitespace</span>
+<span style="color: #2e8b57;">&lt;</span><span style="color: #6e8b3d;">0</span><span style="color: #2e8b57;">&gt;</span>  <span style="color: #2e8b57;">@</span>number                 { tokenInteger }
+<span style="color: #2e8b57;">&lt;</span><span style="color: #6e8b3d;">0</span><span style="color: #2e8b57;">&gt;</span>  <span style="color: #2e8b57;">@</span>identifier             { tokenId }
+<span style="color: #2e8b57;">&lt;</span><span style="color: #6e8b3d;">0</span><span style="color: #2e8b57;">&gt;</span>  <span style="color: #2e8b57;">\+</span>                      { simpleToken <span style="color: #00688b;">TAdd</span> }
+<span style="color: #2e8b57;">...</span>
+<span style="color: #2e8b57;">&lt;</span><span style="color: #6e8b3d;">0</span><span style="color: #2e8b57;">&gt;</span>  <span style="color: #8b7355;">"{-"</span>                    { nestComment <span style="color: #2e8b57;">`andBegin`</span> comment }
+<span style="color: #2e8b57;">&lt;</span><span style="color: #6e8b3d;">0</span><span style="color: #2e8b57;">&gt;</span>  <span style="color: #8b7355;">"-}"</span>                    { <span style="color: #2e8b57;">\</span> <span style="color: #1c86ee;">_</span> <span style="color: #1c86ee;">_</span> <span style="color: #2e8b57;">-&gt;</span> alexError <span style="color: #8b7355;">"Error: unexpected close comment!"</span> }
+</pre>
+</div>
+</section>
+<section id="slide-orge8d860a">
+<h3 id="orge8d860a">Mônadas</h3>
+<ul>
+<li>Definição de tokens com marcações de estados</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #2e8b57;">&lt;</span>comment<span style="color: #2e8b57;">&gt;</span> <span style="color: #8b7355;">"{-"</span>               { nestComment }
+<span style="color: #2e8b57;">&lt;</span>comment<span style="color: #2e8b57;">&gt;</span> <span style="color: #8b7355;">"-}"</span>               { unnestComment }
+<span style="color: #2e8b57;">&lt;</span>comment<span style="color: #2e8b57;">&gt;</span> <span style="color: #2e8b57;">.</span>                  ;
+<span style="color: #2e8b57;">&lt;</span>comment<span style="color: #2e8b57;">&gt;</span> <span style="color: #2e8b57;">\</span>n                 ;
+</pre>
+</div>
+</section>
+<section id="slide-org1dbac0f">
+<h3 id="org1dbac0f">Mônadas</h3>
+<ul>
+<li>Mudanças na especificação Happy.</li>
+
+</ul>
+</section>
+<section id="slide-org7dc49c8">
+<h3 id="org7dc49c8">Mônadas</h3>
+<ul>
+<li>Definição de uma mônada</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #2e8b57;">%</span>monad { <span style="color: #00688b;">Alex</span> }{ <span style="color: #2e8b57;">&gt;&gt;=</span> }{ pure }
+<span style="color: #2e8b57;">%</span>lexer { lexer }{ <span style="color: #00688b;">RangedToken</span> <span style="color: #00688b;">EOF</span> <span style="color: #1c86ee;">_</span> }
+</pre>
+</div>
+</section>
+<section id="slide-org45134ba">
+<h3 id="org45134ba">Mônadas</h3>
+<ul>
+<li>Especificação dos tokens</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #2e8b57;">%</span>token
+     int  {<span style="color: #00688b;">RangedToken</span> (<span style="color: #00688b;">TNumber</span> <span style="color: #1c86ee;">_</span>) <span style="color: #1c86ee;">_</span>}
+     var  {<span style="color: #00688b;">RangedToken</span> (<span style="color: #00688b;">TVar</span> <span style="color: #1c86ee;">_</span>) <span style="color: #1c86ee;">_</span>}
+     <span style="color: #8b7355;">'+'</span>  {<span style="color: #00688b;">RangedToken</span> <span style="color: #00688b;">TAdd</span> <span style="color: #1c86ee;">_</span>}
+     <span style="color: #8b7355;">'*'</span>  {<span style="color: #00688b;">RangedToken</span> <span style="color: #00688b;">TMul</span> <span style="color: #1c86ee;">_</span>}
+     <span style="color: #8b7355;">'('</span>  {<span style="color: #00688b;">RangedToken</span> <span style="color: #00688b;">TLParen</span> <span style="color: #1c86ee;">_</span>}
+     <span style="color: #8b7355;">')'</span>  {<span style="color: #00688b;">RangedToken</span> <span style="color: #00688b;">TRParen</span> <span style="color: #1c86ee;">_</span>}
+</pre>
+</div>
+</section>
+<section id="slide-org7904e77">
+<h3 id="org7904e77">Mônadas</h3>
+<ul>
+<li>Combinando posições de linha</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell">(<span style="color: #cd9b1d;">&lt;-&gt;</span>) <span style="color: #2e8b57;">::</span> <span style="color: #00688b;">Range</span> <span style="color: #2e8b57;">-&gt;</span> <span style="color: #00688b;">Range</span> <span style="color: #2e8b57;">-&gt;</span> <span style="color: #00688b;">Range</span>
+(<span style="color: #00688b;">Range</span> a1 <span style="color: #1c86ee;">_</span>) <span style="color: #2e8b57;">&lt;-&gt;</span> (<span style="color: #00688b;">Range</span> <span style="color: #1c86ee;">_</span> b2) <span style="color: #2e8b57;">=</span> <span style="color: #00688b;">Range</span> a1 b2
+</pre>
+</div>
+</section>
+<section id="slide-org531d5e7">
+<h3 id="org531d5e7">Mônadas</h3>
+<ul>
+<li>Especificação da gramática</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-haskell"><span style="color: #00688b;">Expr</span>   <span style="color: #cd9b1d;">:</span> <span style="color: #00688b;">Expr</span> <span style="color: #8b7355;">'+'</span> <span style="color: #00688b;">Expr</span>   {<span style="color: #00688b;">Add</span> ((info <span style="color: #2e8b57;">$</span><span style="color: #6e8b3d;">1</span>) <span style="color: #2e8b57;">&lt;-&gt;</span> (info <span style="color: #2e8b57;">$</span><span style="color: #6e8b3d;">3</span>)) <span style="color: #2e8b57;">$</span><span style="color: #6e8b3d;">1</span> <span style="color: #2e8b57;">$</span><span style="color: #6e8b3d;">3</span>}
+<span style="color: #00688b;">Expr</span>   <span style="color: #cd9b1d;">:</span> <span style="color: #00688b;">Expr</span> <span style="color: #8b7355;">'*'</span> <span style="color: #00688b;">Expr</span>   {<span style="color: #00688b;">Mul</span> ((info <span style="color: #2e8b57;">$</span><span style="color: #6e8b3d;">1</span>) <span style="color: #2e8b57;">&lt;-&gt;</span> (info <span style="color: #2e8b57;">$</span><span style="color: #6e8b3d;">3</span>)) <span style="color: #2e8b57;">$</span><span style="color: #6e8b3d;">1</span> <span style="color: #2e8b57;">$</span><span style="color: #6e8b3d;">3</span>}
+       <span style="color: #2e8b57;">|</span> int             {<span style="color: #00688b;">Number</span> (info <span style="color: #2e8b57;">$</span><span style="color: #6e8b3d;">1</span>) (unNumber <span style="color: #2e8b57;">$</span><span style="color: #6e8b3d;">1</span>)}
+       <span style="color: #2e8b57;">|</span> var             {<span style="color: #00688b;">Var</span> (info <span style="color: #2e8b57;">$</span><span style="color: #6e8b3d;">1</span>) (unId <span style="color: #2e8b57;">$</span><span style="color: #6e8b3d;">1</span>)}
+       <span style="color: #2e8b57;">|</span> <span style="color: #8b7355;">'('</span> <span style="color: #00688b;">Expr</span> <span style="color: #8b7355;">')'</span>    {<span style="color: #2e8b57;">$</span><span style="color: #6e8b3d;">2</span>}
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org76da4ca">
+<h2 id="org76da4ca">Concluindo</h2>
+<div class="outline-text-2" id="text-org76da4ca">
+</div>
+</section>
+<section id="slide-org577c2b6">
+<h3 id="org577c2b6">Concluindo</h3>
+<ul>
+<li>Nesta aula apresentamos o gerador de analisadores sintáticos Happy.</li>
+
+<li>Mostramos como adicionar suporte a marcação de linhas / colunas.</li>
+
+</ul>
+</section>
+<section id="slide-orgce11d09">
+<h3 id="orgce11d09">Concluindo</h3>
+<ul>
+<li>Próximas aulas: Semântica formal e interpretadores.</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org49dfbff">
+<h2 id="org49dfbff">Exercícios</h2>
+<div class="outline-text-2" id="text-org49dfbff">
+</div>
+</section>
+<section id="slide-orga94ec28">
+<h3 id="orga94ec28">Exercícios</h3>
+<ul>
+<li>Utilizando o gerador de analisadores sintáticos Happy, construa um analisador sintático para sintaxe de fórmulas da lógica proposicional.</li>
+
+</ul>
+</section>
+</section>
+</div>
+</div>
+<script src="file:///home/rodrigo/reveal.js/dist/reveal.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/markdown/markdown.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/notes/notes.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/search/search.js"></script>
+<script src="file:///home/rodrigo/reveal.js/plugin/zoom/zoom.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+overview: true,
+
+transition: 'convex',
+transitionSpeed: 'default',
+
+// Plugins with reveal.js 4.x
+plugins: [ RevealMarkdown, RevealNotes, RevealSearch, RevealZoom ],
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+]
+
+});
+</script>
+</body>
+</html>

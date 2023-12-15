@@ -1,0 +1,620 @@
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\author{Construção de compiladores I}
+\date{}
+\title{Revisão de Haskell}
+\hypersetup{
+ pdfauthor={Construção de compiladores I},
+ pdftitle={Revisão de Haskell},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 28.2 (Org mode 9.7)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+\section*{Objetivos}
+\label{sec:org21b0edc}
+
+\subsection*{Objetivos}
+\label{sec:org1b4ca65}
+
+\begin{itemize}
+\item Revisar conceitos de programação funcional utilizando Haskell.
+
+\item Apresentar a aplicação dos conceitos para construir um compilador protótipo.
+\end{itemize}
+\section*{Markdown}
+\label{sec:org93740e3}
+
+\subsection*{Markdown}
+\label{sec:org3cf2e35}
+
+\begin{itemize}
+\item Formato amplamente utilizado para representação de documentos.
+
+\item Popularizado pela adoção de plataformas como Github e 
+ferramentas como o pandoc.
+\end{itemize}
+\subsection*{Markdown}
+\label{sec:orga6f8a7a}
+
+\begin{itemize}
+\item Componentes do compilador.
+\begin{itemize}
+\item Analisadores léxico e sintático: produção da AST do formato.
+
+\item Gerador de código: produção de HTML.
+\end{itemize}
+\end{itemize}
+\subsection*{Markdown}
+\label{sec:org1239a06}
+
+\begin{itemize}
+\item Primeiro passo: criar uma biblioteca para criação de HTML bem formado.
+\item Faremos isso criando uma EDSL para HTML
+\end{itemize}
+\section*{EDSLs}
+\label{sec:org0ff6aae}
+
+\subsection*{EDSLs}
+\label{sec:org2d226f9}
+
+\begin{itemize}
+\item Em Haskell, é bem comum desenvolvermos EDSLs
+\begin{itemize}
+\item \textbf{E} mbedded \textbf{D} omain \textbf{S} pecific \textbf{L} anguage
+\end{itemize}
+\item DSLs estão em toda parte
+\begin{itemize}
+\item makefiles, sql, dot, html\ldots{}
+\end{itemize}
+\end{itemize}
+\subsection*{EDSLs}
+\label{sec:org9041c8d}
+
+\begin{itemize}
+\item Mas porque ``Embedded''?
+\begin{itemize}
+\item EDSLs utilizam todo os recursos da linguagem de origem.
+\item Vantagem: não é necessário construir um compilador do ``zero''.
+\end{itemize}
+\end{itemize}
+\subsection*{EDSLs}
+\label{sec:orgfbe8ada}
+
+\begin{itemize}
+\item Mas qual o problema que a EDSL de Html vai resolver?
+
+\item A princípio, podemos produzir Html usando operações sobre strings\ldots{}
+\end{itemize}
+\subsection*{EDSLs}
+\label{sec:org024679f}
+
+\begin{itemize}
+\item Problemas de uso de strings: 
+\begin{itemize}
+\item Quem garante que construímos <title><\title> somente dentro 
+de um <head> usando strings?
+\end{itemize}
+\end{itemize}
+\subsection*{EDSLs}
+\label{sec:org0d9d66b}
+
+\begin{itemize}
+\item Estratégia de projeto: Uma biblioteca de combinadores
+\begin{itemize}
+\item Funções para elementos primitivos.
+\item Funções para combinar elementos HTML
+\end{itemize}
+\end{itemize}
+\section*{EDSL para Html}
+\label{sec:org3d8a48e}
+
+\subsection*{EDSL para Html}
+\label{sec:orgce9d56f}
+
+\begin{itemize}
+\item Definição de tipos:
+\begin{itemize}
+\item Tipos encapsulam strings correspondente a estrutura de HTML.
+\end{itemize}
+\end{itemize}
+\begin{verbatim}
+newtype Html
+  = Html String
+
+newtype Structure
+  = Structure String
+
+newtype Content
+  = Content String
+
+newtype Head
+  = Head String
+\end{verbatim}
+\subsection*{EDSL para HTML}
+\label{sec:org938b239}
+
+\begin{itemize}
+\item Definindo um novo tipo
+\begin{itemize}
+\item \texttt{newtype} permite definir tipos com um único construtor.
+\end{itemize}
+\end{itemize}
+
+\begin{verbatim}
+newtype Html
+  = Html String
+\end{verbatim}
+\subsection*{EDSL para HTML}
+\label{sec:orgca58563}
+
+\begin{itemize}
+\item Construtores são funções.
+\end{itemize}
+
+\begin{verbatim}
+Html :: String -> Html
+\end{verbatim}
+\subsection*{EDSL para HTML}
+\label{sec:org0d3b88e}
+
+\begin{itemize}
+\item Gerando o código HTML:
+\begin{itemize}
+\item Uso de casamento de padrão
+\end{itemize}
+\end{itemize}
+
+\begin{verbatim}
+render :: Html -> String
+render (Html str) = str
+\end{verbatim}
+\subsection*{EDSL para HTML}
+\label{sec:org76e739c}
+
+\begin{itemize}
+\item Qual a vantagem disso? Porque não strings?
+\begin{itemize}
+\item Vamos ``ocultar'' a estrutura de tipos.
+\item Manipulação apenas por funções.
+\item Funções garantem a geração de HTML válido.
+\end{itemize}
+\end{itemize}
+\subsection*{EDSL para Html}
+\label{sec:org426c961}
+
+\begin{itemize}
+\item Criando uma tag qualquer:
+\end{itemize}
+
+\begin{verbatim}
+el :: String -> String -> String
+el tag content =
+  "<" <> tag <> ">" <> content <> "</" <> tag <> ">"
+\end{verbatim}
+\subsection*{EDSL para Html}
+\label{sec:org281788c}
+
+\begin{itemize}
+\item Mas o que é a função \texttt{<>}?
+\end{itemize}
+
+\begin{verbatim}
+class Semigroup a where
+  (<>) :: a -> a -> a
+
+class Semigroup a => Monoid a where
+  mempty :: a
+\end{verbatim}
+\subsection*{EDSL para Html}
+\label{sec:orgdeae22e}
+
+\begin{itemize}
+\item \texttt{Semigroup} e \texttt{Monoid} são classes de tipos 
+\begin{itemize}
+\item Duas operações definidas: \texttt{(<>)} e \texttt{mempty}.
+\end{itemize}
+\item Requisitos
+\begin{itemize}
+\item \texttt{(<>)} deve ser associativo.
+\item \texttt{mempty} deve ser elemento neutro de \texttt{(<>)}.
+\end{itemize}
+\end{itemize}
+\subsection*{EDSL para Html}
+\label{sec:org64f0553}
+
+\begin{itemize}
+\item Listas são instância de \texttt{Semigroup} e \texttt{Monoid}:
+\begin{itemize}
+\item Strings são apenas listas de caracteres.
+\end{itemize}
+\end{itemize}
+
+\begin{verbatim}
+instance Semigroup [a] where
+  xs <> ys = xs ++ ys
+
+instance Monoid [a] where
+   mempty        = []
+\end{verbatim}
+\subsection*{EDSL para Html}
+\label{sec:org2073b86}
+
+\begin{itemize}
+\item A partir da função \texttt{el} podemos criar outras tags.
+
+\item Código para definir a tag \texttt{<b> ... </b>}:
+\end{itemize}
+
+\begin{verbatim}
+getContentString :: Content -> String
+getContentString (Content str) = str
+
+b_ :: Content -> Content
+b_ content =
+  Content $ el "b" (getContentString content)
+\end{verbatim}
+\subsection*{EDSL para Html}
+\label{sec:org22b508c}
+
+\begin{itemize}
+\item Demais tags seguem estrutura similar.
+\end{itemize}
+
+\begin{verbatim}
+i_ :: Content -> Content
+i_ content =
+  Content $ el "i" (getContentString content)
+\end{verbatim}
+\subsection*{EDSL para HTML}
+\label{sec:org1a65271}
+
+\begin{itemize}
+\item Como usar essa DSL para construir HTML?
+\end{itemize}
+\subsection*{EDSL para HTML}
+\label{sec:orgc938e2f}
+
+\begin{itemize}
+\item Construir esse HTML simples:
+\end{itemize}
+
+\begin{verbatim}
+  <html>
+    <head>
+      <title>My title</title>
+    </head>
+    <body>
+      <h1>Heading</h1>
+      <p>Paragraph #1</p>
+      <p>Paragraph #2</p>
+    </body>
+  </html>
+\end{verbatim}
+\subsection*{EDSL para HTML}
+\label{sec:org4a62fe5}
+
+\begin{itemize}
+\item Representação na EDSL:
+\end{itemize}
+
+\begin{verbatim}
+myhtml :: Html
+myhtml =
+  html_
+    (title_ "My title")
+    ((h_ 1 (txt_ "Heading"))    <>
+     (p_ $ txt_ "Paragraph #1") <>
+     (p_ $ txt_ "Paragraph #2"))
+\end{verbatim}
+\subsection*{EDSL para HTML}
+\label{sec:org02cfd75}
+
+\begin{itemize}
+\item Elementos da DSL são combinados utilizando \texttt{Monoid}.
+\end{itemize}
+
+\begin{verbatim}
+instance Semigroup Head where
+  (Head h1) <> (Head h2) = Head (h1 <> h2)
+
+instance Monoid Head where
+  mempty = Head ""
+\end{verbatim}
+\subsection*{EDSL para HTML}
+\label{sec:orgbc24c74}
+
+\begin{itemize}
+\item Tipos \texttt{Structure} e \texttt{Content} também são monóides.
+\end{itemize}
+\subsection*{EDSL para HTML}
+\label{sec:orgc95e429}
+
+\begin{itemize}
+\item Definida no módulo \texttt{Markup.Printer.Html.Internal}.
+
+\item Esse módulo é encapsulado por \texttt{Markup.Printer.Html} que
+exporta apenas funções para manipular os tipos \texttt{Html, Structure, Content}.
+\end{itemize}
+\subsection*{EDSL para HTML}
+\label{sec:org0757a19}
+
+\begin{itemize}
+\item Definição do cabeçalho
+\end{itemize}
+
+\begin{verbatim}
+module Markup.Printer.Html ( Html
+                           , Head
+                           , title_
+                           , Structure
+                           , html_
+                           , h_
+                           , p_
+                           , ul_
+                           , code_
+                           , Content
+                           , txt_
+                           , b_
+                           , i_
+                           , render
+                           )  where
+
+import Markup.Printer.Html.Internal
+\end{verbatim}
+\subsection*{EDSL para HTML}
+\label{sec:org7d77a49}
+
+\begin{itemize}
+\item Seguindo esse padrão, manipulação de valores \texttt{HTML} só
+pode ser feito usando funções da EDSL.
+\end{itemize}
+\section*{De Markdown para HTML}
+\label{sec:org18f85e0}
+
+\subsection*{De Markdown para HTML}
+\label{sec:org105adda}
+
+\begin{itemize}
+\item Agora que representamos HTML, vamos modelar a entrada do compilador.
+\end{itemize}
+\subsection*{De Markdown para HTML}
+\label{sec:org54a9b4f}
+
+\begin{itemize}
+\item Primeiro, devemos representar a estrutura de Markdown como um tipo
+Haskell
+\end{itemize}
+\subsection*{De Markdown para HTML}
+\label{sec:orgcc4ece1}
+
+\begin{itemize}
+\item Documentos são listas de estruturas.
+\end{itemize}
+
+\begin{verbatim}
+type Document = [Structure]
+\end{verbatim}
+\subsection*{De Markdown para HTML}
+\label{sec:org5261a95}
+
+\begin{itemize}
+\item Estruturas são dos seguintes tipos:
+\begin{itemize}
+\item Cabeçalhos
+\item Parágrafos
+\item Listas não ordenadas
+\item Código fonte
+\end{itemize}
+\end{itemize}
+\subsection*{De Markdown para HTML}
+\label{sec:org2c593f2}
+
+\begin{itemize}
+\item Representação em Haskell
+\end{itemize}
+
+\begin{verbatim}
+data Structure
+  = Heading Natural String
+  | Paragraph String
+  | UnorderedList [String] 
+  | CodeBlock [String]
+  deriving Show
+\end{verbatim}
+\subsection*{De Markdown para HTML}
+\label{sec:org368c072}
+
+\begin{itemize}
+\item Exemplos de representação: cabeçalhos e parágrafos.
+\end{itemize}
+
+\begin{verbatim}
+* BCC328 - Construção de compiladores I
+
+Revisão de Haskell
+\end{verbatim}
+\subsection*{De Markdown para HTML}
+\label{sec:org0e07c34}
+
+\begin{itemize}
+\item Representação em Haskell:
+\end{itemize}
+
+\begin{verbatim}
+example1 :: Document
+example1 =
+  [ Heading 1 "BCC328 - Construção de compiladores I"
+  , Paragraph "Revisão de Haskell"
+  ]
+\end{verbatim}
+\subsection*{De Markdown para HTML}
+\label{sec:orgbadb732}
+
+\begin{itemize}
+\item Exemplos de representação: Listas e código fonte.
+\end{itemize}
+
+\begin{verbatim}
+- Como compilar código Haskell:
+> ➜ ghc Main.hs
+> [1 of 1] Compiling Main ( Main.hs, Main.o )
+> Linking Main ...
+Com isso o GHC irá criar os seguintes arquivos:
+- Main.hi: Arquivo de interface.
+- Main.o: Código objeto antes de link-edição.
+- Main (ou Main.exe no Windows): executável
+\end{verbatim}
+\subsection*{De Markdown para HTML}
+\label{sec:org6f80024}
+
+\begin{itemize}
+\item Representação em Haskell:
+\end{itemize}
+
+\begin{verbatim}
+example2 :: Document
+example2 =
+  [ UnorderedList ["Como compilar código Haskell:"]
+  , CodeBlock [ "➜ ghc Main.hs"
+              , "[1 of 1] Compiling Main ( Main.hs, Main.o )"
+              , "Linking Main ..."]
+  , Paragraph "Com isso o GHC irá criar os seguintes arquivos:"
+  , UnorderedList [ "Main.hi: Arquivo de interface."
+                  , "Main.o: Código objeto antes de link-edição."
+                  , "Main (ou Main.exe no Windows): executável"]
+  ]
+\end{verbatim}
+\subsection*{De Markdown para HTML}
+\label{sec:org82db6fe}
+
+\begin{itemize}
+\item Gerando HTML a partir de um documento.
+\end{itemize}
+
+\begin{verbatim}
+translate :: AST.Document -> HTML.Structure
+translate = foldMap translateStructure
+
+foldMap :: Monoid m => (a -> m) -> [a] -> m
+foldMap f = foldr ((<>) . f) mempty
+\end{verbatim}
+\subsection*{De Markdown para HTML}
+\label{sec:org1f0fb1d}
+
+\begin{itemize}
+\item Gerando HTML a partir de estruturas.
+\end{itemize}
+
+\begin{verbatim}
+import qualified Markup.Language.Syntax as AST
+import qualified Markup.Printer.Html as HTML
+
+translateStructure :: AST.Structure -> HTML.Structure
+translateStructure (AST.Heading n txt)
+  = HTML.h_ n $ HTML.txt_ txt
+translateStructure (AST.Paragraph p)
+  = HTML.p_ $ HTML.txt_ p
+translateStructure (AST.UnorderedList ds)
+  = HTML.ul_ $ map (HTML.p_ . HTML.txt_) ds
+translateStructure (AST.CodeBlock ds)
+  = HTML.code_ (unlines ds)
+\end{verbatim}
+\section*{Testes}
+\label{sec:org1806986}
+
+\subsection*{Testes}
+\label{sec:orgc92d454}
+
+\begin{itemize}
+\item Infraestrutura de golden tests disponível.
+
+\item Golden tests
+\begin{itemize}
+\item Entradas disponíveis como arquivos.
+\item Saídas esperadas disponíveis como arquivos.
+\end{itemize}
+\end{itemize}
+\subsection*{Testes}
+\label{sec:orgfb200ac}
+
+\begin{itemize}
+\item Execução dos testes
+\begin{itemize}
+\item Após iniciar o \texttt{nix-shell}, execute:
+\end{itemize}
+\end{itemize}
+
+\begin{verbatim}
+cabal new-test
+\end{verbatim}
+\section*{Concluindo}
+\label{sec:org10a49c6}
+
+\subsection*{Concluindo}
+\label{sec:org1799337}
+
+\begin{itemize}
+\item Nesta aula revisamos alguns conceitos da linguagem Haskell:
+\begin{itemize}
+\item Definição de tipos de dados.
+\item Definição de funções por casamento de padrão.
+\item Funções de ordem superior
+\end{itemize}
+\end{itemize}
+\subsection*{Concluindo}
+\label{sec:orgc270251}
+
+\begin{itemize}
+\item Próxima aula
+\begin{itemize}
+\item Parsing e mônadas.
+\end{itemize}
+\end{itemize}
+\section*{Exercícios}
+\label{sec:org5108ca3}
+
+\subsection*{Exercícios}
+\label{sec:org185ff97}
+
+\begin{itemize}
+\item Estenda a EDSL de HTML para prover suporte a:
+\begin{itemize}
+\item Listas ordenadas
+\item Links
+\item Imagens
+\end{itemize}
+\end{itemize}
+\subsection*{Exercícios}
+\label{sec:org2b3c6bc}
+
+\begin{itemize}
+\item Estenda o tipo de dados de documentos para prover suporte a:
+\begin{itemize}
+\item Listas ordenadas
+\item Links
+\item Imagens
+\end{itemize}
+\end{itemize}
+\subsection*{Exercícios}
+\label{sec:orgf7b2626}
+
+\begin{itemize}
+\item Adapte o processo de compilação para considerar esses novos recursos.
+
+\item Entrega via Github Classroom.
+\end{itemize}
+\end{document}

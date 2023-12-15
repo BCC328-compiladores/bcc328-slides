@@ -1,0 +1,590 @@
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\author{Construção de compiladores I}
+\date{}
+\title{Revisão de Haskell}
+\hypersetup{
+ pdfauthor={Construção de compiladores I},
+ pdftitle={Revisão de Haskell},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 28.2 (Org mode 9.7)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+\section*{Objetivos}
+\label{sec:org4edcd26}
+
+\subsection*{Objetivos}
+\label{sec:org524006c}
+
+\begin{itemize}
+\item Revisar conceitos sobre functores aplicativos.
+
+\item Construção de parsers usando functores aplicativos.
+\end{itemize}
+\section*{Markdown}
+\label{sec:org0c7e72c}
+
+\subsection*{Markdown}
+\label{sec:orgee23d2f}
+
+\begin{itemize}
+\item Na última aula, iniciamos a construção de um compilador de Markdown para HTML
+\begin{itemize}
+\item Criação de uma EDSL para Html
+\item Uso da EDSL para produzir Html a partir da AST de Markdown
+\end{itemize}
+\end{itemize}
+\subsection*{Markdown}
+\label{sec:org3712707}
+
+\begin{itemize}
+\item Porém, como produzir a AST a partir de texto armazenado em arquivos?
+
+\item Como manipular argumentos de entrada para o programa?
+\end{itemize}
+\subsection*{Markdown}
+\label{sec:org245f9a2}
+
+\begin{itemize}
+\item Para produzir a AST, precisamos construir um \textbf{parser}.
+
+\item Parser: função de tipo \texttt{String -> AST}.
+\end{itemize}
+\subsection*{Markdown}
+\label{sec:org4c4eb12}
+
+\begin{itemize}
+\item Idealmente, para especificarmos um parser, precisamos de uma gramática.
+\end{itemize}
+\section*{Gramáticas}
+\label{sec:org040ed4c}
+
+\subsection*{Gramáticas}
+\label{sec:org94bf7a0}
+
+\begin{itemize}
+\item Uma gramática livre de contexto \(G=(V,\Sigma,R,P)\):
+\begin{itemize}
+\item \(V\): conjunto finito de variáveis
+\item \(\Sigma\): alfabeto
+\item \(R\subseteq V \times (V\cup\Sigma)^*\): regras
+\item \(P\in V\): variável de partida.
+\end{itemize}
+\end{itemize}
+\subsection*{Gramáticas}
+\label{sec:org74e5ed4}
+
+\begin{itemize}
+\item Exemplo: gramática livre de contexto para palavras com a mesma quantidade de 0s e 1s:
+\end{itemize}
+
+\begin{array}{lcl}
+   P & \to & 0P1P \,|\,1P0P\,|\,\lambda
+\end{array}
+\subsection*{Gramáticas}
+\label{sec:org2a9da0d}
+
+\begin{itemize}
+\item Na gramática anterior, temos:
+\begin{itemize}
+\item \(V=\{P\}\), \(\Sigma=\{0,1\}\)
+\item Três regras:
+\end{itemize}
+\end{itemize}
+
+\begin{array}{l}
+  P \to 0P1P\\
+  P \to 1P0P\\
+  P \to \lambda\\
+\end{array}
+\subsection*{Gramáticas}
+\label{sec:orged49163}
+
+\begin{itemize}
+\item Representando a AST:
+\end{itemize}
+
+\begin{verbatim}
+data AST
+  = Zero AST AST -- starts with 0
+  | One AST AST  -- starts with 1  
+  | Empty        -- empty string
+\end{verbatim}
+\subsection*{Gramáticas}
+\label{sec:orgc2cd555}
+
+\begin{itemize}
+\item Como construir um parser para esta gramática?
+\end{itemize}
+
+\begin{verbatim}
+parse :: String -> AST
+\end{verbatim}
+\subsection*{Gramáticas}
+\label{sec:orgad27e7a}
+
+\begin{itemize}
+\item Tentando implementar diretamente:
+\end{itemize}
+
+\begin{verbatim}
+parse :: String -> AST
+parse = fst . parse'
+   where
+      parse' [] = (Empty, [])
+      parse' ('0' : rest) = 
+        let (t1,r1) = parse' rest
+            (t2,r2) = parse' r1 
+        in (Zero t1 t2, r2)
+      parse' ('1' : rest) = 
+        let (t1,r1) = parse' rest
+            (t2,r2) = parse' r1 
+        in (One t1 t2, r2)
+      parse' _ = ???
+\end{verbatim}
+\subsection*{Gramáticas}
+\label{sec:orgcdb7b79}
+
+\begin{itemize}
+\item Problemas da implementação anterior:
+\begin{itemize}
+\item Passagem explícita do restante da string.
+\item Repetição de código.
+\item Como lidar com erros?
+\end{itemize}
+\end{itemize}
+\subsection*{Gramáticas}
+\label{sec:orgae2dd6c}
+
+\begin{itemize}
+\item Lidar com manipulação de erros tende a
+aumentar a complexidade do código.
+\end{itemize}
+
+\begin{verbatim}
+parse' [] = Just (Empty, [])
+parse' ('0' : rest) =
+   case parse' rest of
+     Just (t1,r1) ->
+       case parse' r1 of
+          Just (t2,r2) -> Just (Zero t1 t2, r2)
+          _ -> Nothing 
+     _ -> Nothing
+\end{verbatim}
+\subsection*{Gramáticas}
+\label{sec:orgb0c6cff}
+
+\begin{itemize}
+\item Para construir parsers, utilizaremos a EDSL da biblioteca \texttt{mega-parsec}.
+
+\item Em essência, utiliza os conceitos de functores aplicativos para
+construir parsers.
+\end{itemize}
+\section*{Functores aplicativos}
+\label{sec:orgc13cd4b}
+
+\subsection*{Functores aplicativos}
+\label{sec:orgbcc0096}
+
+\begin{itemize}
+\item Faremos um pequeno ``desvio'' para revisar o conceito de functor aplicativo.
+
+\item Esse conceito é fundamental para desenvolvimento em Haskell.
+\end{itemize}
+\subsection*{Functores aplicativos}
+\label{sec:org027516d}
+
+\begin{itemize}
+\item Functor: Abstração que permite aplicar uma função sobre elementos de uma estrutura.
+\end{itemize}
+
+\begin{verbatim}
+class Functor f where
+  fmap :: (a -> b) -> f a -> f b
+
+(<$>) :: Functor f => (a -> b) -> f a -> f b
+(<$>) = fmap
+\end{verbatim}
+\subsection*{Functores aplicativos}
+\label{sec:orgb8a44d5}
+
+\begin{itemize}
+\item Exemplo: \texttt{Maybe} é um \texttt{Functor}.
+\end{itemize}
+
+\begin{verbatim}
+instance Functor Maybe where
+  fmap _ Nothing = Nothing
+  fmap f (Just v) = Just (f v)
+\end{verbatim}
+\subsection*{Functores aplicativos}
+\label{sec:orgbb10dad}
+
+\begin{itemize}
+\item Exemplo:
+\end{itemize}
+
+\begin{verbatim}
+not <$> Nothing = Nothing
+not <$> (Just True) = Just (not True) = Just False
+\end{verbatim}
+\subsection*{Functores aplicativos}
+\label{sec:org036ae7c}
+
+\begin{itemize}
+\item Intuitivamente, functores permitem que façamos chamadas de função a
+todos os elementos de uma estrutura de dados.
+\end{itemize}
+
+\begin{verbatim}
+(2 *) <$> Nothing = Nothing
+(2 *) <$> (Just 2) = Just (2 * 2) = Just 4
+\end{verbatim}
+\subsection*{Functores aplicativos}
+\label{sec:org0b2afd6}
+
+\begin{itemize}
+\item Usamos functores para aplicar funções a elementos \textbf{dentro} de uma estrutura.
+
+\item Pergunta: como realizar chamadas de funções armazenadas dentro de estrutura de dados?
+\end{itemize}
+\subsection*{Functores aplicativos}
+\label{sec:org4fb5c2d}
+
+\begin{itemize}
+\item A abstração de functor aplicativo modela a capacidade de chamar funções dentro de uma estrutura de dados
+\end{itemize}
+
+\begin{verbatim}
+class Functor f => Applicative f where
+  pure :: a -> f a
+  (<*>) :: f (a -> b) -> f a -> f b
+\end{verbatim}
+\subsection*{Functores aplicativos}
+\label{sec:org64642dd}
+
+\begin{itemize}
+\item O principal componente da abstração de functor aplicativo é o operador \texttt{<*>}.
+\begin{itemize}
+\item Responsável por chamadas de função dentro de estruturas de dados.
+\end{itemize}
+\end{itemize}
+
+\begin{verbatim}
+(<*>) :: f (a -> b) -> f a -> f b
+\end{verbatim}
+\subsection*{Functores aplicativos}
+\label{sec:org3131a0c}
+
+\begin{itemize}
+\item O tipo \texttt{Maybe} é um functor aplicativo.
+\end{itemize}
+
+\begin{verbatim}
+instance Applicative Maybe where  
+  pure = Just  
+  Nothing  <*> _ = Nothing
+  _        <*> Nothing = Nothing
+  (Just f) <*> (Just x) = Just (f x)
+\end{verbatim}
+\subsection*{Functores aplicativos}
+\label{sec:orgb211a70}
+
+\begin{itemize}
+\item Exemplos
+\end{itemize}
+
+\begin{verbatim}
+(Just not) <*> Nothing = Nothing
+(Just not) <*> (Just False) = Just (not False) = Just True
+\end{verbatim}
+\subsection*{Functores aplicativos}
+\label{sec:org1fde6a0}
+
+\begin{itemize}
+\item Exemplos
+\end{itemize}
+
+\begin{verbatim}
+(Just not) <*> Nothing = Nothing
+(Just not) <*> (Just False) = Just (not False) = Just True
+\end{verbatim}
+\subsection*{Functores aplicativos}
+\label{sec:org074a284}
+
+\begin{itemize}
+\item Podemos combinar functores e functores aplicativos
+\end{itemize}
+
+\begin{verbatim}
+(*) <$> (Just 2) <*> (Just 3) =
+\end{verbatim}
+\subsection*{Functores aplicativos}
+\label{sec:orgb95f9e0}
+
+\begin{itemize}
+\item Podemos combinar functores e functores aplicativos
+\end{itemize}
+
+\begin{verbatim}
+(*) <$> (Just 2) <*> (Just 3) =
+Just (2 *) <*> (Just 3) =
+\end{verbatim}
+\subsection*{Functores aplicativos}
+\label{sec:org9f0a4ee}
+
+\begin{itemize}
+\item Podemos combinar functores e functores aplicativos
+\end{itemize}
+
+\begin{verbatim}
+(*) <$> (Just 2) <*> (Just 3) =
+Just (2 *) <*> (Just 3) =
+Just (2 * 3) = Just 6
+\end{verbatim}
+\subsection*{Functores aplicativos}
+\label{sec:orge951718}
+
+\begin{itemize}
+\item No contexto de parsing, o operador \texttt{<*>} representa a composição sequencial de parsers.
+
+\item O operador \texttt{<\$>} é utilizado para construir o resultado do parsing.
+\end{itemize}
+\subsection*{Functores aplicativos}
+\label{sec:org3f6caa7}
+
+\begin{itemize}
+\item De volta à gramática original:
+\end{itemize}
+
+\begin{array}{lcl}
+   P & \to & 0P1P \,|\,1P0P\,|\,\lambda
+\end{array}
+\subsection*{Functores aplicativos}
+\label{sec:org5f61d65}
+
+\begin{itemize}
+\item E a árvore que representa o resultado do parsing.
+\end{itemize}
+
+\begin{verbatim}
+data AST
+  = Zero AST AST -- starts with 0
+  | One AST AST  -- starts with 1  
+  | Empty        -- empty string
+\end{verbatim}
+\subsection*{Functores aplicativos}
+\label{sec:org1b6372a}
+
+\begin{itemize}
+\item O parsing utilizando a biblioteca mega-parsec é:
+\end{itemize}
+
+\begin{verbatim}
+type Parser = Parsec Void String
+
+sample :: Parser AST
+sample = try startWithZero <|>
+         try startWithOne  <|>
+         pure Empty
+
+startWithZero :: Parser AST
+startWithZero
+  = f <$> symbol "0" <*> sample <*> symbol "1"  <*> sample
+    where
+      f _ t _ t' = Zero t t'
+
+startWithOne :: Parser AST
+startWithOne
+  = g <$> symbol "1" <*> sample <*> symbol "0"  <*> sample
+    where
+      g _ t _ t' = One t t'
+\end{verbatim}
+\subsection*{Functores aplicativos}
+\label{sec:orgc2d62c6}
+
+\begin{itemize}
+\item Concatenação (sequência) é representada pelo operador \texttt{<*>}.
+\item Alternativas são representadas pelo operador \texttt{<|>}.
+\end{itemize}
+\subsection*{Functores aplicativos}
+\label{sec:org686d49e}
+
+\begin{itemize}
+\item Símbolos são representados pela função \texttt{symbol}.
+\item Função \texttt{try} permite o backtracking.
+\begin{itemize}
+\item Caso aconteça um erro, a entrada é passada não modificada para próxima alternativa.
+\end{itemize}
+\item Variáveis da gramática correspondem a chamadas de função.
+\end{itemize}
+\section*{Parser de Markdown}
+\label{sec:orgec28fd6}
+
+\subsection*{Parser de Markdown}
+\label{sec:orgfe91d84}
+
+\begin{itemize}
+\item Gramática de Markdown
+\end{itemize}
+
+\begin{array}{lcl}
+Document & \to & Structure^*\\
+Structure & \to  & UnorderedList \\
+          & \mid & CodeList \\
+          & \mid & Heading \\
+          & \mid & Paragraph\\
+\end{array}
+\subsection*{Parser de Markdown}
+\label{sec:orgee54625}
+
+\begin{itemize}
+\item Gramática de Markdown (continuação)
+\end{itemize}
+
+\begin{array}{lcl}
+UnorderedList & \to & - \Sigma^*\\
+CodeList      & \to & > \Sigma^*\\
+Paragraph     & \to & \Sigma^*\\
+Heading       & \to & Level\:\:\:Paragraph\\
+Level         & \to & * \,|\, **\,|\, ***\\
+\end{array}
+\subsection*{Parser de Markdown}
+\label{sec:org60cb504}
+
+\begin{itemize}
+\item De posse da gramática, podemos representar seu parser:
+\begin{itemize}
+\item Parser \texttt{sc}: remove espaços em branco entre linhas.
+\item Linhas são separadas por uma quebra de linha.
+\end{itemize}
+\end{itemize}
+
+\begin{verbatim}
+pDocument :: Parser Document
+pDocument = (sc *> pLine) `sepBy` newline
+\end{verbatim}
+\subsection*{Parser de Markdown}
+\label{sec:orgbe96972}
+
+\begin{itemize}
+\item Parser de uma linha do arquivo
+\end{itemize}
+
+\begin{verbatim}
+pLine :: Parser Structure
+pLine = choice [ pUnorderedList
+               , pCodeBlock
+               , pHeading
+               , pParagraph
+               ]
+\end{verbatim}
+\subsection*{Parser de Markdown}
+\label{sec:org43de2d9}
+
+\begin{itemize}
+\item Parser de linha não ordenada
+\end{itemize}
+
+\begin{verbatim}
+pUnorderedList :: Parser Structure
+pUnorderedList = (UnorderedList . wrap) <$> p
+  where
+    p = symbol "-" *> pString
+\end{verbatim}
+\subsection*{Parser de Markdown}
+\label{sec:org61c41d5}
+
+\begin{itemize}
+\item Parser de parágrafos
+\end{itemize}
+
+\begin{verbatim}
+pParagraph :: Parser Structure
+pParagraph = Paragraph <$> pString
+
+pString :: Parser String
+pString = many (satisfy (flip notElem "\n*-#>"))
+\end{verbatim}
+\subsection*{Parser de Markdown}
+\label{sec:org2f5df19}
+
+\begin{itemize}
+\item Demais casos, seguem estruturas similares.
+\end{itemize}
+\section*{Concluindo}
+\label{sec:org1fb8c55}
+
+\subsection*{Concluindo}
+\label{sec:orga25f746}
+
+\begin{itemize}
+\item Nesta aula, revisamos o conceito de functor applicativo e
+como este é utilizado para construir parsers na biblioteca
+\texttt{megaparsec}.
+\end{itemize}
+\subsection*{Concluindo}
+\label{sec:orgc95670f}
+
+\begin{itemize}
+\item Na próxima aula veremos outro padrão importante para estruturar programas: Mônadas.
+\end{itemize}
+\section*{Exercícios}
+\label{sec:org4e1c1f4}
+
+\subsection*{Exercícios}
+\label{sec:orgde91ca8}
+
+\begin{itemize}
+\item Estenda o parser de Markdown com suporte a
+\begin{itemize}
+\item Listas ordenadas
+\item Links
+\item Imagens
+\end{itemize}
+\end{itemize}
+\subsection*{Exercícios}
+\label{sec:org76d7308}
+
+\begin{itemize}
+\item Gramática para listas ordenadas.
+\end{itemize}
+
+\begin{array}{lcl}
+OrderedList & \to & \# \Sigma^*\\
+\end{array}
+\subsection*{Exercícios}
+\label{sec:org9d6e9a6}
+
+\begin{itemize}
+\item Gramática para links
+\end{itemize}
+
+\begin{array}{lcl}
+Link & \to & [\Sigma^*](\Sigma^*)\\
+\end{array}
+\subsection*{Exercícios}
+\label{sec:orgec048b1}
+
+\begin{itemize}
+\item Gramática para imagens
+\end{itemize}
+
+\begin{array}{lcl}
+Image & \to & ![\Sigma^*](\Sigma^*)\\
+\end{array}
+\end{document}

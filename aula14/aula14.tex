@@ -1,0 +1,205 @@
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\author{Construção de compiladores I}
+\date{}
+\title{Análise LR(1)}
+\hypersetup{
+ pdfauthor={Construção de compiladores I},
+ pdftitle={Análise LR(1)},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 28.2 (Org mode 9.7)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+\section*{Objetivos}
+\label{sec:org82033a6}
+
+\subsection*{Objetivos}
+\label{sec:orge8c2a2a}
+
+\begin{itemize}
+\item Apresentar o algoritmo de análise sintática LR(1).
+\end{itemize}
+\section*{Introdução}
+\label{sec:orgc3503d1}
+
+\subsection*{Introdução}
+\label{sec:orgc1b70f3}
+
+\begin{itemize}
+\item Nas aulas anteriores, vimos o as funções de fechamento e goto,
+utilizadas para a construção de itens LR(0), do autômato LR(0)
+e do algoritmo de análise sintática LR(0) e SLR.
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:org561468a}
+
+\begin{itemize}
+\item Nesta aula, vamos conhecer outro algoritmo de análise
+ascendente: LR(1)
+
+\item O algoritmo LR(1) será um algoritmo que usará o conceito de \textbf{lookahead}.
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:orgaafc30e}
+
+\begin{itemize}
+\item \textbf{Lookahead}: primeiro símbolo da entrada, ainda não processado pelo algoritmo.
+\end{itemize}
+\subsection*{Introdução}
+\label{sec:org03444a3}
+
+\begin{itemize}
+\item Um item LR(1) é formado por uma produção, contendo um marcador, e um símbolo de lookahead.
+
+\item Se \(A \to \alpha\) é uma regra, então \([A \to .\alpha, a]\) é um item e \(a\) é o lookahead.
+\end{itemize}
+\section*{Construção dos itens LR(1)}
+\label{sec:org937a90d}
+
+\subsection*{Construção dos itens LR(1)}
+\label{sec:org17896cc}
+
+\begin{itemize}
+\item Fechamento de conjunto de itens \(I\).
+\begin{itemize}
+\item \(I\subseteq closure(I)\).
+\item Para cada item \([A\to \alpha \textbf{.}B\beta,a]\) em \(I\)
+\begin{itemize}
+\item Para cada regra \(B \to \gamma\) em \(G'\)
+\begin{itemize}
+\item Para cada \(b\in first(\beta a)\)
+\begin{itemize}
+\item Adicione \([B \to .\gamma,b]\) em \(I\)
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\item Repita enquanto houver alterações em \(I\).
+\end{itemize}
+\subsection*{Construção dos itens LR(1)}
+\label{sec:org519263b}
+
+\begin{itemize}
+\item Função de \(goto(I,X)\)
+\begin{itemize}
+\item Inicialize \(J\) como \(\emptyset\).
+\item Para cada item \([A\to \alpha .X \beta,a]\) em \(I\)
+\begin{itemize}
+\item Adicione o item \([A \to \alpha X. \beta, a]\) ao conjunto \(J\).
+\end{itemize}
+\item retorne \(closure(J)\)
+\end{itemize}
+\end{itemize}
+\subsection*{Construção dos itens LR(1)}
+\label{sec:orga59a8a3}
+
+\begin{itemize}
+\item Função de construção de itens \(G'\)
+\begin{itemize}
+\item inicializa \(C\) como closure(\{[S \(\to\) .S, \$]\})
+\begin{itemize}
+\item Para cada conjunto \(I \in C\)
+\begin{itemize}
+\item Para cada símbolo \(X\) de \(G'\)
+\begin{itemize}
+\item se \(goto(I,X) \neq \emptyset \land goto(I,X) \not\in C\)
+\begin{itemize}
+\item Adicione \(goto(I,X)\) em \(C\)
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\item repetir enquanto houver alterações em \(C\).
+\end{itemize}
+\end{itemize}
+\section*{Construção da tabela LR(1)}
+\label{sec:org909a881}
+
+\subsection*{Construção da tabela LR(1)}
+\label{sec:org998ffa4}
+
+\begin{itemize}
+\item Se \([A \to \alpha .a\beta,b] \in I_i\) e \(goto(I_i,a) = I_j\),
+\begin{itemize}
+\item A[i,a] = shift j.
+\end{itemize}
+\end{itemize}
+\subsection*{Construção da tabela LR(1)}
+\label{sec:orgfe7e447}
+
+\begin{itemize}
+\item Se \([A \to \alpha . , a] \in I_i\) e \(A \neq S'\)
+\begin{itemize}
+\item A[i,a] = reduce A \(\to\) \(\alpha\)
+\end{itemize}
+\end{itemize}
+\subsection*{Construção da tabela LR(1)}
+\label{sec:org4c6b260}
+
+\begin{itemize}
+\item Se [S' \(\to\) S., \$] \(\in\) I\textsubscript{i}
+\begin{itemize}
+\item A[i,\$] = accept
+\end{itemize}
+\end{itemize}
+\subsection*{Construção da tabela LR(1)}
+\label{sec:org41889fa}
+
+\begin{itemize}
+\item Se goto(I\textsubscript{i,A}) = I\textsubscript{j} então G[i,A] = j
+\end{itemize}
+\section*{Exemplo}
+\label{sec:orgc25450d}
+
+\subsection*{Exemplo}
+\label{sec:org0dba1c3}
+
+\begin{itemize}
+\item Construção da tabela para a gramática
+\end{itemize}
+
+\begin{array}{lcl}
+   S & \to & ( L ) \,|\, x\\
+   L & \to & L , S \,|\, S\\
+\end{array}
+\section*{Concluindo}
+\label{sec:orga4b9e18}
+
+\subsection*{Concluindo}
+\label{sec:orgb95497a}
+
+\begin{itemize}
+\item Nesta aula apresentamos a construção de tabelas LR(1).
+
+\item Próxima aula: Analisadores sintáticos LALR.
+\end{itemize}
+\section*{Exercícios}
+\label{sec:org55b76be}
+
+\subsection*{Exercícios}
+\label{sec:orgc7e0788}
+
+\begin{itemize}
+\item Determine se a seguinte gramática possui conflitos,
+utilizando o algoritmo de construção de tabelas LR(1).
+\end{itemize}
+
+\begin{array}{lcl}
+E & \to & T \textbf{+} E\,|\,T\\
+T & \to & \textbf{x}\\
+\end{array}
+\end{document}

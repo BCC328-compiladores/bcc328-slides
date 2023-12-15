@@ -1,0 +1,529 @@
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\author{Construção de compiladores I}
+\date{}
+\title{Monad Transformers}
+\hypersetup{
+ pdfauthor={Construção de compiladores I},
+ pdftitle={Monad Transformers},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 28.2 (Org mode 9.7)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+\section*{Objetivos}
+\label{sec:org1bfeb9d}
+
+\subsection*{Objetivos}
+\label{sec:orgfca5cda}
+
+\begin{itemize}
+\item Apresentar o conceito de Monad Transformer para combinar diferentes
+efeitos colaterais em um programa.
+
+\item Uso de monad transformers para permitir a manipulação de diretórios no
+compilador de markdown.
+\end{itemize}
+\section*{Markdown}
+\label{sec:orgb96e407}
+
+\subsection*{Markdown}
+\label{sec:org6270bc1}
+
+\begin{itemize}
+\item Iniciamos nosso curso com o projeto de um mini-compilador de Markdown.
+
+\item Objetivo: revisar conceitos da linguagem Haskell
+\end{itemize}
+\subsection*{Markdown}
+\label{sec:org6efbc94}
+
+\begin{itemize}
+\item Na última aula, finalizamos uma versão que processa apenas um único arquivo.
+
+\item Nesta aula estenderemos esse compilador com:
+\begin{itemize}
+\item Processamento de diretórios
+\item Incluir folhas de estilo nos html gerados.
+\end{itemize}
+\end{itemize}
+\subsection*{Markdown}
+\label{sec:orgd680866}
+
+\begin{itemize}
+\item Estender o compilador para processar diretórios é uma tarefa bem direta.
+\end{itemize}
+\subsection*{Markdown}
+\label{sec:org4e3ab71}
+
+\begin{itemize}
+\item Incluir folhas de estilo
+\begin{itemize}
+\item Tarefa simples, mas que leva a código longe do ideal.
+\item Mostraremos como melhorar o código combinando mônadas.
+\end{itemize}
+\end{itemize}
+\section*{Processando diretórios}
+\label{sec:org31b1d4d}
+
+\subsection*{Processando diretórios}
+\label{sec:org3244b0f}
+
+\begin{itemize}
+\item Para permitir processar todos os arquivos em um diretório, devemos modificar a interação por consoles.
+\end{itemize}
+\subsection*{Processando diretórios}
+\label{sec:orgd478255}
+
+\begin{itemize}
+\item Modificação do tipo de opções de entrada.
+\end{itemize}
+
+\begin{verbatim}
+data Options
+  = Single Input Output
+  | Directory FilePath FilePath
+  deriving Show
+\end{verbatim}
+\subsection*{Processando diretórios}
+\label{sec:org5261a58}
+
+\begin{itemize}
+\item Modificação do parser
+\end{itemize}
+
+\begin{verbatim}
+pOptions :: Parser Options
+pOptions
+  = subparser (singleParser <> directoryParser)
+    where
+      singleParser
+        = command "file"
+                  (info (helper <*> pSingle)
+                        (progDesc "Convert a single markdown file to HTML"))
+      directoryParser
+        = command "directory"
+                  (info (helper <*> pDirectory)
+                        (progDesc "Convert all directory md files to HTML"))
+\end{verbatim}
+\subsection*{Processando diretórios}
+\label{sec:org96790e4}
+
+\begin{itemize}
+\item Parser de diretórios
+\end{itemize}
+
+\begin{verbatim}
+pDirectory :: Parser Options
+pDirectory =
+  Directory <$> pInputDir <*> pOutputDir
+\end{verbatim}
+\subsection*{Processando diretórios}
+\label{sec:org1e0ca8f}
+
+\begin{itemize}
+\item Parser de diretório de entrada
+\end{itemize}
+
+\begin{verbatim}
+pInputDir :: Parser FilePath
+pInputDir =
+  strOption
+    ( long "input"
+      <> short 'i'
+      <> metavar "DIRECTORY"
+      <> help "Input directory"
+    )
+\end{verbatim}
+\subsection*{Processando diretórios}
+\label{sec:org0973ba8}
+
+\begin{itemize}
+\item Processamento de diretórios de saída é similar.
+\end{itemize}
+\subsection*{Processando diretórios}
+\label{sec:org894ad54}
+
+\begin{itemize}
+\item Mudanças no pipeline de compilação.
+\end{itemize}
+
+\begin{verbatim}
+startPipeline :: IO ()
+startPipeline
+  = do
+      options <- optionsParser
+      case options of
+        Single inp out ->
+          filePipeline False inp out
+        Directory inpDir outDir ->
+          directoryPipeline inpDir outDir
+\end{verbatim}
+\subsection*{Processando diretórios}
+\label{sec:orge85774f}
+
+\begin{itemize}
+\item Modificações no pipeline de arquivos individuais
+\end{itemize}
+
+\begin{verbatim}
+filePipeline :: Bool -> Input -> Output -> IO ()
+filePipeline dirMode inpFile outFile 
+  = do
+      progressMessage dirMode inpFile
+      (title,inpHandle,outHandle) <- createHandles inpFile outFile
+      content <- hGetContents inpHandle
+      res <- pipeline (title_ title) content
+      hPutStrLn outHandle res
+      hClose inpHandle
+      hClose outHandle
+\end{verbatim}
+\subsection*{Processando diretórios}
+\label{sec:org9256d4b}
+
+\begin{itemize}
+\item Pipeline de diretórios
+\end{itemize}
+
+\begin{verbatim}
+directoryPipeline :: FilePath -> FilePath -> IO ()
+directoryPipeline inputDir outputDir
+  = do
+      d <- directoryContents inputDir
+      let files = filesToCompile d
+          otherFiles = filesToCopy d
+      let entries = map (\ (i,o) -> (FileInput i, FileOutput o)) files
+      shouldContinue <- createOutputDirectory outputDir
+      unless shouldContinue (hPutStrLn stderr "Cancelled." *> exitFailure)
+      mapM_ (uncurry (filePipeline True)) entries
+      let copy file = copyFile file (outputDir </> takeFileName file)
+      mapM_ copy otherFiles
+      putStrLn "Done."
+\end{verbatim}
+\subsection*{Processando diretórios}
+\label{sec:orge1a0d90}
+
+\begin{itemize}
+\item Código contendo exatamente essas modificações pode ser encontrado na branch \texttt{markup-directories}.
+\end{itemize}
+\section*{Adicionando estilos}
+\label{sec:org2394107}
+
+\subsection*{Adicionando estilos}
+\label{sec:org76588a5}
+
+\begin{itemize}
+\item Até o presente momento, não usamos folhas de estilo para formatar o HTML gerado.
+
+\item Como adicionar folhas de estilo?
+\end{itemize}
+\subsection*{Adicionando estilos}
+\label{sec:org470878c}
+
+\begin{itemize}
+\item Definido um tipo para armazenar o caminho de folhas de estilo
+\end{itemize}
+
+\begin{verbatim}
+data Env
+  = Env {
+      stylePath :: FilePath
+    } deriving Show
+
+defaultEnv :: Env
+defaultEnv = Env ""
+\end{verbatim}
+\subsection*{Adicionando estilos}
+\label{sec:orgfe3e968}
+
+\begin{itemize}
+\item Agora, temos que modificar todo o código para permitir este parâmetro adicional.
+\end{itemize}
+\subsection*{Adicionando estilos}
+\label{sec:org4eb7be8}
+
+\begin{itemize}
+\item Adicionando tags para estilos na EDSL de HTML
+\end{itemize}
+
+\begin{verbatim}
+stylesheet_ :: FilePath -> Head
+stylesheet_ path =
+    Head $ "<link rel=\"stylesheet\" type=\"text/css\" href=\"" <>
+            escape path <> "\">"
+\end{verbatim}
+\subsection*{Adicionando estilos}
+\label{sec:orgf81373c}
+
+\begin{itemize}
+\item Modificando o parser de diretórios para entrada
+\end{itemize}
+
+\begin{verbatim}
+data Options
+  = Single Input Output
+  | Directory FilePath FilePath Env 
+  deriving Show
+\end{verbatim}
+\subsection*{Adicionando estilos}
+\label{sec:org230c5b9}
+
+\begin{itemize}
+\item Modificando o parser de diretórios para entrada
+\end{itemize}
+
+\begin{verbatim}
+pDirectory :: Parser Options
+pDirectory =
+  Directory <$> pInputDir <*> pOutputDir <*> pEnv
+\end{verbatim}
+\subsection*{Adicionando estilos}
+\label{sec:org99c329b}
+
+\begin{itemize}
+\item Modificando o parser de diretórios para entrada
+\end{itemize}
+
+\begin{verbatim}
+pEnv :: Parser Env
+pEnv = fromMaybe defaultEnv <$> optional p
+  where
+    p =  Env <$> strOption
+                 (  long "style"
+                 <> short 'S'
+                 <> metavar "FILE"
+                 <> help "Stylesheet filename"
+                 )
+\end{verbatim}
+\subsection*{Adicionando estilos}
+\label{sec:org7aa5503}
+
+\begin{itemize}
+\item Modificando o pipeline de compilação
+\begin{itemize}
+\item Inclusão do environment em \textbf{TODAS} as funções do pipeline.
+\end{itemize}
+\end{itemize}
+
+\begin{verbatim}
+startPipeline :: IO ()
+startPipeline
+  = do
+      options <- optionsParser
+      case options of
+        Single inp out ->
+          filePipeline False defaultEnv inp out
+        Directory inpDir outDir env ->
+          directoryPipeline env inpDir outDir
+\end{verbatim}
+\subsection*{Adicionando estilos}
+\label{sec:org12bad17}
+
+\begin{itemize}
+\item Modificando o pipeline de compilação.
+\begin{itemize}
+\item Estilos usados apenas em \texttt{filePipeline}.
+\item Demais funções apenas ``passam'' o valor de \texttt{Env}.
+\end{itemize}
+\end{itemize}
+
+\begin{verbatim}
+filePipeline :: Bool -> Env -> Input -> Output -> IO ()
+filePipeline dirMode env inpFile outFile 
+  = do
+      progressMessage dirMode inpFile
+      (title,inpHandle,outHandle) <- createHandles inpFile outFile
+      content <- hGetContents inpHandle
+      let header = title_ title <> stylesheet_ (stylePath env) 
+      res <- pipeline header content
+      hPutStrLn outHandle res
+      hClose inpHandle
+      hClose outHandle
+\end{verbatim}
+\subsection*{Adicionando estilos}
+\label{sec:orge904aa9}
+
+\begin{itemize}
+\item Versão contendo o código com passagem explícita de \texttt{Env} está disponível
+na branch \texttt{markup-explicit-env}.
+\end{itemize}
+\subsection*{Adicionando estilos}
+\label{sec:orgc34c931}
+
+\begin{itemize}
+\item Essa passagem de valores é tediosa e propensa a erros.
+
+\item Ideal: Acessar o valor somente no ponto onde este será utilizado.
+\begin{itemize}
+\item Garantir que esse valor não será modificado.
+\end{itemize}
+\end{itemize}
+\subsection*{Adicionando estilos}
+\label{sec:orgba08e83}
+
+\begin{itemize}
+\item Podemos garantir a situação ideal utilizando a mônada de somente leitura
+\begin{itemize}
+\item Reader
+\end{itemize}
+\item Como combinar essa mônada com a mônada de IO?
+\end{itemize}
+\subsection*{Adicionando estilos}
+\label{sec:orgd8ba349}
+
+\begin{itemize}
+\item Para isso, devemos utilizar \textbf{transformadores monádicos}.
+\begin{itemize}
+\item Permitem combinar a funcionalidade de diferentes mônadas.
+\end{itemize}
+\end{itemize}
+\subsection*{Adicionando estilos}
+\label{sec:org188357f}
+
+\begin{itemize}
+\item Principal função da mônada de somente leitura
+\begin{itemize}
+\item Retorna o valor armazenado na mônada para consulta.
+\end{itemize}
+\end{itemize}
+
+\begin{verbatim}
+ask :: MonadReader m => m a
+\end{verbatim}
+\subsection*{Adicionando estilos}
+\label{sec:org869b588}
+
+\begin{itemize}
+\item Modificando o pipeline de compilação para usar a nova mônada
+\end{itemize}
+
+\begin{verbatim}
+type CompilerM a = (ReaderT Env IO) a
+
+runCompilerM :: Env -> CompilerM a -> IO a
+runCompilerM env m = runReaderT m env
+\end{verbatim}
+\subsection*{Adicionando estilos}
+\label{sec:org15290e9}
+
+\begin{itemize}
+\item Modificando o início do pipeline
+\end{itemize}
+
+\begin{verbatim}
+startPipeline :: IO ()
+startPipeline
+  = do
+      options <- optionsParser
+      case options of
+        Single inp out ->
+          runCompilerM defaultEnv (filePipeline False inp out)
+        Directory inpDir outDir env ->
+          runCompilerM env (directoryPipeline inpDir outDir)
+\end{verbatim}
+\subsection*{Adicionando estilos}
+\label{sec:org190af6e}
+
+\begin{itemize}
+\item Modificando o pipeline de arquivos individuais
+\begin{itemize}
+\item Uso da função \texttt{ask}
+\end{itemize}
+\end{itemize}
+
+\begin{verbatim}
+filePipeline :: Bool -> Input -> Output -> CompilerM ()
+filePipeline dirMode inpFile outFile 
+  = do
+      env <- ask
+      progressMessage dirMode inpFile
+      (title,inpHandle,outHandle) <- liftIO $ createHandles inpFile outFile
+      content <- liftIO $ hGetContents inpHandle
+      let header = title_ title <> stylesheet_ (stylePath env) 
+      res <- pipeline header content
+      writeAndCloseHandles res inpHandle outHandle
+\end{verbatim}
+\subsection*{Adicionando estilos}
+\label{sec:orgeba9b3d}
+
+\begin{itemize}
+\item Demais funções tiveram alterações pontuais
+\begin{itemize}
+\item Modificação da assinatura de tipos
+\item Uso de \texttt{liftIO}.
+\end{itemize}
+\end{itemize}
+\subsection*{Adicionando estilos}
+\label{sec:orgc3ff6f3}
+
+\begin{itemize}
+\item Código contendo essa versão está disponível na branch \texttt{main}.
+\end{itemize}
+\section*{Concluindo}
+\label{sec:orgf6d7850}
+
+\subsection*{Concluindo}
+\label{sec:orgb27dd83}
+
+\begin{itemize}
+\item Com isso, terminamos nossa revisão de Haskell.
+\item Produzimos um compilador de um subconjunto de Markdown para HTML.
+\begin{itemize}
+\item Utilizamos várias bibliotecas úteis de Haskell.
+\item Apresentamos o padrão functional core / imperative shell
+\end{itemize}
+\end{itemize}
+\subsection*{Concluindo}
+\label{sec:org07b93cb}
+
+\begin{itemize}
+\item Utilizamos monad transformers em um exemplo muito simples.
+
+\item Recomendo ver um exemplo um pouco mais interessante disponível no seguinte \href{https://github.com/mgrabmueller/TransformersStepByStep}{repositório}.
+\end{itemize}
+\subsection*{Concluindo}
+\label{sec:org9a15193}
+
+\begin{itemize}
+\item Próxima aula: iniciamos o primeiro tópico de compiladores
+\begin{itemize}
+\item Análise léxica
+\end{itemize}
+\end{itemize}
+\section*{Exercícios}
+\label{sec:org7504a5b}
+
+\subsection*{Exercícios}
+\label{sec:org8963340}
+
+\begin{itemize}
+\item Em exercícios anteriores, você extendeu o compilador de Markdown para gerar slides beamer.
+\begin{itemize}
+\item Modifique a versão atual para gerar slides para todos os arquivos em um diretório
+\end{itemize}
+\end{itemize}
+\subsection*{Exercícios}
+\label{sec:org960fd16}
+
+\begin{itemize}
+\item Modifique o parser de argumentos de linha de comando para permitir a especificação do
+template de slides a ser usado como argumento de linha de comando.
+\begin{itemize}
+\item \href{https://latex-beamer.com/tutorials/beamer-themes/}{Lista de templates disponíveis}.
+\end{itemize}
+\item Entrega via Github classroom.
+\end{itemize}
+\end{document}

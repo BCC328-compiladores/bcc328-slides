@@ -1,0 +1,607 @@
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\author{Construção de compiladores I}
+\date{}
+\title{Revisão de Haskell}
+\hypersetup{
+ pdfauthor={Construção de compiladores I},
+ pdftitle={Revisão de Haskell},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 28.2 (Org mode 9.7)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+\section*{Objetivos}
+\label{sec:orgbbdbe53}
+
+\subsection*{Objetivos}
+\label{sec:org6f1efe3}
+
+\begin{itemize}
+\item Revisar conceitos sobre mônadas e separação entre funções puras e
+impuras em Haskell.
+
+\item Finalização da implementação do compilador.
+\end{itemize}
+\section*{Markdown}
+\label{sec:org3d9c5b5}
+
+\subsection*{Markdown}
+\label{sec:org9aefd59}
+
+\begin{itemize}
+\item Iniciamos nosso curso com o projeto de um mini-compilador de Markdown.
+
+\item Objetivo: revisar conceitos da linguagem Haskell
+\end{itemize}
+\subsection*{Markdown}
+\label{sec:orgcdab37e}
+
+\begin{itemize}
+\item Até o momento:
+\begin{itemize}
+\item Fazemos o parsing de markdown para uma AST.
+\item Definimos uma EDSL para gerar HTML.
+\item Transformamos a AST em HTML usando a EDSL.
+\end{itemize}
+
+\item O que falta?
+\end{itemize}
+\subsection*{Markdown}
+\label{sec:org3b8cd02}
+
+\begin{itemize}
+\item Interação com usuário
+\begin{itemize}
+\item Receber nome de arquivos de entrada / saída.
+\item Ler o arquivo de entrada.
+\item Escrever o arquivo de resultado.
+\end{itemize}
+\end{itemize}
+\subsection*{Markdown}
+\label{sec:orgf5d878f}
+
+\begin{itemize}
+\item I/O é uma forma de efeito colateral
+\begin{itemize}
+\item Resultado não depende apenas dos argumentos de entrada do código.
+\end{itemize}
+
+\item A priori, Haskell impõe que todas as funções devem ser \textbf{puras}.
+\begin{itemize}
+\item Pura = sem efeitos colaterais
+\end{itemize}
+\end{itemize}
+\subsection*{Markdown}
+\label{sec:org0c1bcb2}
+
+\begin{itemize}
+\item Mas como fazer I/O ou outro tipo de efeito colateral em Haskell?
+\begin{itemize}
+\item Devemos utilizar \textbf{mônadas}.
+\end{itemize}
+\end{itemize}
+\section*{Mônadas}
+\label{sec:org61f7d6b}
+
+\subsection*{Mônadas}
+\label{sec:org4e4e3f5}
+
+\begin{itemize}
+\item Haskell é uma linguagem puramente funcional.
+
+\item Por padrão, todas as funções em Haskell são puras
+\begin{itemize}
+\item Não possuem efeitos colaterais: I/O, estado, exceções.
+\end{itemize}
+\end{itemize}
+\subsection*{Mônadas}
+\label{sec:orgfdd5163}
+
+\begin{itemize}
+\item Funções puras são garantidas de retornar o mesmo resultado para mesmas entradas.
+\begin{itemize}
+\item Facilita o teste.
+\item Facilita o raciocínio formal.
+\end{itemize}
+\end{itemize}
+\subsection*{Mônadas}
+\label{sec:org1cf0149}
+
+\begin{itemize}
+\item Porém, para um compilador, precisamos de entrada e saída.
+\end{itemize}
+\subsection*{Mônadas}
+\label{sec:orgd8dea09}
+
+\begin{itemize}
+\item Para lidar com efeitos colaterais, Haskell utiliza o conceito de mônada.
+\begin{itemize}
+\item Mônadas são tipos que implementam a seguinte classe:
+\end{itemize}
+\end{itemize}
+
+\begin{verbatim}
+class Applicative m => Monad m where
+   return :: a -> m a
+   (>>=)  :: m a -> (a -> m b) -> m b
+\end{verbatim}
+\subsection*{Mônadas}
+\label{sec:org78463e6}
+
+\begin{itemize}
+\item O operador \texttt{>{}>{}=} permite compor sequencialmente computações em uma mônada.
+
+\item Exemplo: ler um nome e imprimir uma mensagem de saudação.
+\end{itemize}
+
+\begin{verbatim}
+ex :: IO ()
+ex = getLine >>= \ s -> putStrLn $ "Hello " ++ s
+\end{verbatim}
+\subsection*{Mônadas}
+\label{sec:org4f5e5ea}
+
+\begin{verbatim}
+getLine >>= \ s -> putStrLn $ "Hello " ++ s
+\end{verbatim}
+
+\begin{itemize}
+\item Entendendo o código:
+\begin{itemize}
+\item Primeiro usamos \texttt{getLine} para ler uma string do console.
+\item O resultado é passado para a função
+\end{itemize}
+\end{itemize}
+
+\begin{verbatim}
+\ s -> putStrLn $ "Hello " ++ s
+\end{verbatim}
+\subsection*{Mônadas}
+\label{sec:org8fddda5}
+
+\begin{itemize}
+\item Uso de \texttt{>{}>{}=} prejudica a legibilidade do código.
+
+\item Solução: notação \textbf{do}
+\end{itemize}
+\subsection*{Mônadas}
+\label{sec:org47ae72e}
+
+\begin{itemize}
+\item A notação \texttt{do} pode simplificar computações em mônadas.
+\begin{itemize}
+\item Compilador traduz o \texttt{do} para usos de \texttt{>{}>{}=}.
+\end{itemize}
+\end{itemize}
+
+\begin{verbatim}
+ex1 :: IO ()
+ex1 = do
+     s <- getLine
+     putStrLn $ "Hello " ++ s
+\end{verbatim}
+\subsection*{Mônadas}
+\label{sec:orga600002}
+
+\begin{itemize}
+\item Então, utilizaremos mônadas apenas para realizar I/O?
+\begin{itemize}
+\item Sim!
+\end{itemize}
+\item Toda a lógica será implementada por funções \textbf{puras}.
+\begin{itemize}
+\item Não dependem de fatores externos ao programa.
+\end{itemize}
+\end{itemize}
+\subsection*{Mônadas}
+\label{sec:org2f62bdf}
+
+\begin{itemize}
+\item Padrão: Functional core / imperative shell
+\begin{itemize}
+\item Funcionalidade central implementada por funções puras.
+\item Código puro ``envolvido por uma casca'' de funções em mônadas
+\end{itemize}
+\end{itemize}
+\subsection*{Mônadas}
+\label{sec:org7b5146b}
+
+\begin{itemize}
+\item Para leitura / escrita utilizaremos a biblioteca \texttt{System.IO}
+
+\item Tipos utilizados:
+\end{itemize}
+
+\begin{verbatim}
+  FilePath
+  Handle
+  data IOMode
+     = ReadMode
+     | WriteMode
+     | AppendMode
+     | ReadWriteMode
+\end{verbatim}
+\subsection*{Mônadas}
+\label{sec:orgf70ee6d}
+
+\begin{itemize}
+\item Para leitura / escrita utilizaremos a biblioteca \texttt{System.IO}
+
+\item Funções utilizadas:
+\end{itemize}
+
+\begin{verbatim}
+openFile :: FilePath -> IOMode -> IO Handle
+hClose :: Handle -> IO ()
+stdin :: Handle
+stdout :: Handle
+hGetContents :: Handle -> IO String
+hPutStrLn :: Handle -> String -> IO () 
+\end{verbatim}
+\subsection*{Mônadas}
+\label{sec:orgb0964bc}
+
+\begin{itemize}
+\item Utilizamos as funções anteriores para leitura / escrita de dados usando I/O.
+
+\item Composição feita utilização notação \textbf{do}
+\end{itemize}
+\subsection*{Mônadas}
+\label{sec:org0013c91}
+
+\begin{itemize}
+\item Exemplo: Confirmar a reescrita de arquivos de saída.
+\end{itemize}
+
+\begin{verbatim}
+confirmOverwrite :: FilePath -> IO Bool
+confirmOverwrite path
+  = do
+      putStrLn $ "File:\n" ++ path ++ "\nexists. Confirm overwrite?"
+      answer <- getLine
+      case answer of
+        "y" -> return True
+        "n" -> return False
+        _   -> do
+                 putStrLn "Invalid answer! Please type y or n."
+                 confirmOverwrite path
+\end{verbatim}
+\subsection*{Mônadas}
+\label{sec:orgafab664}
+
+\begin{itemize}
+\item Com isso a implementação está concluída?
+\begin{itemize}
+\item Não! Falta a \emph{interação} com o usuário.
+\end{itemize}
+
+\item Devemos receber argumentos de linha de comando e processá-los de maneira adequada.
+\end{itemize}
+\section*{Interação em console}
+\label{sec:org2f5c801}
+
+\subsection*{Interação em console}
+\label{sec:org10937a4}
+
+\begin{itemize}
+\item Qual o formato da entrada esperado pela ferramenta?
+\begin{itemize}
+\item Devemos especificar o arquivo de entrada e o de saída
+\item Se não for especificado, a saída deverá ser o console padrão.
+\end{itemize}
+\end{itemize}
+\subsection*{Interação em console}
+\label{sec:orgcb99f2a}
+
+\begin{description}
+\item[{Em princípio, podemos utilizar a função \textasciitilde{}getArgs}] IO [String]\textasciitilde{}.
+\begin{itemize}
+\item Analisamos a lista de \texttt{String} obtida.
+\item Validamos se os argumentos estão corretos.
+\item Emitir mensagens de erro / ajuda
+\end{itemize}
+\end{description}
+\subsection*{Interação em console}
+\label{sec:orgc2c6ab6}
+
+\begin{itemize}
+\item Muitas tarefas\ldots{}
+
+\item Melhor utilizar uma biblioteca especializada para isso.
+\begin{itemize}
+\item Utilizaremos a biblioteca \texttt{optparse-applicative}.
+\end{itemize}
+\end{itemize}
+\subsection*{Interação em console}
+\label{sec:org7ff2bb8}
+
+\begin{itemize}
+\item Para usar essa biblioteca, devemos:
+\begin{itemize}
+\item Definir tipos de dados para opções de entrada do programa
+\item Definir o parser destas opções
+\item Casamento de padrão sobre as opções
+\end{itemize}
+\end{itemize}
+\subsection*{Interação em console}
+\label{sec:orga0683fe}
+
+\begin{itemize}
+\item Representando o argumento de entrada
+\end{itemize}
+
+\begin{verbatim}
+data Input
+  = Stdin
+  | FileInput FilePath
+\end{verbatim}
+\subsection*{Interação em console}
+\label{sec:org5456343}
+
+\begin{itemize}
+\item Representando o argumento de saída
+\end{itemize}
+
+\begin{verbatim}
+data Output
+  = Stdout
+  | FileOutput FilePath
+  deriving Show
+\end{verbatim}
+\subsection*{Interação em console}
+\label{sec:org83fd625}
+
+\begin{itemize}
+\item Agrupando entrada e saída
+\end{itemize}
+
+\begin{verbatim}
+data Options
+  = Single Input Output
+  deriving Show
+\end{verbatim}
+\subsection*{Interação em console}
+\label{sec:orgc4fb88e}
+
+\begin{itemize}
+\item Criando o parser usando \texttt{optparse-applicative}.
+\begin{itemize}
+\item Lidando apenas com entrada por arquivos.
+\end{itemize}
+\end{itemize}
+
+\begin{verbatim}
+pInputFile :: Parser Input
+pInputFile = FileInput <$> parser
+  where
+    parser =
+      strOption
+        ( long "input"
+          <> short 'i'
+          <> metavar "FILE"
+          <> help "Input file"
+        )
+\end{verbatim}
+\subsection*{Interação em console}
+\label{sec:orgeaed933}
+
+\begin{itemize}
+\item Criando o parser para entradas
+\item Função \texttt{optional}
+\begin{itemize}
+\item Retorna \texttt{Nothing} em caso de erro de parsing.
+\item Retorna o resultado no construtor \texttt{Just}.
+\end{itemize}
+\end{itemize}
+
+\begin{verbatim}
+pSingleInput :: Parser Input
+pSingleInput =
+  fromMaybe Stdin <$> optional pInputFile
+\end{verbatim}
+\subsection*{Interação em console}
+\label{sec:orgd042921}
+
+\begin{itemize}
+\item Parser para saída segue o mesmo formato.
+\end{itemize}
+\subsection*{Interação em console}
+\label{sec:orgc79486b}
+
+\begin{itemize}
+\item Definição do parser.
+\end{itemize}
+
+\begin{verbatim}
+pSingle :: Parser Options
+pSingle =
+  Single <$> pSingleInput <*> pSingleOutput
+\end{verbatim}
+\subsection*{Interação em console}
+\label{sec:org378e48f}
+
+\begin{itemize}
+\item Para executar o parser, precisamos adicionar informações para mensagens de ajuda.
+
+\item Para isso, devemos criar um valor de tipo \texttt{ParserInfo}
+\end{itemize}
+
+\begin{verbatim}
+opts :: ParserInfo Options
+opts = info (pSingle <**> helper)
+            (fullDesc                            <>
+             header "BCC328 - Markdown compiler" <>
+             progDesc "Simplified Markdown compiler")
+\end{verbatim}
+\subsection*{Interação em console}
+\label{sec:orgd4bdf2d}
+
+\begin{itemize}
+\item Com isso, a obtenção de quais opções foram passadas é dada por:
+\end{itemize}
+
+\begin{verbatim}
+parse :: IO Options
+parse = execParser opts
+\end{verbatim}
+\subsection*{Interação em console}
+\label{sec:org62f97c4}
+
+\begin{itemize}
+\item O parser construído automatiza tratamento de erros em opções e mensagens de ajuda.
+\end{itemize}
+\subsection*{Interação em console}
+\label{sec:org6561e77}
+
+\begin{itemize}
+\item Valores to tipo \texttt{Option} são usados para criar \texttt{Handles}:
+\end{itemize}
+
+\begin{verbatim}
+createHandles :: Options -> IO (String, Handle, Handle)
+createHandles (Single inp out)
+  = do
+      (title, inpHandle) <- createInputHandle inp
+      outHandle <- createOutputHandle out
+      return (title, inpHandle, outHandle)
+\end{verbatim}
+\subsection*{Interação em console}
+\label{sec:orgc5a89f7}
+
+\begin{itemize}
+\item Criação de \texttt{Handle} de entrada
+\end{itemize}
+
+\begin{verbatim}
+createInputHandle :: Input -> IO (String, Handle)
+createInputHandle Stdin = return ("", stdin)
+createInputHandle (FileInput path)
+  = (,) path <$> openFile path ReadMode
+\end{verbatim}
+\subsection*{Interação em console}
+\label{sec:org02b93b2}
+
+\begin{itemize}
+\item Criação de \texttt{Handle} de saída é similar.
+\end{itemize}
+\subsection*{Interação em console}
+\label{sec:orgd2b240b}
+
+\begin{itemize}
+\item Criamos um parser para ler as entradas do compilador.
+
+\item O que falta?
+\begin{itemize}
+\item Criarmos um pipeline que irá ``ligar'' a casca de IO com o núcleo do compilador.
+\end{itemize}
+\end{itemize}
+\subsection*{Interação em console}
+\label{sec:org6a4f19b}
+
+\begin{itemize}
+\item Inicialização do pipeline
+\begin{itemize}
+\item Criação de handles de entrada e de saída
+\end{itemize}
+\end{itemize}
+
+\begin{verbatim}
+startPipeline :: String -> Handle -> Handle -> IO ()
+startPipeline title inpHandle outHandle
+  = do
+      content <- hGetContents inpHandle
+      res <- pipeline (title_ title) content
+      hPutStrLn outHandle res
+\end{verbatim}
+\subsection*{Interação em console}
+\label{sec:orga9ccd39}
+
+\begin{itemize}
+\item Definição do pipeline
+\end{itemize}
+
+\begin{verbatim}
+pipeline :: Head -> String -> IO String
+pipeline title content
+  = case frontEnd content of
+      Left err -> putStrLn err >> exitFailure
+      Right ast -> return $ render $ backEnd title ast
+\end{verbatim}
+\subsection*{Interação em console}
+\label{sec:org835d39d}
+
+\begin{itemize}
+\item Definição da função \texttt{main}
+\end{itemize}
+
+\begin{verbatim}
+main :: IO ()
+main = do
+  options <- parse
+  (title,inpHandle,outHandle) <- createHandles options
+  startPipeline title inpHandle outHandle
+  hClose inpHandle
+  hClose outHandle
+\end{verbatim}
+\section*{Concluindo}
+\label{sec:orge83d2c4}
+
+\subsection*{Concluindo}
+\label{sec:org40f2f85}
+
+\begin{itemize}
+\item Apresentamos o projeto de um compilador de um versão simplificada de Markdown para HTML.
+
+\item Compilador segue o padrão: functional core / imperative shell
+\end{itemize}
+\section*{Exercícios}
+\label{sec:org750f4eb}
+
+\subsection*{Exercícios}
+\label{sec:org89e41c2}
+
+\begin{itemize}
+\item Estenda a implementação do compilador desenvolvido para prover
+suporte a produção de slides \LaTeX{} usando beamer.
+\end{itemize}
+\subsection*{Exercícios}
+\label{sec:org9628204}
+
+\begin{itemize}
+\item Para isso você deverá:
+\begin{itemize}
+\item Criar uma EDSL para slides beamer.
+\item Traduzir documentos markdown para a EDSL
+\begin{itemize}
+\item Considere que cada header de level 1 é um novo slide.
+\end{itemize}
+\item Modificar a ``casca'' de IO para incluir a opção de produção de slides.
+\end{itemize}
+\end{itemize}
+\subsection*{Exercícios}
+\label{sec:org6596f66}
+
+\begin{itemize}
+\item Estender a estrutura de testes para validar a sua implementação.
+\end{itemize}
+\subsection*{Exercícios}
+\label{sec:org80ab502}
+
+\begin{itemize}
+\item Você pode considerar útil a documentação da biblioteca \href{https://github.com/pcapriotti/optparse-applicative}{optparse-applicative}.
+\end{itemize}
+\end{document}
